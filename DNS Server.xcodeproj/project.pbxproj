@@ -1,0 +1,256 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		5367A6F3169497AA002534FF /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5367A6F2169497AA002534FF /* CoreFoundation.framework */; };
+		5367A6F9169497AA002534FF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5367A6F7169497AA002534FF /* InfoPlist.strings */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		5367A6EF169497AA002534FF /* DNS Server.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "DNS Server.bundle"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5367A6F2169497AA002534FF /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		5367A6F6169497AA002534FF /* DNS Server-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "DNS Server-Info.plist"; sourceTree = "<group>"; };
+		5367A6F8169497AA002534FF /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		5367A6FA169497AA002534FF /* DNS Server-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DNS Server-Prefix.pch"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		5367A6EC169497AA002534FF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5367A6F3169497AA002534FF /* CoreFoundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		5367A6E4169497AA002534FF = {
+			isa = PBXGroup;
+			children = (
+				5367A6F4169497AA002534FF /* DNS Server */,
+				5367A6F1169497AA002534FF /* Frameworks */,
+				5367A6F0169497AA002534FF /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		5367A6F0169497AA002534FF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5367A6EF169497AA002534FF /* DNS Server.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		5367A6F1169497AA002534FF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				5367A6F2169497AA002534FF /* CoreFoundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		5367A6F4169497AA002534FF /* DNS Server */ = {
+			isa = PBXGroup;
+			children = (
+				5367A6F5169497AA002534FF /* Supporting Files */,
+			);
+			path = "DNS Server";
+			sourceTree = "<group>";
+		};
+		5367A6F5169497AA002534FF /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				5367A6F6169497AA002534FF /* DNS Server-Info.plist */,
+				5367A6F7169497AA002534FF /* InfoPlist.strings */,
+				5367A6FA169497AA002534FF /* DNS Server-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5367A6EE169497AA002534FF /* DNS Server */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5367A6FD169497AA002534FF /* Build configuration list for PBXNativeTarget "DNS Server" */;
+			buildPhases = (
+				5367A6EB169497AA002534FF /* Sources */,
+				5367A6EC169497AA002534FF /* Frameworks */,
+				5367A6ED169497AA002534FF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "DNS Server";
+			productName = "DNS Server";
+			productReference = 5367A6EF169497AA002534FF /* DNS Server.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5367A6E6169497AA002534FF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0450;
+				ORGANIZATIONNAME = "Keith Duncan";
+			};
+			buildConfigurationList = 5367A6E9169497AA002534FF /* Build configuration list for PBXProject "DNS Server" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 5367A6E4169497AA002534FF;
+			productRefGroup = 5367A6F0169497AA002534FF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				5367A6EE169497AA002534FF /* DNS Server */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		5367A6ED169497AA002534FF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5367A6F9169497AA002534FF /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5367A6EB169497AA002534FF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		5367A6F7169497AA002534FF /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				5367A6F8169497AA002534FF /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		5367A6FB169497AA002534FF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		5367A6FC169497AA002534FF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		5367A6FE169497AA002534FF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "DNS Server/DNS Server-Prefix.pch";
+				INFOPLIST_FILE = "DNS Server/DNS Server-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = bundle;
+			};
+			name = Debug;
+		};
+		5367A6FF169497AA002534FF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "DNS Server/DNS Server-Prefix.pch";
+				INFOPLIST_FILE = "DNS Server/DNS Server-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = bundle;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		5367A6E9169497AA002534FF /* Build configuration list for PBXProject "DNS Server" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5367A6FB169497AA002534FF /* Debug */,
+				5367A6FC169497AA002534FF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5367A6FD169497AA002534FF /* Build configuration list for PBXNativeTarget "DNS Server" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5367A6FE169497AA002534FF /* Debug */,
+				5367A6FF169497AA002534FF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5367A6E6169497AA002534FF /* Project object */;
+}
