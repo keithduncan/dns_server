@@ -9,14 +9,69 @@
 /* Begin PBXBuildFile section */
 		5367A6F3169497AA002534FF /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5367A6F2169497AA002534FF /* CoreFoundation.framework */; };
 		5367A6F9169497AA002534FF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5367A6F7169497AA002534FF /* InfoPlist.strings */; };
+		5367A7011694980A002534FF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5367A7001694980A002534FF /* main.m */; };
+		5367A7131694981F002534FF /* CoreNetworking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5367A70C16949813002534FF /* CoreNetworking.framework */; };
+		5367A7151694982D002534FF /* CoreNetworking.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 5367A70C16949813002534FF /* CoreNetworking.framework */; };
+		5367A7181694A651002534FF /* AFNetworkDomainServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 5367A7171694A651002534FF /* AFNetworkDomainServer.m */; };
+		5367A71A1694A6E2002534FF /* db.example.com in Resources */ = {isa = PBXBuildFile; fileRef = 5367A7191694A6E2002534FF /* db.example.com */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		5367A70B16949813002534FF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5367A70216949813002534FF /* CoreNetworking.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 5370E0710F5B0571008F5991;
+			remoteInfo = CoreNetworking;
+		};
+		5367A70D16949813002534FF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5367A70216949813002534FF /* CoreNetworking.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 53D4568116209630006FAD65;
+			remoteInfo = "CoreNetworking Tests";
+		};
+		5367A70F16949813002534FF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5367A70216949813002534FF /* CoreNetworking.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 53BEF6A10F5B6A2700063B8D;
+			remoteInfo = "CoreNetworking Touch";
+		};
+		5367A7111694981B002534FF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5367A70216949813002534FF /* CoreNetworking.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 5370E0700F5B0571008F5991;
+			remoteInfo = CoreNetworking;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		5367A71416949822002534FF /* Copy Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				5367A7151694982D002534FF /* CoreNetworking.framework in Copy Frameworks */,
+			);
+			name = "Copy Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		5367A6EF169497AA002534FF /* DNS Server.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "DNS Server.bundle"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5367A6EF169497AA002534FF /* DNS Server.app */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "DNS Server.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5367A6F2169497AA002534FF /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		5367A6F6169497AA002534FF /* DNS Server-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "DNS Server-Info.plist"; sourceTree = "<group>"; };
 		5367A6F8169497AA002534FF /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		5367A6FA169497AA002534FF /* DNS Server-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DNS Server-Prefix.pch"; sourceTree = "<group>"; };
+		5367A7001694980A002534FF /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		5367A70216949813002534FF /* CoreNetworking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CoreNetworking.xcodeproj; path = ../Amber/CoreNetworking/CoreNetworking.xcodeproj; sourceTree = "<group>"; };
+		5367A7161694A651002534FF /* AFNetworkDomainServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkDomainServer.h; sourceTree = "<group>"; };
+		5367A7171694A651002534FF /* AFNetworkDomainServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkDomainServer.m; sourceTree = "<group>"; };
+		5367A7191694A6E2002534FF /* db.example.com */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = db.example.com; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -24,6 +79,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5367A7131694981F002534FF /* CoreNetworking.framework in Frameworks */,
 				5367A6F3169497AA002534FF /* CoreFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -43,7 +99,7 @@
 		5367A6F0169497AA002534FF /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				5367A6EF169497AA002534FF /* DNS Server.bundle */,
+				5367A6EF169497AA002534FF /* DNS Server.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -51,6 +107,7 @@
 		5367A6F1169497AA002534FF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				5367A70216949813002534FF /* CoreNetworking.xcodeproj */,
 				5367A6F2169497AA002534FF /* CoreFoundation.framework */,
 			);
 			name = Frameworks;
@@ -59,6 +116,10 @@
 		5367A6F4169497AA002534FF /* DNS Server */ = {
 			isa = PBXGroup;
 			children = (
+				5367A7001694980A002534FF /* main.m */,
+				5367A7161694A651002534FF /* AFNetworkDomainServer.h */,
+				5367A7171694A651002534FF /* AFNetworkDomainServer.m */,
+				5367A7191694A6E2002534FF /* db.example.com */,
 				5367A6F5169497AA002534FF /* Supporting Files */,
 			);
 			path = "DNS Server";
@@ -74,6 +135,16 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		5367A70316949813002534FF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5367A70C16949813002534FF /* CoreNetworking.framework */,
+				5367A70E16949813002534FF /* CoreNetworking Tests.octest */,
+				5367A71016949813002534FF /* libCoreNetworking.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -84,14 +155,16 @@
 				5367A6EB169497AA002534FF /* Sources */,
 				5367A6EC169497AA002534FF /* Frameworks */,
 				5367A6ED169497AA002534FF /* Resources */,
+				5367A71416949822002534FF /* Copy Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				5367A7121694981B002534FF /* PBXTargetDependency */,
 			);
 			name = "DNS Server";
 			productName = "DNS Server";
-			productReference = 5367A6EF169497AA002534FF /* DNS Server.bundle */;
+			productReference = 5367A6EF169497AA002534FF /* DNS Server.app */;
 			productType = "com.apple.product-type.bundle";
 		};
 /* End PBXNativeTarget section */
@@ -113,6 +186,12 @@
 			mainGroup = 5367A6E4169497AA002534FF;
 			productRefGroup = 5367A6F0169497AA002534FF /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 5367A70316949813002534FF /* Products */;
+					ProjectRef = 5367A70216949813002534FF /* CoreNetworking.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				5367A6EE169497AA002534FF /* DNS Server */,
@@ -120,12 +199,37 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXReferenceProxy section */
+		5367A70C16949813002534FF /* CoreNetworking.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = CoreNetworking.framework;
+			remoteRef = 5367A70B16949813002534FF /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		5367A70E16949813002534FF /* CoreNetworking Tests.octest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = "CoreNetworking Tests.octest";
+			remoteRef = 5367A70D16949813002534FF /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		5367A71016949813002534FF /* libCoreNetworking.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libCoreNetworking.a;
+			remoteRef = 5367A70F16949813002534FF /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
 /* Begin PBXResourcesBuildPhase section */
 		5367A6ED169497AA002534FF /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				5367A6F9169497AA002534FF /* InfoPlist.strings in Resources */,
+				5367A71A1694A6E2002534FF /* db.example.com in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -136,10 +240,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5367A7011694980A002534FF /* main.m in Sources */,
+				5367A7181694A651002534FF /* AFNetworkDomainServer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		5367A7121694981B002534FF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CoreNetworking;
+			targetProxy = 5367A7111694981B002534FF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		5367A6F7169497AA002534FF /* InfoPlist.strings */ = {
@@ -212,8 +326,10 @@
 				GCC_PREFIX_HEADER = "DNS Server/DNS Server-Prefix.pch";
 				INFOPLIST_FILE = "DNS Server/DNS Server-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
+				MACH_O_TYPE = mh_execute;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = bundle;
+				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
 		};
@@ -225,8 +341,10 @@
 				GCC_PREFIX_HEADER = "DNS Server/DNS Server-Prefix.pch";
 				INFOPLIST_FILE = "DNS Server/DNS Server-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
+				MACH_O_TYPE = mh_execute;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = bundle;
+				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
 		};
