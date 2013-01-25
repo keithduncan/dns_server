@@ -8,6 +8,10 @@
 
 #import <CoreNetworking/CoreNetworking.h>
 
+@class AFNetworkDomainZone;
+
 @interface AFNetworkDomainServer : AFNetworkServer
+
+- (void)addZone:(AFNetworkDomainZone *)zone;
 
 @end
