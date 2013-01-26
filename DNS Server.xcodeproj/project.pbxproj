@@ -7,56 +7,47 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		531DFD5616B43D1500D6EE07 /* CoreNetworking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 531DFD4C16B43CF900D6EE07 /* CoreNetworking.framework */; };
+		531DFD5716B43D1900D6EE07 /* CoreNetworking.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 531DFD4C16B43CF900D6EE07 /* CoreNetworking.framework */; };
 		532110101699FEC700D26765 /* AFNetworkDomainRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 5321100F1699FEC700D26765 /* AFNetworkDomainRecord.m */; };
 		53211016169A018800D26765 /* libresolv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 53211015169A018800D26765 /* libresolv.dylib */; };
 		5367A6F9169497AA002534FF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5367A6F7169497AA002534FF /* InfoPlist.strings */; };
 		5367A7011694980A002534FF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5367A7001694980A002534FF /* main.m */; };
-		5367A7131694981F002534FF /* CoreNetworking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5367A70C16949813002534FF /* CoreNetworking.framework */; };
-		5367A7151694982D002534FF /* CoreNetworking.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 5367A70C16949813002534FF /* CoreNetworking.framework */; };
 		5367A7181694A651002534FF /* AFNetworkDomainServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 5367A7171694A651002534FF /* AFNetworkDomainServer.m */; };
 		5367A71A1694A6E2002534FF /* db.example.com in Resources */ = {isa = PBXBuildFile; fileRef = 5367A7191694A6E2002534FF /* db.example.com */; };
 		5367A71D1694A75C002534FF /* AFNetworkDomainZone.m in Sources */ = {isa = PBXBuildFile; fileRef = 5367A71C1694A75C002534FF /* AFNetworkDomainZone.m */; };
 		538DEA7A169B8DAF00AA0663 /* db.example.local in Resources */ = {isa = PBXBuildFile; fileRef = 538DEA79169B8DAF00AA0663 /* db.example.local */; };
 		53AD518E16A210D600C6646F /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53AD518D16A210D600C6646F /* SenTestingKit.framework */; };
-		53AD519016A210D600C6646F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53AD518F16A210D600C6646F /* Cocoa.framework */; };
 		53AD519A16A210D600C6646F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 53AD519816A210D600C6646F /* InfoPlist.strings */; };
 		53AD51A416A210E900C6646F /* AFNetworkDomainZone_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 53AD51A316A210E900C6646F /* AFNetworkDomainZone_Tests.m */; };
 		53AD51A516A210F900C6646F /* AFNetworkDomainZone.m in Sources */ = {isa = PBXBuildFile; fileRef = 5367A71C1694A75C002534FF /* AFNetworkDomainZone.m */; };
-		53AD51A616A210FD00C6646F /* CoreNetworking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5367A70C16949813002534FF /* CoreNetworking.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		5367A70B16949813002534FF /* PBXContainerItemProxy */ = {
+		531DFD4B16B43CF900D6EE07 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 5367A70216949813002534FF /* CoreNetworking.xcodeproj */;
+			containerPortal = 531DFD4216B43CF900D6EE07 /* CoreNetworking.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 5370E0710F5B0571008F5991;
 			remoteInfo = CoreNetworking;
 		};
-		5367A70D16949813002534FF /* PBXContainerItemProxy */ = {
+		531DFD4D16B43CF900D6EE07 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 5367A70216949813002534FF /* CoreNetworking.xcodeproj */;
+			containerPortal = 531DFD4216B43CF900D6EE07 /* CoreNetworking.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 53D4568116209630006FAD65;
 			remoteInfo = "CoreNetworking Tests";
 		};
-		5367A70F16949813002534FF /* PBXContainerItemProxy */ = {
+		531DFD4F16B43CF900D6EE07 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 5367A70216949813002534FF /* CoreNetworking.xcodeproj */;
+			containerPortal = 531DFD4216B43CF900D6EE07 /* CoreNetworking.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 53BEF6A10F5B6A2700063B8D;
 			remoteInfo = "CoreNetworking Touch";
 		};
-		5367A7111694981B002534FF /* PBXContainerItemProxy */ = {
+		531DFD5416B43D1400D6EE07 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 5367A70216949813002534FF /* CoreNetworking.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 5370E0700F5B0571008F5991;
-			remoteInfo = CoreNetworking;
-		};
-		53AD51A716A2110200C6646F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5367A70216949813002534FF /* CoreNetworking.xcodeproj */;
+			containerPortal = 531DFD4216B43CF900D6EE07 /* CoreNetworking.xcodeproj */;
 			proxyType = 1;
 			remoteGlobalIDString = 5370E0700F5B0571008F5991;
 			remoteInfo = CoreNetworking;
@@ -70,7 +61,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				5367A7151694982D002534FF /* CoreNetworking.framework in Copy Frameworks */,
+				531DFD5716B43D1900D6EE07 /* CoreNetworking.framework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -78,6 +69,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		531DFD4216B43CF900D6EE07 /* CoreNetworking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CoreNetworking.xcodeproj; path = Externals/CoreNetworking/CoreNetworking.xcodeproj; sourceTree = "<group>"; };
 		5321100E1699FEC700D26765 /* AFNetworkDomainRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkDomainRecord.h; sourceTree = "<group>"; };
 		5321100F1699FEC700D26765 /* AFNetworkDomainRecord.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkDomainRecord.m; sourceTree = "<group>"; };
 		53211015169A018800D26765 /* libresolv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libresolv.dylib; path = usr/lib/libresolv.dylib; sourceTree = SDKROOT; };
@@ -86,7 +78,6 @@
 		5367A6F8169497AA002534FF /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		5367A6FA169497AA002534FF /* DNS Server-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DNS Server-Prefix.pch"; sourceTree = "<group>"; };
 		5367A7001694980A002534FF /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		5367A70216949813002534FF /* CoreNetworking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CoreNetworking.xcodeproj; path = ../Amber/CoreNetworking/CoreNetworking.xcodeproj; sourceTree = "<group>"; };
 		5367A7161694A651002534FF /* AFNetworkDomainServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkDomainServer.h; sourceTree = "<group>"; };
 		5367A7171694A651002534FF /* AFNetworkDomainServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkDomainServer.m; sourceTree = "<group>"; };
 		5367A7191694A6E2002534FF /* db.example.com */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = db.example.com; sourceTree = "<group>"; };
@@ -96,7 +87,6 @@
 		53AD518416A2109E00C6646F /* AFNetworkDomainZone+AFNetworkPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AFNetworkDomainZone+AFNetworkPrivate.h"; sourceTree = "<group>"; };
 		53AD518C16A210D600C6646F /* DNS Server Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "DNS Server Tests.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		53AD518D16A210D600C6646F /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
-		53AD518F16A210D600C6646F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		53AD519216A210D600C6646F /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		53AD519316A210D600C6646F /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		53AD519416A210D600C6646F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -113,7 +103,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				53211016169A018800D26765 /* libresolv.dylib in Frameworks */,
-				5367A7131694981F002534FF /* CoreNetworking.framework in Frameworks */,
+				531DFD5616B43D1500D6EE07 /* CoreNetworking.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -121,15 +111,23 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				53AD51A616A210FD00C6646F /* CoreNetworking.framework in Frameworks */,
 				53AD518E16A210D600C6646F /* SenTestingKit.framework in Frameworks */,
-				53AD519016A210D600C6646F /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		531DFD4316B43CF900D6EE07 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				531DFD4C16B43CF900D6EE07 /* CoreNetworking.framework */,
+				531DFD4E16B43CF900D6EE07 /* CoreNetworking Tests.octest */,
+				531DFD5016B43CF900D6EE07 /* libCoreNetworking.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		5367A6E4169497AA002534FF = {
 			isa = PBXGroup;
 			children = (
@@ -153,9 +151,8 @@
 			isa = PBXGroup;
 			children = (
 				53211015169A018800D26765 /* libresolv.dylib */,
-				5367A70216949813002534FF /* CoreNetworking.xcodeproj */,
+				531DFD4216B43CF900D6EE07 /* CoreNetworking.xcodeproj */,
 				53AD518D16A210D600C6646F /* SenTestingKit.framework */,
-				53AD518F16A210D600C6646F /* Cocoa.framework */,
 				53AD519116A210D600C6646F /* Other Frameworks */,
 			);
 			name = Frameworks;
@@ -187,16 +184,6 @@
 				5367A6FA169497AA002534FF /* DNS Server-Prefix.pch */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		5367A70316949813002534FF /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				5367A70C16949813002534FF /* CoreNetworking.framework */,
-				5367A70E16949813002534FF /* CoreNetworking Tests.octest */,
-				5367A71016949813002534FF /* libCoreNetworking.a */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		53AD519116A210D600C6646F /* Other Frameworks */ = {
@@ -244,7 +231,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				5367A7121694981B002534FF /* PBXTargetDependency */,
+				531DFD5516B43D1400D6EE07 /* PBXTargetDependency */,
 			);
 			name = "DNS Server";
 			productName = "DNS Server";
@@ -263,7 +250,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				53AD51A816A2110200C6646F /* PBXTargetDependency */,
 			);
 			name = "DNS Server Tests";
 			productName = "DNS Server Tests";
@@ -291,8 +277,8 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 5367A70316949813002534FF /* Products */;
-					ProjectRef = 5367A70216949813002534FF /* CoreNetworking.xcodeproj */;
+					ProductGroup = 531DFD4316B43CF900D6EE07 /* Products */;
+					ProjectRef = 531DFD4216B43CF900D6EE07 /* CoreNetworking.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -304,25 +290,25 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		5367A70C16949813002534FF /* CoreNetworking.framework */ = {
+		531DFD4C16B43CF900D6EE07 /* CoreNetworking.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
 			path = CoreNetworking.framework;
-			remoteRef = 5367A70B16949813002534FF /* PBXContainerItemProxy */;
+			remoteRef = 531DFD4B16B43CF900D6EE07 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		5367A70E16949813002534FF /* CoreNetworking Tests.octest */ = {
+		531DFD4E16B43CF900D6EE07 /* CoreNetworking Tests.octest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
 			path = "CoreNetworking Tests.octest";
-			remoteRef = 5367A70D16949813002534FF /* PBXContainerItemProxy */;
+			remoteRef = 531DFD4D16B43CF900D6EE07 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		5367A71016949813002534FF /* libCoreNetworking.a */ = {
+		531DFD5016B43CF900D6EE07 /* libCoreNetworking.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libCoreNetworking.a;
-			remoteRef = 5367A70F16949813002534FF /* PBXContainerItemProxy */;
+			remoteRef = 531DFD4F16B43CF900D6EE07 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -388,15 +374,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		5367A7121694981B002534FF /* PBXTargetDependency */ = {
+		531DFD5516B43D1400D6EE07 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = CoreNetworking;
-			targetProxy = 5367A7111694981B002534FF /* PBXContainerItemProxy */;
-		};
-		53AD51A816A2110200C6646F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = CoreNetworking;
-			targetProxy = 53AD51A716A2110200C6646F /* PBXContainerItemProxy */;
+			targetProxy = 531DFD5416B43D1400D6EE07 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -563,6 +544,7 @@
 				53AD51A116A210D600C6646F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
