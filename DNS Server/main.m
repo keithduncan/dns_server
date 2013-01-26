@@ -20,16 +20,36 @@ static AFNetworkDomainServer *StartDomainServer(void) {
 	[newSchedule scheduleInQueue:dispatch_get_main_queue()];
 	server.schedule = newSchedule;
 	
+	/*
+		Internet Layer + Options
+	 */
+	
 	NSMutableSet *addresses = [NSMutableSet setWithObjects:
 							   AFNetworkSocketPresentationToAddress(@"224.0.0.251", NULL),
 							   AFNetworkSocketPresentationToAddress(@"ff02::fb", NULL),
 							   nil];
 	
+	/*
+		Note
+		
+		IN_MULTICAST(0);
+		IN6_IS_ADDR_MULTICAST(0);
+		
+		join multicast groups automatically based on whether the address is a multicast group, or provide configurable IP layer options on AFNetworkSocket
+	 */
+#warning this relies on mDNSResponder joining the multicast group, we should join it too so not to rely on that
+	
+	/*
+		Transport Layer + Options
+	 */
 	uint16_t port = 5353;
 	
+	/*
+		Note
+		
+		needs to set SO_REUSEADDR on the socket for the bind to succeed when mDNSResponder is already bound to the port
+	 */
 #warning this relies on the debug-only options set in AFNetworkSocket for reuse address and reuse port, these need to be configurable for use in release configuration too for binding these addresses to work in the presence of mDNSResponder
-	
-#warning this relies on mDNSResponder joining the multicast group, we should join it too so not to rely on that
 	
 	NSMutableSet *newAddresses = [NSMutableSet set];
 	for (NSData *currentAddress in addresses) {
