@@ -48,6 +48,9 @@ class		= "IN"
 ;	incomplete list of record types, but we're unlikely to need to return those unlisted, support should be easy to add if need be
 type		= "A" | "AAAA" | "MX" | "NS" | "PTR" | "SOA" | "SRV" | "TXT"
 
+rdata		= ( "(" 1*( data [ comment ] [ CR ] ) ")" ) | data
+data		= 1*( TEXT )
+
 blank		= LWS
 
 name		= "@" | DN | FQDN
