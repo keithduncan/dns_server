@@ -96,6 +96,7 @@
 		53AD519E16A210D600C6646F /* DNS Server Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DNS Server Tests-Prefix.pch"; sourceTree = "<group>"; };
 		53AD51A216A210E900C6646F /* AFNetworkDomainZone_Tests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkDomainZone_Tests.h; sourceTree = "<group>"; };
 		53AD51A316A210E900C6646F /* AFNetworkDomainZone_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkDomainZone_Tests.m; sourceTree = "<group>"; };
+		53F8FB7B16B49DAD00241FD3 /* Parser Notes.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Parser Notes.md"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -171,6 +172,7 @@
 				5321100E1699FEC700D26765 /* AFNetworkDomainRecord.h */,
 				5321100F1699FEC700D26765 /* AFNetworkDomainRecord.m */,
 				53A709B816B48F4B009B1E4C /* zone.bnf */,
+				53F8FB7B16B49DAD00241FD3 /* Parser Notes.md */,
 				538DEA79169B8DAF00AA0663 /* db.example.local */,
 				5367A7191694A6E2002534FF /* db.example.com */,
 				5367A6F5169497AA002534FF /* Supporting Files */,

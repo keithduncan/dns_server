@@ -186,10 +186,6 @@ static NSString *const AFDomainServerErrorDomain = @"com.thirty-three.corenetwor
 		else if ([zoneScanner scanCharactersFromSet:recordStartCharacterSet intoString:NULL]) {
 			
 		}
-		
-#warning first record should be SOA unless the last (prior to .) label in origin is "local"
-		
-#warning when adding a record check the class of the record, that fixes the class of all other records, if they differ in class return an error, zones files can only include resource records in a single class
 	}
 	
 	if (![zoneScanner isAtEnd]) {
