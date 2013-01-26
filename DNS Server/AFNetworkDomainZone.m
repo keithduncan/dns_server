@@ -73,6 +73,9 @@ static NSString *const AFDomainServerErrorDomain = @"com.thirty-three.corenetwor
 
 - (NSSet *)_parseRecordsFromZoneString:(NSString *)zoneString error:(NSError **)errorRef
 {
+#if 1
+	return nil;
+#else
 	NSScanner *zoneScanner = [NSScanner scannerWithString:zoneString];
 	[zoneScanner setCharactersToBeSkipped:nil];
 	
@@ -200,7 +203,7 @@ static NSString *const AFDomainServerErrorDomain = @"com.thirty-three.corenetwor
 		return NO;
 	}
 	
-	
+#endif
 }
 
 static NSString * (^scanStringFromArray)(NSScanner *, NSArray *) = ^ NSString * (NSScanner *scanner, NSArray *strings) {
