@@ -73,34 +73,33 @@ static NSString *const AFDomainServerErrorDomain = @"com.thirty-three.corenetwor
 
 - (NSSet *)_parseRecordsFromZoneString:(NSString *)zoneString error:(NSError **)errorRef
 {
-#if 1
-	return nil;
-#else
+	NSUInteger recordCapacityHint = [[zoneString componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]] count];
+	NSMutableSet *records = [NSMutableSet setWithCapacity:recordCapacityHint];
+	
+	// Reused character sets
+	
 	NSScanner *zoneScanner = [NSScanner scannerWithString:zoneString];
 	[zoneScanner setCharactersToBeSkipped:nil];
 	
 	NSCharacterSet *whitespaceCharacterSet = [NSCharacterSet whitespaceCharacterSet], *whitespaceAndNewlineCharacterSet = [NSCharacterSet whitespaceAndNewlineCharacterSet];
-	
-	void (^scanWhitespace)(void) = ^ {
+	void (^scanWhitespaceGreedy)(void) = ^ {
 		[zoneScanner scanCharactersFromSet:whitespaceCharacterSet intoString:NULL];
 	};
 	
-	NSUInteger recordCapacityHint = [[zoneString componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]] count];
-	NSMutableSet *records = [NSMutableSet setWithCapacity:recordCapacityHint];
+	NSMutableCharacterSet *recordStartCharacterSet = [[NSMutableCharacterSet alloc] init];
+	[recordStartCharacterSet formUnionWithCharacterSet:[NSCharacterSet whitespaceCharacterSet]];
+	[recordStartCharacterSet addCharactersInString:@"@"];
 	
 	while (![zoneScanner isAtEnd]) {
 		/*
 			Line Parser
 		 */
 		
-		NSMutableCharacterSet *recordStartCharacterSet = [[NSMutableCharacterSet alloc] init];
-		[recordStartCharacterSet formUnionWithCharacterSet:[NSCharacterSet whitespaceCharacterSet]];
-		[recordStartCharacterSet addCharactersInString:@"@"];
-		
 		// Directive
 		if ([zoneScanner scanString:@"$" intoString:NULL]) {
 			NSString *directive = nil;
 			BOOL scanDirective = [zoneScanner scanUpToCharactersFromSet:whitespaceAndNewlineCharacterSet intoString:&directive];
+#warning remove UpTo
 			if (!scanDirective) {
 				break;
 			}
@@ -111,10 +110,11 @@ static NSString *const AFDomainServerErrorDomain = @"com.thirty-three.corenetwor
 			NSError *valueRequiredError = [NSError errorWithDomain:AFDomainServerErrorDomain code:AFNetworkErrorUnknown userInfo:valueRequiredErrorInfo];
 			
 			if ([directive isEqualToString:@"ORIGIN"]) {
-				scanWhitespace();
+				scanWhitespaceGreedy();
 				
 				NSString *originValue = nil;
 				BOOL scanOriginValue = [zoneScanner scanUpToCharactersFromSet:whitespaceAndNewlineCharacterSet intoString:&originValue];
+#warning remove UpTo
 				if (!scanOriginValue) {
 					break;
 				}
@@ -141,12 +141,11 @@ static NSString *const AFDomainServerErrorDomain = @"com.thirty-three.corenetwor
 				self.origin = originValue;
 			}
 			else if ([directive isEqualToString:@"TTL"]) {
-				scanWhitespace();
-				
-#error  this doesn't accommodate for comments trailing the `$TTL val`
+				scanWhitespaceGreedy();
 				
 				NSString *ttlValue = nil;
 				BOOL scanTtlValue = [zoneScanner scanUpToCharactersFromSet:whitespaceAndNewlineCharacterSet intoString:&ttlValue];
+#warning remove UpTo, this doesn't accommodate for comments trailing the `$TTL val`
 				if (!scanTtlValue) {
 					break;
 				}
@@ -181,10 +180,10 @@ static NSString *const AFDomainServerErrorDomain = @"com.thirty-three.corenetwor
 				return NO;
 			}
 			
-			[zoneScanner scanUpToString:<#(NSString *)#> intoString:<#(NSString **)#>
+			
 		}
 		// Record
-		else if ([zoneScanner scanCharactersFromSet:recordStartCharacterSet intoString:NULL) {
+		else if ([zoneScanner scanCharactersFromSet:recordStartCharacterSet intoString:NULL]) {
 			
 		}
 		
@@ -202,8 +201,8 @@ static NSString *const AFDomainServerErrorDomain = @"com.thirty-three.corenetwor
 		}
 		return NO;
 	}
-	
-#endif
+
+	return records;
 }
 
 static NSString * (^scanStringFromArray)(NSScanner *, NSArray *) = ^ NSString * (NSScanner *scanner, NSArray *strings) {
