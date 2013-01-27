@@ -34,6 +34,8 @@
 ;      Square brackets enclose optional elements; "[foo bar]" is
 ;      equivalent to "*1(foo bar)".
 
+zone		= *line
+
 line		= ( directive | record | blank ) LWS [ comment ] newline
 
 directive	= "$" ( origin | ttl )
