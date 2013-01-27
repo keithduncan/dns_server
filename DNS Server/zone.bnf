@@ -42,21 +42,31 @@ ttl-unit	= "w" | "d" | "h" | "m" | "s"
 ;	syntactically <rdata> is the only required field, semantically the preceeding record must provide values for <name>, <class> and <type> or the zone is invalid
 record		= ( LWS | ( name 1*( WS ) ) ) [ ttl-value 1*( WS ) ] [ class 1*( WS ) ] [ type 1*( WS ) ] rdata
 
-;	incomplete list of class types, but we're unlikely to need to return Chaosnet or Hesiod records
+;	incomplete list of class types, but we're unlikely to need to return Chaosnet or Hesiod class records
 class		= "IN"
 
 ;	incomplete list of record types, but we're unlikely to need to return those unlisted, support should be easy to add if need be
 type		= "A" | "AAAA" | "MX" | "NS" | "PTR" | "SOA" | "SRV" | "TXT"
 
+;	rdata can be split across multiple lines with each line optionally carrying a comment before CR
 rdata		= ( "(" 1*( data [ comment ] [ CR ] ) ")" ) | data
-data		= 1*( TEXT )
+;	data can be multiple runs of whitespace separated quoted-data, or a single run of inner-data optionally across multiple lines with whitespace ignored
+data		= ( quoted-data *( WS quoted-data ) ) | 1*( inner-data )
+;	quoted-data can contain whitespace, maximum length of quoted-data is 255 characters
+quoted-data = ( <"> *( inner-data | WS | quoted-pair ) <"> )
+;	if data for a specific resource contains on of the excluded literal characters it must use quoted-data
+inner-data	= <any CHAR except EXCLUDED>
+EXCLUDED	= <"> | ";" | WS | "(" | ")"
+quoted-pair	= "\" CHAR
 
 blank		= LWS
 
-name		= "@" | DN | FQDN
-DN			= label *( "." label ) [ "." "@" ]
+;	either @ to refer to the origin, or a domain name which has the origin appended to make it fully qualified, or a fully qualified domain name, both with an optional wildcard prefix
+name		= "@" | ( [ "*" "." ] ( DN | FQDN ) )
+DN			= label *( "." label )
 FQDN		= 1*( label "." )
 label		= 1*( ALPHA | DIGIT | "-" )
+CHAR        = <any US-ASCII character (octets 0 - 127)>
 UPALPHA     = <any US-ASCII uppercase letter "A".."Z">
 LOALPHA     = <any US-ASCII lowercase letter "a".."z">
 ALPHA       = UPALPHA | LOALPHA
@@ -67,6 +77,7 @@ TEXT        = <any OCTET except CTLs, but including LWS>
 CTL         = <any US-ASCII control character (octets 0 - 31) and DEL (127)>
 
 CR          = <US-ASCII CR, carriage return (13)>
+;	LWS is implicitly optional, minimum of 0 maximum of infinite
 LWS			= *( WS )
 WS			= SP | HT
 SP          = <US-ASCII SP, space (32)>
