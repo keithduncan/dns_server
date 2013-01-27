@@ -83,8 +83,9 @@ comment		= ";" *TEXT
 TEXT		= <any OCTET except CTLs, but including LWS>
 CTL			= <any US-ASCII control character (octets 0 - 31) and DEL (127)>
 
-CR			= <US-ASCII CR, carriage return (13)>
 newline		= ( CR LF ) | LF
+CR			= <US-ASCII CR, carriage return (13)>
+LF			= <US-ASCII LF, linefeed (10)>
 ;	LWS is implicitly optional, minimum of 0 maximum of infinite
 LWS			= *WS
 WS			= SP | HT
