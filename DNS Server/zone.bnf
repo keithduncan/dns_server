@@ -51,7 +51,7 @@ type		= "A" | "AAAA" | "MX" | "NS" | "PTR" | "SOA" | "SRV" | "TXT"
 ;	rdata can be split across multiple lines with each line optionally carrying a comment before CR
 rdata		= ( "(" 1*( data [ comment ] [ CR ] ) ")" ) | data
 ;	data can be multiple runs of whitespace separated quoted-data, or a single run of inner-data optionally across multiple lines with whitespace ignored
-data		= ( quoted-data *( WS quoted-data ) ) | 1*( inner-data )
+data		= ( quoted-data *( WS quoted-data ) ) | 1*( inner-data LWS )
 ;	quoted-data can contain whitespace, maximum length of quoted-data is 255 characters
 quoted-data = ( <"> *( inner-data | WS | quoted-pair ) <"> )
 ;	if data for a specific resource contains on of the excluded literal characters it must use quoted-data
