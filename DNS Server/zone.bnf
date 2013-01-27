@@ -38,7 +38,7 @@ line		= ( directive | record | blank ) LWS [ comment ] newline
 
 directive	= "$" ( origin | ttl )
 origin		= "ORIGIN" 1*WS FQDN
-ttl			= "TTL" 1*WS ( ttl-value | 1*( 1*DIGIT ttl-unit ) )
+ttl			= "TTL" 1*WS ( ttl-value | 1*( ttl-value ttl-unit ) )
 ttl-value	= 1*DIGIT
 ttl-unit	= "w" | "d" | "h" | "m" | "s"
 
