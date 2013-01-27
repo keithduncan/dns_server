@@ -66,20 +66,20 @@ name		= "@" | ( [ "*" "." ] ( DN | FQDN ) )
 DN			= label *( "." label )
 FQDN		= 1*( label "." )
 label		= 1*( ALPHA | DIGIT | "-" )
-CHAR        = <any US-ASCII character (octets 0 - 127)>
-UPALPHA     = <any US-ASCII uppercase letter "A".."Z">
-LOALPHA     = <any US-ASCII lowercase letter "a".."z">
-ALPHA       = UPALPHA | LOALPHA
-DIGIT       = <any US-ASCII digit "0".."9">
+CHAR		= <any US-ASCII character (octets 0 - 127)>
+UPALPHA		= <any US-ASCII uppercase letter "A".."Z">
+LOALPHA		= <any US-ASCII lowercase letter "a".."z">
+ALPHA		= UPALPHA | LOALPHA
+DIGIT		= <any US-ASCII digit "0".."9">
 
 comment		= ";" *TEXT
-TEXT        = <any OCTET except CTLs, but including LWS>
-CTL         = <any US-ASCII control character (octets 0 - 31) and DEL (127)>
+TEXT		= <any OCTET except CTLs, but including LWS>
+CTL			= <any US-ASCII control character (octets 0 - 31) and DEL (127)>
 
-CR          = <US-ASCII CR, carriage return (13)>
+CR			= <US-ASCII CR, carriage return (13)>
 newline		= ( CR LF ) | LF
 ;	LWS is implicitly optional, minimum of 0 maximum of infinite
 LWS			= *( WS )
 WS			= SP | HT
-SP          = <US-ASCII SP, space (32)>
-HT          = <US-ASCII HT, horizontal-tab (9)>
+SP			= <US-ASCII SP, space (32)>
+HT			= <US-ASCII HT, horizontal-tab (9)>
