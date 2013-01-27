@@ -1,4 +1,4 @@
-;	name = definition
+;   name = definition
 ;      The name of a rule is simply the name itself (without any
 ;      enclosing "<" and ">") and is separated from its definition by the
 ;      equal "=" character. White space is only significant in that
