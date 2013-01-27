@@ -42,7 +42,7 @@ zone		= *line
 line		= ( directive | record | blank ) LWS [ comment ] newline
 
 directive	= "$" ( origin | ttl )
-origin		= "ORIGIN" 1*WS FQDN
+origin		= "ORIGIN" 1*WS fqdn
 ttl			= "TTL" 1*WS ( ttl-value | 1*( ttl-value ttl-unit ) )
 ttl-value	= 1*DIGIT
 ttl-unit	= "w" | "d" | "h" | "m" | "s"
@@ -57,9 +57,9 @@ class		= "IN"
 ;	adding support for new record types will require a type specific semantic validator (syntactically their data should already be supported by the rdata rule)
 type		= "A" | "AAAA" | "MX" | "NS" | "PTR" | "SOA" | "SRV" | "TXT"
 
-;	rdata is 1 or more data productions, if multiple they are whitespace separated, a newline terminates the data
+;	<rdata> is 1 or more <data> productions, if multiple they are whitespace separated, the newline from <line> terminates the listing
 rdata		= data *( 1*WS data )
-;	data can be a single field, or muliple fields grouped by "(" ")" optionally split across newlines
+;	<data> can be a single <data-field> or, muliple <data-field> productions grouped by "(" ")" optionally split across newlines
 ;	parsing <data> yields 1 or more <data-field>
 data		= data-field | ( "(" 1*( LWS [ data-field ] [ comment ] [ newline ] ) ")" )
 ;	if whitespace is semantically important to a data-field value it must be quoted-data to distinquish it from ignored whitespace between fields
@@ -67,18 +67,19 @@ data-field	= quoted-data | 1*inner-data
 ;	quoted-data can contain whitespace, maximum length of quoted-data is 255 characters
 quoted-data = <"> *( inner-data | WS | quoted-pair ) <">
 ;	if data for a specific resource contains one of the excluded literal characters it must use quoted-data or they'll be confused for a separator
-inner-data	= <any CHAR except EXCLUDED>
-EXCLUDED	= <"> | ";" | "(" | ")" | WS
+inner-data	= <any CHAR except excluded>
+excluded	= <"> | ";" | "(" | ")" | WS
 quoted-pair	= "\" CHAR
 
 blank		= LWS
 
-;	either @ to refer to the origin, or a domain name which has the origin appended to make it fully qualified, or a fully qualified domain name, both with an optional wildcard prefix
-name		= "@" | "*" | ( [ "*" "." ] ( DN | FQDN ) )
-;	ensure the longest match is used so that a DN isn't scanned where an FQDN is provided
-DN			= label *( "." label )
-FQDN		= 1*( label "." )
-;	wildcard labels are only supported as name prefixes, not in the middle of a domain name
+;	either @ to refer to the origin or, a domain name which has the origin appended to make it fully qualified or a fully qualified domain name, both optionally with a wildcard prefix
+;	a wildcard domain label can only appear as the first label hence it isn't in the <label> rule definition
+name		= "@" | "*" | ( [ "*" "." ] ( dn | fqdn ) )
+;	NB: ensure the longest match is used so that a <dn> isn't scanned where an <fqdn> is provided, the onlt difference is the trailing "."
+dn			= label *( "." label )
+fqdn		= 1*( label "." )
+;	wildcard labels are only supported as a prefix in <name>, not as a subsequent <label> in a <name>
 label		= 1*( ALPHA | DIGIT | "-" )
 CHAR		= <any US-ASCII character (octets 0 - 127)>
 UPALPHA		= <any US-ASCII uppercase letter "A".."Z">
