@@ -57,11 +57,12 @@ class		= "IN"
 ;	adding support for new record types will require a type specific semantic validator (syntactically their data should already be supported by the rdata rule)
 type		= "A" | "AAAA" | "MX" | "NS" | "PTR" | "SOA" | "SRV" | "TXT"
 
-;	rdata can be split across multiple lines with each line optionally carrying a comment before newline
-rdata		= ( "(" 1*( LWS [ data ] LWS [ comment ] [ newline ] ) ")" ) | data
-;	data can be multiple runs of whitespace separated, quoted-data or inner-data, runs must be separated by whitespace with said whitespace between quoted-data or inner-data runs ignored
-;	if whitespace is semantically important to an rdata value it must be included in quoted-data to distinquish it from ignored whitespace
-data		= data-field *( 1*WS data-field )
+;	rdata is 1 or more data productions, if multiple they are whitespace separated, a newline terminates the data
+rdata		= data *( 1*WS data )
+;	data can be a single field, or muliple fields grouped by "(" ")" optionally split across newlines
+;	parsing <data> yields 1 or more <data-field>
+data		= data-field | ( "(" 1*( LWS [ data-field ] [ comment ] [ newline ] ) ")" )
+;	if whitespace is semantically important to a data-field value it must be quoted-data to distinquish it from ignored whitespace between fields
 data-field	= quoted-data | 1*inner-data
 ;	quoted-data can contain whitespace, maximum length of quoted-data is 255 characters
 quoted-data = <"> *( inner-data | WS | quoted-pair ) <">
