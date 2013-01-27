@@ -37,13 +37,13 @@
 line		= ( directive | record | blank ) LWS [ comment ] newline
 
 directive	= "$" ( origin | ttl )
-origin		= "ORIGIN" 1*( WS ) FQDN
-ttl			= "TTL" 1*( WS ) ( ttl-value | 1*( 1*( DIGIT ) ttl-unit ) )
-ttl-value	= 1*( DIGIT )
+origin		= "ORIGIN" 1*WS FQDN
+ttl			= "TTL" 1*WS ( ttl-value | 1*( 1*DIGIT ttl-unit ) )
+ttl-value	= 1*DIGIT
 ttl-unit	= "w" | "d" | "h" | "m" | "s"
 
 ;	syntactically <rdata> is the only required field, semantically the preceeding record(s) can provide the values for <name>, <class> and <type>, if there are no preceding records the zone is invalid
-record		= ( LWS | ( name 1*( WS ) ) ) [ ttl-value 1*( WS ) ] [ class 1*( WS ) ] [ type 1*( WS ) ] rdata
+record		= ( LWS | ( name 1*WS ) ) [ ttl-value 1*WS ] [ class 1*WS ] [ type 1*WS ] rdata
 
 ;	incomplete list of class types, but we're unlikely to need to return Chaosnet or Hesiod class records
 class		= "IN"
@@ -56,8 +56,8 @@ type		= "A" | "AAAA" | "MX" | "NS" | "PTR" | "SOA" | "SRV" | "TXT"
 rdata		= ( "(" 1*( data [ comment ] [ newline ] ) ")" ) | data
 ;	data can be multiple runs of whitespace separated, quoted-data or inner-data, runs must be separated by whitespace with said whitespace between quoted-data or inner-data runs ignored
 ;	if whitespace is semantically important to an rdata value it must be included in quoted-data to distinquish it from ignored whitespace
-data		= data-run *( 1*( WS ) data-run )
-data-run	= ( quoted-data | 1*( inner-data ) )
+data		= data-run *( 1*WS data-run )
+data-run	= ( quoted-data | 1*inner-data )
 ;	quoted-data can contain whitespace, maximum length of quoted-data is 255 characters
 quoted-data = ( <"> *( inner-data | WS | quoted-pair ) <"> )
 ;	if data for a specific resource contains one of the excluded literal characters it must use quoted-data or they'll be confused for a separator
@@ -86,7 +86,7 @@ CTL			= <any US-ASCII control character (octets 0 - 31) and DEL (127)>
 CR			= <US-ASCII CR, carriage return (13)>
 newline		= ( CR LF ) | LF
 ;	LWS is implicitly optional, minimum of 0 maximum of infinite
-LWS			= *( WS )
+LWS			= *WS
 WS			= SP | HT
 SP			= <US-ASCII SP, space (32)>
 HT			= <US-ASCII HT, horizontal-tab (9)>
