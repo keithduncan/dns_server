@@ -31,7 +31,7 @@
 ;      Square brackets enclose optional elements; "[foo bar]" is
 ;      equivalent to "*1(foo bar)".
 
-line		= ( directive | record | blank ) LWS [ comment ] CR
+line		= ( directive | record | blank ) LWS [ comment ] newline
 
 directive	= "$" ( origin | ttl )
 origin		= "ORIGIN" 1*( WS ) FQDN
@@ -48,8 +48,8 @@ class		= "IN"
 ;	incomplete list of record types, but we're unlikely to need to return those unlisted, support should be easy to add if need be
 type		= "A" | "AAAA" | "MX" | "NS" | "PTR" | "SOA" | "SRV" | "TXT"
 
-;	rdata can be split across multiple lines with each line optionally carrying a comment before CR
-rdata		= ( "(" 1*( data [ comment ] [ CR ] ) ")" ) | data
+;	rdata can be split across multiple lines with each line optionally carrying a comment before newline
+rdata		= ( "(" 1*( data [ comment ] [ newline ] ) ")" ) | data
 ;	data can be multiple runs of whitespace separated quoted-data, or a single run of inner-data optionally across multiple lines with whitespace ignored
 data		= ( quoted-data *( WS quoted-data ) ) | 1*( inner-data LWS )
 ;	quoted-data can contain whitespace, maximum length of quoted-data is 255 characters
@@ -77,6 +77,7 @@ TEXT        = <any OCTET except CTLs, but including LWS>
 CTL         = <any US-ASCII control character (octets 0 - 31) and DEL (127)>
 
 CR          = <US-ASCII CR, carriage return (13)>
+newline		= ( CR LF ) | LF
 ;	LWS is implicitly optional, minimum of 0 maximum of infinite
 LWS			= *( WS )
 WS			= SP | HT
