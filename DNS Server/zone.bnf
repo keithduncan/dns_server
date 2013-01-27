@@ -70,7 +70,7 @@ quoted-pair	= "\" CHAR
 blank		= LWS
 
 ;	either @ to refer to the origin, or a domain name which has the origin appended to make it fully qualified, or a fully qualified domain name, both with an optional wildcard prefix
-name		= "@" | ( [ "*" "." ] ( DN | FQDN ) )
+name		= "@" | "*" | ( [ "*" "." ] ( DN | FQDN ) )
 DN			= label *( "." label )
 FQDN		= 1*( label "." )
 ;	wildcard labels are only supported as name prefixes, not in the middle of a domain name
