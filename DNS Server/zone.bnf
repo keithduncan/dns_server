@@ -39,7 +39,8 @@
 
 zone		= *line
 
-line		= ( directive | record | blank ) LWS [ comment ] newline
+;	trailing newline at the end of the file is optional
+line		= ( directive | record | blank ) LWS [ comment ] [ newline ]
 
 directive	= "$" ( origin | ttl )
 origin		= "ORIGIN" 1*WS fqdn
@@ -61,7 +62,7 @@ type		= "A" | "AAAA" | "MX" | "NS" | "PTR" | "SOA" | "SRV" | "TXT"
 rdata		= data *( 1*WS data )
 ;	<data> can be a single <data-field> or, muliple <data-field> productions grouped by "(" ")" optionally split across newlines
 ;	parsing <data> yields 1 or more <data-field>
-data		= data-field | ( "(" 1*( LWS [ data-field ] [ comment ] [ newline ] ) ")" )
+data		= data-field | ( "(" 1*( ( data-field | comment | newline ) LWS ) ")" )
 ;	if whitespace is semantically important to a data-field value it must be quoted-data to distinquish it from ignored whitespace between fields
 data-field	= quoted-data | 1*inner-data
 ;	quoted-data can contain whitespace, maximum length of quoted-data is 255 characters
