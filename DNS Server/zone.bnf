@@ -37,10 +37,10 @@
 ;      equivalent to "*1(foo bar)".
 ;   
 
-zone		= *line
+zone		= line *( newline line )
 
 ;	trailing newline at the end of the file is optional
-line		= ( directive | record | blank ) LWS [ comment ] [ newline ]
+line		= ( directive | record | blank ) LWS [ comment ]
 
 directive	= "$" ( origin | ttl )
 origin		= "ORIGIN" 1*WS fqdn
