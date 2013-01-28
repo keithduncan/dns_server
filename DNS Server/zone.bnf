@@ -39,7 +39,6 @@
 
 zone		= line *( newline line )
 
-;	trailing newline at the end of the file is optional
 line		= ( directive | record | blank ) LWS [ comment ]
 
 directive	= "$" ( origin | ttl )
