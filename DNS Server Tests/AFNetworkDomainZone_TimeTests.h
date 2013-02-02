@@ -1,5 +1,5 @@
 //
-//  AFNetworkDomainZone_Tests.h
+//  AFNetworkDomainZone_TimeTests.h
 //  DNS Server
 //
 //  Created by Keith Duncan on 12/01/2013.
@@ -8,6 +8,6 @@
 
 #import <SenTestingKit/SenTestingKit.h>
 
-@interface AFNetworkDomainZone_Tests : SenTestCase
+@interface AFNetworkDomainZone_TimeTests : SenTestCase
 
 @end

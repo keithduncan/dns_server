@@ -81,38 +81,46 @@ static NSString *const AFDomainServerErrorDomain = @"com.thirty-three.corenetwor
 	
 	// Reused character sets / scanners
 	
-	BOOL (^scanCharacterFromSet)(NSScanner *, NSCharacterSet *) = ^ BOOL (NSScanner *scanner, NSCharacterSet *characterSet) {
+	NSString * (^scanCharacterFromSet)(NSScanner *, NSCharacterSet *) = ^ NSString * (NSScanner *scanner, NSCharacterSet *characterSet) {
 		NSString *originalString = [scanner string];
 		NSRange characterRange = [originalString rangeOfCharacterFromSet:characterSet options:NSAnchoredSearch range:NSMakeRange([scanner scanLocation], [originalString length] - [scanner scanLocation])];
 		if (characterRange.location == NSNotFound) {
-			return NO;
+			return nil;
 		}
 		
 		[scanner setScanLocation:NSMaxRange(characterRange)];
-		return YES;
+		
+		return [originalString substringWithRange:characterRange];
 	};
 	
-	NSCharacterSet *whitespaceCharacterSet = [NSCharacterSet whitespaceCharacterSet], *whitespaceAndNewlineCharacterSet = [NSCharacterSet whitespaceAndNewlineCharacterSet];
-	
-	BOOL (^scanWs)(NSScanner *, NSUInteger, NSUInteger) = ^ BOOL (NSScanner *scanner, NSUInteger min, NSUInteger max) {
+	NSString * (^scanCharacterSetMinMax)(NSScanner *, NSCharacterSet *, NSUInteger, NSUInteger) = ^ NSString * (NSScanner *scanner, NSCharacterSet *characterSet, NSUInteger min, NSUInteger max) {
 		NSUInteger startLocation = [scanner scanLocation];
+		
+		NSMutableString *cumulative = [NSMutableString string];
 		
 		NSUInteger matchCount = 0;
 		while (matchCount < max) {
-			BOOL match = scanCharacterFromSet(scanner, whitespaceCharacterSet);
-			if (!match) {
+			NSString *match = scanCharacterFromSet(scanner, characterSet);
+			if (match == nil) {
 				break;
 			}
 			
+			[cumulative appendString:match];
 			matchCount++;
 		}
 		
 		if (matchCount < min) {
 			[scanner setScanLocation:startLocation];
-			return NO;
+			return nil;
 		}
 		
-		return YES;
+		return cumulative;
+	};
+	
+	NSCharacterSet *whitespaceCharacterSet = [NSCharacterSet whitespaceCharacterSet];
+	
+	BOOL (^scanWs)(NSScanner *, NSUInteger, NSUInteger) = ^ BOOL (NSScanner *scanner, NSUInteger min, NSUInteger max) {
+		return (scanCharacterSetMinMax(scanner, whitespaceCharacterSet, min, max) != nil);
 	};
 	
 	void (^scanLws)(NSScanner *) = ^ void (NSScanner *scanner) {
@@ -127,9 +135,51 @@ static NSString *const AFDomainServerErrorDomain = @"com.thirty-three.corenetwor
 		return [scanner scanString:@"\r\n" intoString:NULL];
 	};
 	
+	NSString *alphaCharacters = @"abcdefghijklmnopqrstuvwxyz";
+	NSMutableCharacterSet *alphaCharacterSet = [[[NSMutableCharacterSet alloc] init] autorelease];
+	[alphaCharacterSet addCharactersInString:[alphaCharacters lowercaseString]];
+	[alphaCharacterSet addCharactersInString:[alphaCharacters uppercaseString]];
+	
+	NSString *digitCharacters = @"0123456789";
+	NSCharacterSet *digitCharacterSet = [NSCharacterSet characterSetWithCharactersInString:digitCharacters];
+	
+	NSMutableCharacterSet *labelCharacterSet = [[[NSMutableCharacterSet alloc] init] autorelease];
+	[labelCharacterSet formUnionWithCharacterSet:alphaCharacterSet];
+	[labelCharacterSet formUnionWithCharacterSet:digitCharacterSet];
+	[labelCharacterSet addCharactersInString:@"-"];
+	
+	NSString * (^scanLabel)(NSScanner *) = ^ NSString * (NSScanner *scanner) {
+		return scanCharacterSetMinMax(scanner, labelCharacterSet, 1, NSUIntegerMax);
+	};
+	
 	NSString * (^scanFqdn)(NSScanner *) = ^ NSString * (NSScanner *scanner) {
-#warning complete
-		return nil;
+		NSUInteger startLocation = [scanner scanLocation];
+		NSUInteger lastPairLocation = startLocation;
+		
+		NSMutableString *cumulative = [NSMutableString string];
+		
+		while (1) {
+			NSString *label = scanLabel(scanner);
+			if (label == nil) {
+				break;
+			}
+			
+			NSString *separator = nil;
+			if (![scanner scanString:@"." intoString:&separator]) {
+				break;
+			}
+			
+			[cumulative appendString:label];
+			[cumulative appendString:separator];
+			
+			lastPairLocation = [scanner scanLocation];
+		}
+		
+		if (lastPairLocation == startLocation) {
+			return nil;
+		}
+		
+		return cumulative;
 	};
 	
 	/*
@@ -146,8 +196,9 @@ static NSString *const AFDomainServerErrorDomain = @"com.thirty-three.corenetwor
 				break;
 			}
 		}
-		
-		scanNewlineFirst = YES;
+		else {
+			scanNewlineFirst = YES;
+		}
 		
 		/*
 			Line Parser
@@ -200,9 +251,8 @@ static NSString *const AFDomainServerErrorDomain = @"com.thirty-three.corenetwor
 				}
 				return NO;
 			}
-			
-			
 		}
+#if 0
 		// Record
 		else if ([zoneScanner scanCharactersFromSet:recordStartCharacterSet intoString:NULL]) {
 			
@@ -211,6 +261,7 @@ static NSString *const AFDomainServerErrorDomain = @"com.thirty-three.corenetwor
 		else if (0) {
 			
 		}
+#endif
 		
 		// LWS
 		
@@ -253,7 +304,7 @@ static NSString * (^scanStringFromArray)(NSScanner *, NSArray *) = ^ NSString * 
 
 - (NSTimeInterval)_scanTimeValue:(NSScanner *)timeScanner
 {
-	NSCharacterSet *digitCharacterSet = [NSCharacterSet decimalDigitCharacterSet];
+	NSCharacterSet *digitCharacterSet = [NSCharacterSet characterSetWithCharactersInString:@"0123456789"];
 	
 	NSString *ttl = nil;
 	BOOL scanTtl = [timeScanner scanCharactersFromSet:digitCharacterSet intoString:&ttl];
@@ -296,7 +347,7 @@ static NSString * (^scanStringFromArray)(NSScanner *, NSArray *) = ^ NSString * 
 			break;
 		}
 		
-		NSTimeInterval evaluatedDuration = valueOfUnit(ttl, unit);
+		NSTimeInterval evaluatedDuration = valueOfUnit(currentDuration, currentUnit);
 		cumulativeDuration += evaluatedDuration;
 		
 		lastPairScanLocation = [timeScanner scanLocation];

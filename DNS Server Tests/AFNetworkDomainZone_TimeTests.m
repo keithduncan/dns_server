@@ -6,11 +6,11 @@
 //  Copyright (c) 2013 Keith Duncan. All rights reserved.
 //
 
-#import "AFNetworkDomainZone_Tests.h"
+#import "AFNetworkDomainZone_TimeTests.h"
 
 #import "AFNetworkDomainZone+AFNetworkPrivate.h"
 
-@implementation AFNetworkDomainZone_Tests
+@implementation AFNetworkDomainZone_TimeTests
 
 - (NSTimeInterval)_testString:(NSString *)timeValue
 {
@@ -23,11 +23,6 @@
 - (void)testInvalidTimeFormat1
 {
 	TestInvalidFormat(@"abcd");
-}
-
-- (void)testInvalidTimeFormat2
-{
-	TestInvalidFormat(@"1p");
 }
 
 - (void)testValidTimeFormat1
@@ -48,6 +43,18 @@
 - (void)testValidTimeFormat4
 {
 	TestValidFormat(@"1W1D1H1M1S", (604800. + 86400. + 3600. + 60. + 1.));
+}
+
+- (void)testValidTimeFormat5
+{
+	/*
+		Note
+		
+		while not a valid unit this is a valid time string
+		
+		the "1" is treated as a unitless second time value and the "p" while ignored will not be valid in the productions that contain a ttl-value
+	 */
+	TestValidFormat(@"1p", 1.);
 }
 
 @end
