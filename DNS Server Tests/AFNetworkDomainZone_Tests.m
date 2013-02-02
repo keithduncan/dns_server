@@ -14,11 +14,11 @@
 
 - (NSTimeInterval)_testString:(NSString *)timeValue
 {
-	return [[[[AFNetworkDomainZone alloc] init] autorelease] _parseTimeValue:timeValue];
+	return [[[[AFNetworkDomainZone alloc] init] autorelease] _scanTimeValue:[NSScanner scannerWithString:timeValue]];
 }
 
-#define TestInvalidFormat(var) STAssertEquals([self _testString:(var)], (NSTimeInterval)-1, @"invalid format should return -1");
-#define TestValidFormat(var, val) STAssertEquals([self _testString:(var)], (NSTimeInterval)val, @"invalid format should return -1");
+#define TestInvalidFormat(var) STAssertEquals([self _testString:(var)], (NSTimeInterval)-1, @"invalid format should return -1")
+#define TestValidFormat(var, val) STAssertEquals([self _testString:(var)], (NSTimeInterval)val, ([NSString stringWithFormat:@"valid format should return %f", val]))
 
 - (void)testInvalidTimeFormat1
 {
@@ -27,12 +27,7 @@
 
 - (void)testInvalidTimeFormat2
 {
-	TestInvalidFormat(@"1d 1h");
-}
-
-- (void)testInvalidTimeFormat3
-{
-	TestInvalidFormat(@"1d 1p");
+	TestInvalidFormat(@"1p");
 }
 
 - (void)testValidTimeFormat1
@@ -52,7 +47,7 @@
 
 - (void)testValidTimeFormat4
 {
-	TestValidFormat(@"1D1H1M1S", (86400. + 3600. + 60. + 1.));
+	TestValidFormat(@"1W1D1H1M1S", (604800. + 86400. + 3600. + 60. + 1.));
 }
 
 @end

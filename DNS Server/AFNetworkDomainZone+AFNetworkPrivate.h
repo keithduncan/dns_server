@@ -10,6 +10,6 @@
 
 @interface AFNetworkDomainZone ()
 
-- (NSTimeInterval)_parseTimeValue:(NSString *)timeValue;
+- (NSTimeInterval)_scanTimeValue:(NSScanner *)timeScanner;
 
 @end

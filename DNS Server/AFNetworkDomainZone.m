@@ -76,92 +76,113 @@ static NSString *const AFDomainServerErrorDomain = @"com.thirty-three.corenetwor
 	NSUInteger recordCapacityHint = [[zoneString componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]] count];
 	NSMutableSet *records = [NSMutableSet setWithCapacity:recordCapacityHint];
 	
-	// Reused character sets
-	
 	NSScanner *zoneScanner = [NSScanner scannerWithString:zoneString];
 	[zoneScanner setCharactersToBeSkipped:nil];
 	
-	NSCharacterSet *whitespaceCharacterSet = [NSCharacterSet whitespaceCharacterSet], *whitespaceAndNewlineCharacterSet = [NSCharacterSet whitespaceAndNewlineCharacterSet];
-	void (^scanWhitespaceGreedy)(void) = ^ {
-		[zoneScanner scanCharactersFromSet:whitespaceCharacterSet intoString:NULL];
+	// Reused character sets / scanners
+	
+	BOOL (^scanCharacterFromSet)(NSScanner *, NSCharacterSet *) = ^ BOOL (NSScanner *scanner, NSCharacterSet *characterSet) {
+		NSString *originalString = [scanner string];
+		NSRange characterRange = [originalString rangeOfCharacterFromSet:characterSet options:NSAnchoredSearch range:NSMakeRange([scanner scanLocation], [originalString length] - [scanner scanLocation])];
+		if (characterRange.location == NSNotFound) {
+			return NO;
+		}
+		
+		[scanner setScanLocation:NSMaxRange(characterRange)];
+		return YES;
 	};
 	
-	NSMutableCharacterSet *recordStartCharacterSet = [[NSMutableCharacterSet alloc] init];
-	[recordStartCharacterSet formUnionWithCharacterSet:[NSCharacterSet whitespaceCharacterSet]];
-	[recordStartCharacterSet addCharactersInString:@"@"];
+	NSCharacterSet *whitespaceCharacterSet = [NSCharacterSet whitespaceCharacterSet], *whitespaceAndNewlineCharacterSet = [NSCharacterSet whitespaceAndNewlineCharacterSet];
 	
+	BOOL (^scanWs)(NSScanner *, NSUInteger, NSUInteger) = ^ BOOL (NSScanner *scanner, NSUInteger min, NSUInteger max) {
+		NSUInteger startLocation = [scanner scanLocation];
+		
+		NSUInteger matchCount = 0;
+		while (matchCount < max) {
+			BOOL match = scanCharacterFromSet(scanner, whitespaceCharacterSet);
+			if (!match) {
+				break;
+			}
+			
+			matchCount++;
+		}
+		
+		if (matchCount < min) {
+			[scanner setScanLocation:startLocation];
+			return NO;
+		}
+		
+		return YES;
+	};
+	
+	void (^scanLws)(NSScanner *) = ^ void (NSScanner *scanner) {
+		scanWs(scanner, 0, NSUIntegerMax);
+	};
+	
+	BOOL (^scanNewline)(NSScanner *) = ^ BOOL (NSScanner *scanner) {
+		if ([scanner scanString:@"\n" intoString:NULL]) {
+			return YES;
+		}
+		
+		return [scanner scanString:@"\r\n" intoString:NULL];
+	};
+	
+	NSString * (^scanFqdn)(NSScanner *) = ^ NSString * (NSScanner *scanner) {
+#warning complete
+		return nil;
+	};
+	
+	/*
+		Zone Parser
+	 */
+	
+	BOOL scanNewlineFirst = NO;
 	while (![zoneScanner isAtEnd]) {
+		/*
+			Newline Prefix
+		 */
+		if (scanNewlineFirst) {
+			if (!scanNewline(zoneScanner)) {
+				break;
+			}
+		}
+		
+		scanNewlineFirst = YES;
+		
 		/*
 			Line Parser
 		 */
 		
 		// Directive
 		if ([zoneScanner scanString:@"$" intoString:NULL]) {
-			NSString *directive = nil;
-			BOOL scanDirective = [zoneScanner scanUpToCharactersFromSet:whitespaceAndNewlineCharacterSet intoString:&directive];
-#warning remove UpTo
-			if (!scanDirective) {
-				break;
-			}
-			
-			NSDictionary *valueRequiredErrorInfo = @{
-				NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Cannot process directive \u201c%@\u201d without a parameter", directive],
-			};
-			NSError *valueRequiredError = [NSError errorWithDomain:AFDomainServerErrorDomain code:AFNetworkErrorUnknown userInfo:valueRequiredErrorInfo];
-			
-			if ([directive isEqualToString:@"ORIGIN"]) {
-				scanWhitespaceGreedy();
-				
-				NSString *originValue = nil;
-				BOOL scanOriginValue = [zoneScanner scanUpToCharactersFromSet:whitespaceAndNewlineCharacterSet intoString:&originValue];
-#warning remove UpTo
-				if (!scanOriginValue) {
+			if ([zoneScanner scanString:@"ORIGIN" intoString:NULL]) {
+				if (!scanWs(zoneScanner, 1, NSUIntegerMax)) {
 					break;
 				}
 				
-				originValue = [originValue stringByTrimmingCharactersInSet:whitespaceCharacterSet];
-				
-				if ([originValue length] == 0) {
-					if (errorRef != NULL) {
-						*errorRef = valueRequiredError;
-					}
-					return NO;
-				}
-				
-				if (![originValue hasSuffix:@"."]) {
+				NSString *fqdn = scanFqdn(zoneScanner);
+				if (fqdn == nil) {
 					if (errorRef != NULL) {
 						NSDictionary *errorInfo = @{
-							NSLocalizedDescriptionKey : @"Zone origin must be a fully qualified domain name",
+							NSLocalizedDescriptionKey : @"ORIGIN directive must be followed by a fully qualified domain name",
 						};
 						*errorRef = [NSError errorWithDomain:AFDomainServerErrorDomain code:AFNetworkErrorUnknown userInfo:errorInfo];
 					}
 					return NO;
 				}
 				
-				self.origin = originValue;
+				self.origin = fqdn;
 			}
-			else if ([directive isEqualToString:@"TTL"]) {
-				scanWhitespaceGreedy();
-				
-				NSString *ttlValue = nil;
-				BOOL scanTtlValue = [zoneScanner scanUpToCharactersFromSet:whitespaceAndNewlineCharacterSet intoString:&ttlValue];
-#warning remove UpTo, this doesn't accommodate for comments trailing the `$TTL val`
-				if (!scanTtlValue) {
+			else if ([zoneScanner scanString:@"TTL" intoString:NULL]) {
+				if (!scanWs(zoneScanner, 1, NSUIntegerMax)) {
 					break;
 				}
 				
-				if ([[ttlValue stringByTrimmingCharactersInSet:whitespaceCharacterSet] length] == 0) {
-					if (errorRef != NULL) {
-						*errorRef = valueRequiredError;
-					}
-					return NO;
-				}
-				
-				NSTimeInterval ttl = [self _parseTimeValue:ttlValue];
+				NSTimeInterval ttl = [self _scanTimeValue:zoneScanner];
 				if (ttl == -1) {
 					if (errorRef != NULL) {
 						NSDictionary *errorInfo = @{
-							NSLocalizedDescriptionKey : @"Cannot parse TTL time value",
+							NSLocalizedDescriptionKey : @"TTL directive must be followed by a time value",
 						};
 						*errorRef = [NSError errorWithDomain:AFDomainServerErrorDomain code:AFNetworkErrorUnknown userInfo:errorInfo];
 					}
@@ -173,7 +194,7 @@ static NSString *const AFDomainServerErrorDomain = @"com.thirty-three.corenetwor
 			else {
 				if (errorRef != NULL) {
 					NSDictionary *errorInfo = @{
-						NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Cannot process directive \u201c%@\u201d", directive],
+						NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Cannot process directive"],
 					};
 					*errorRef = [NSError errorWithDomain:AFDomainServerErrorDomain code:AFNetworkErrorUnknown userInfo:errorInfo];
 				}
@@ -184,6 +205,22 @@ static NSString *const AFDomainServerErrorDomain = @"com.thirty-three.corenetwor
 		}
 		// Record
 		else if ([zoneScanner scanCharactersFromSet:recordStartCharacterSet intoString:NULL]) {
+			
+		}
+		// Blank
+		else if (0) {
+			
+		}
+		
+		// LWS
+		
+		{
+			
+		}
+		
+		// Comment
+		
+		{
 			
 		}
 	}
@@ -201,7 +238,8 @@ static NSString *const AFDomainServerErrorDomain = @"com.thirty-three.corenetwor
 	return records;
 }
 
-static NSString * (^scanStringFromArray)(NSScanner *, NSArray *) = ^ NSString * (NSScanner *scanner, NSArray *strings) {
+static NSString * (^scanStringFromArray)(NSScanner *, NSArray *) = ^ NSString * (NSScanner *scanner, NSArray *strings)
+{
 	for (NSString *currentString in strings) {
 		if (![scanner scanString:currentString intoString:NULL]) {
 			continue;
@@ -213,11 +251,8 @@ static NSString * (^scanStringFromArray)(NSScanner *, NSArray *) = ^ NSString * 
 	return nil;
 };
 
-- (NSTimeInterval)_parseTimeValue:(NSString *)timeValue
+- (NSTimeInterval)_scanTimeValue:(NSScanner *)timeScanner
 {
-	NSScanner *timeScanner = [NSScanner scannerWithString:timeValue];
-	[timeScanner setCharactersToBeSkipped:nil];
-	
 	NSCharacterSet *digitCharacterSet = [NSCharacterSet decimalDigitCharacterSet];
 	
 	NSString *ttl = nil;
@@ -226,44 +261,53 @@ static NSString * (^scanStringFromArray)(NSScanner *, NSArray *) = ^ NSString * 
 		return -1;
 	}
 	
-	// No unit
-	if ([timeScanner isAtEnd]) {
-		return [ttl doubleValue];
-	}
-	
 	NSDictionary *unitToMultiple = @{ @"w" : @(604800.), @"d" : @(86400.) , @"h" : @(3600.), @"m" : @(60.), @"s" : @(1.) };
 	NSArray *units = [unitToMultiple allKeys];
 	
 	NSTimeInterval (^valueOfUnit)(NSString *, NSString *) = ^ NSTimeInterval (NSString *duration, NSString *unit) {
 		NSNumber *multiple = unitToMultiple[[unit lowercaseString]];
 		NSParameterAssert(multiple != nil);
-		return [ttl doubleValue] * [multiple doubleValue];
+		return [duration doubleValue] * [multiple doubleValue];
 	};
 	
-	// Rogue unit
 	NSString *unit = scanStringFromArray(timeScanner, units);
 	if (unit == nil) {
-		return -1;
+		// No unit
+		return [ttl doubleValue];
 	}
 	
-	NSTimeInterval cumulativeTime = 0;
-	cumulativeTime += valueOfUnit(ttl, unit);
+	NSTimeInterval cumulativeDuration = 0;
+	cumulativeDuration += valueOfUnit(ttl, unit);
 	
-	while (![timeScanner isAtEnd]) {
-		BOOL scanDuration = [timeScanner scanCharactersFromSet:digitCharacterSet intoString:&ttl];
-		if (!scanDuration) {
-			return -1;
+	NSUInteger lastPairScanLocation = [timeScanner scanLocation];
+	
+	BOOL abort = NO;
+	while (1) {
+		NSString *currentDuration = nil;
+		BOOL scanCurrentDuration = [timeScanner scanCharactersFromSet:digitCharacterSet intoString:&currentDuration];
+		if (!scanCurrentDuration) {
+			abort = YES;
+			break;
 		}
 		
-		unit = scanStringFromArray(timeScanner, units);
-		if (unit == nil) {
-			return -1;
+		NSString *currentUnit = scanStringFromArray(timeScanner, units);
+		if (currentUnit == nil) {
+			abort = YES;
+			break;
 		}
 		
-		cumulativeTime += valueOfUnit(ttl, unit);
+		NSTimeInterval evaluatedDuration = valueOfUnit(ttl, unit);
+		cumulativeDuration += evaluatedDuration;
+		
+		lastPairScanLocation = [timeScanner scanLocation];
 	}
 	
-	return cumulativeTime;
+	if (abort) {
+		[timeScanner setScanLocation:lastPairScanLocation];
+		return cumulativeDuration;
+	}
+	
+	return cumulativeDuration;
 }
 
 - (AFNetworkDomainRecord *)recordForFullyQualifiedDomainName:(NSString *)fullyQualifiedDomainName recordClass:(NSString *)recordClass recordType:(NSString *)recordType
