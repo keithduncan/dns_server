@@ -28,4 +28,14 @@
 	[self _testFileNamed:@"db.test.example.com"];
 }
 
+- (void)testExampleCom
+{
+	[self _testFileNamed:@"db.example.com"];
+}
+
+- (void)testExampleLocal
+{
+	[self _testFileNamed:@"db.example.local"];
+}
+
 @end
