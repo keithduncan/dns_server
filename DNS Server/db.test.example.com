@@ -57,3 +57,7 @@ example.com.	       ns.example.com. username.example.com. 2007120710 1d 2h 4w 1h
 							4w									; comment
 							1h									; comment
 					   )										; comment
+
+;	change the origin and have it appended the end of these records
+$ORIGIN com.
+example		 1h IN SOA ns.example.com. username.example.com. 2007120710 1d 2h 4w 1h ; comment

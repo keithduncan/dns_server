@@ -191,6 +191,7 @@ static NSString *scanFqdn(NSScanner *scanner)
 	}
 	
 	if (lastPairLocation == startLocation) {
+		[scanner setScanLocation:startLocation];
 		return nil;
 	}
 	
