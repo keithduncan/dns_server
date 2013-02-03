@@ -14,12 +14,12 @@
 @property (readwrite, copy, nonatomic) NSString *recordClass;
 @property (readwrite, copy, nonatomic) NSString *recordType;
 
-@property (readwrite, copy, nonatomic) NSString *value;
+@property (readwrite, copy, nonatomic) NSArray *fields;
 @end
 
 @implementation AFNetworkDomainRecord
 
-- (id)initWithFullyQualifiedDomainName:(NSString *)fullyQualifiedDomainName recordClass:(NSString *)recordClass recordType:(NSString *)recordType value:(NSString *)value
+- (id)initWithFullyQualifiedDomainName:(NSString *)fullyQualifiedDomainName recordClass:(NSString *)recordClass recordType:(NSString *)recordType fields:(NSArray *)fields
 {
 	self = [self init];
 	if (self == nil) {
@@ -31,7 +31,7 @@
 	_recordClass = [recordClass copy];
 	_recordType = [recordType copy];
 	
-	_value = [value copy];
+	_fields = [fields copy];
 	
 	return self;
 }
@@ -42,7 +42,7 @@
 	[_recordClass copy];
 	[_recordType copy];
 	
-	[_value release];
+	[_fields release];
 	
 	[super dealloc];
 }

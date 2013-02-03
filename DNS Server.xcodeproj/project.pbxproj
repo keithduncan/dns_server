@@ -11,6 +11,7 @@
 		531AEB1A16BDD3A300F2B943 /* db.example.com in Resources */ = {isa = PBXBuildFile; fileRef = 5367A7191694A6E2002534FF /* db.example.com */; };
 		531AEB1B16BDD3A700F2B943 /* db.test.example.com in Resources */ = {isa = PBXBuildFile; fileRef = 531AEB1416BDD33500F2B943 /* db.test.example.com */; };
 		531AEB1C16BDD3AB00F2B943 /* db.example.local in Resources */ = {isa = PBXBuildFile; fileRef = 538DEA79169B8DAF00AA0663 /* db.example.local */; };
+		531AEB1D16BEFDC200F2B943 /* AFNetworkDomainRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 5321100F1699FEC700D26765 /* AFNetworkDomainRecord.m */; };
 		531DFD5616B43D1500D6EE07 /* CoreNetworking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 531DFD4C16B43CF900D6EE07 /* CoreNetworking.framework */; };
 		531DFD5716B43D1900D6EE07 /* CoreNetworking.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 531DFD4C16B43CF900D6EE07 /* CoreNetworking.framework */; };
 		532110101699FEC700D26765 /* AFNetworkDomainRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 5321100F1699FEC700D26765 /* AFNetworkDomainRecord.m */; };
@@ -380,6 +381,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				53AD51A516A210F900C6646F /* AFNetworkDomainZone.m in Sources */,
+				531AEB1D16BEFDC200F2B943 /* AFNetworkDomainRecord.m in Sources */,
 				53AD51A416A210E900C6646F /* AFNetworkDomainZone_TimeTests.m in Sources */,
 				531AEB1916BDD38000F2B943 /* AFNetworkDomainZone_ZoneTests.m in Sources */,
 			);

@@ -10,13 +10,13 @@
 
 @interface AFNetworkDomainRecord : NSObject
 
-- (id)initWithFullyQualifiedDomainName:(NSString *)fullyQualifiedDomainName recordClass:(NSString *)recordClass recordType:(NSString *)recordType value:(NSString *)value;
+- (id)initWithFullyQualifiedDomainName:(NSString *)fullyQualifiedDomainName recordClass:(NSString *)recordClass recordType:(NSString *)recordType fields:(NSArray *)fields;
 
 @property (readonly, copy, nonatomic) NSString *fullyQualifiedDomainName;
 
 @property (readonly, copy, nonatomic) NSString *recordClass;
 @property (readonly, copy, nonatomic) NSString *recordType;
 
-@property (readonly, copy, nonatomic) NSString *value;
+@property (readonly, copy, nonatomic) NSArray *fields;
 
 @end
