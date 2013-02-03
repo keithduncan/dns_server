@@ -49,7 +49,7 @@ ttl-value	= 1*DIGIT
 ttl-unit	= "w" | "d" | "h" | "m" | "s"
 
 ;	syntactically <rdata> is the only required field, semantically the preceeding record(s) can provide the values for <name>, <class> and <type>, if there are no preceding records the zone is invalid
-record		= ( ( name 1*WS ) | LWS ) [ ttl-param 1*WS ] [ class 1*WS ] [ type 1*WS ] rdata
+record		= ( ( name 1*WS ) | 1*WS ) [ ttl-param 1*WS ] [ class 1*WS ] [ type 1*WS ] rdata
 
 ;	incomplete list of class types, but we're unlikely to need to return Chaosnet or Hesiod class records
 class		= "IN"
@@ -62,13 +62,13 @@ type		= "A" | "AAAA" | "MX" | "NS" | "PTR" | "SOA" | "SRV" | "TXT"
 rdata		= data *( 1*WS data )
 ;	<data> can be a single <data-field> or, muliple <data-field> productions grouped by "(" ")" optionally split across newlines
 ;	parsing <data> yields 1 or more <data-field>
-data		= data-field | ( "(" 1*( ( data-field | comment | newline ) LWS ) ")" )
+data		= data-field | ( "(" 1*( LWS ( data-field | comment | newline ) ) ")" )
 ;	if whitespace is semantically important to a data-field value it must be quoted-data to distinquish it from ignored whitespace between fields
 data-field	= quoted-data | 1*inner-data
 ;	quoted-data can contain whitespace, maximum length of quoted-data is 255 characters
 quoted-data = <"> *( inner-data | WS | quoted-pair ) <">
 ;	if data for a specific resource contains one of the excluded literal characters it must use quoted-data or they'll be confused for a separator
-inner-data	= <any CHAR except excluded>
+inner-data	= <any TEXT except excluded>
 excluded	= <"> | ";" | "(" | ")" | WS
 quoted-pair	= "\" CHAR
 
@@ -77,7 +77,7 @@ blank		= LWS
 ;	either @ to refer to the origin or, a domain name which has the origin appended to make it fully qualified or a fully qualified domain name, both optionally with a wildcard prefix
 ;	a wildcard domain label can only appear as the first label hence it isn't in the <label> rule definition
 name		= "@" | "*" | ( [ "*" "." ] ( dn | fqdn ) )
-;	NB: ensure the longest match is used so that a <dn> isn't scanned where an <fqdn> is provided, the onlt difference is the trailing "."
+;	NB: ensure the longest match is used so that a <dn> isn't scanned where an <fqdn> is provided, the only difference is the trailing "."
 dn			= label *( "." label )
 fqdn		= 1*( label "." )
 ;	wildcard labels are only supported as a prefix in <name>, not as a subsequent <label> in a <name>
@@ -89,7 +89,7 @@ ALPHA		= UPALPHA | LOALPHA
 DIGIT		= <any US-ASCII digit "0".."9">
 
 comment		= ";" *TEXT
-TEXT		= <any OCTET except CTLs, but including LWS>
+TEXT		= <any OCTET except CTLs, but including WS>
 CTL			= <any US-ASCII control character (octets 0 - 31) and DEL (127)>
 
 newline		= LF | ( CR LF )
