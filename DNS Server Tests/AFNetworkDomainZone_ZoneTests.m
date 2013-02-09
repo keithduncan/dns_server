@@ -12,30 +12,43 @@
 
 @implementation AFNetworkDomainZone_ZoneTests
 
-- (void)_testFileNamed:(NSString *)fileName
-{
-	AFNetworkDomainZone *zone = [[[AFNetworkDomainZone alloc] init] autorelease];
-	
-	NSURL *fileLocation = [[[NSBundle bundleWithIdentifier:@"com.keith-duncan.dns-server.tests"] resourceURL] URLByAppendingPathComponent:fileName];
-	
-	NSError *readError = nil;
-	BOOL read = [zone readFromURL:fileLocation options:nil error:&readError];
-	STAssertTrue(read, ([NSString stringWithFormat:@"should be able to read file %@", fileName]));
-}
+#define TestFileNamed(fileName) \
+do {\
+	AFNetworkDomainZone *zone = [[[AFNetworkDomainZone alloc] init] autorelease];\
+	NSURL *fileLocation = [[[NSBundle bundleWithIdentifier:@"com.keith-duncan.dns-server.tests"] resourceURL] URLByAppendingPathComponent:fileName];\
+	NSError *readError = nil;\
+	BOOL read = [zone readFromURL:fileLocation options:nil error:&readError];\
+	STAssertTrue(read, ([NSString stringWithFormat:@"should be able to read file %@", fileName]));\
+} while (0)
 
 - (void)testTestExampleCom
 {
-	[self _testFileNamed:@"db.test.example.com"];
+	TestFileNamed(@"db.test.example.com");
 }
 
 - (void)testExampleCom
 {
-	[self _testFileNamed:@"db.example.com"];
+	TestFileNamed(@"db.example.com");
 }
 
 - (void)testExampleLocal
 {
-	[self _testFileNamed:@"db.example.local"];
+	TestFileNamed(@"db.example.local");
+}
+
+- (void)testExampleComZone
+{
+	TestFileNamed(@"example.com.zone");
+}
+
+- (void)testExample2ComZone
+{
+	TestFileNamed(@"example2.com.zone");
+}
+
+- (void)testExample3ComZone
+{
+	TestFileNamed(@"example3.com.zone");
 }
 
 @end

@@ -10,6 +10,8 @@
 
 @interface AFNetworkDomainZone ()
 
+- (BOOL)_readFromString:(NSString *)zoneString error:(NSError **)errorRef;
+
 - (NSTimeInterval)_scanTimeValue:(NSScanner *)timeScanner;
 
 @end

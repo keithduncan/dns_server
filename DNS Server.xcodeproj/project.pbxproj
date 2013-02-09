@@ -12,10 +12,15 @@
 		531AEB1B16BDD3A700F2B943 /* db.test.example.com in Resources */ = {isa = PBXBuildFile; fileRef = 531AEB1416BDD33500F2B943 /* db.test.example.com */; };
 		531AEB1C16BDD3AB00F2B943 /* db.example.local in Resources */ = {isa = PBXBuildFile; fileRef = 538DEA79169B8DAF00AA0663 /* db.example.local */; };
 		531AEB1D16BEFDC200F2B943 /* AFNetworkDomainRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 5321100F1699FEC700D26765 /* AFNetworkDomainRecord.m */; };
+		531AEB2516BF1C8300F2B943 /* example.com.zone in Resources */ = {isa = PBXBuildFile; fileRef = 531AEB2116BF1C8300F2B943 /* example.com.zone */; };
+		531AEB2616BF1C8300F2B943 /* example2.com.zone in Resources */ = {isa = PBXBuildFile; fileRef = 531AEB2216BF1C8300F2B943 /* example2.com.zone */; };
+		531AEB2716BF1C8300F2B943 /* example3.com.zone in Resources */ = {isa = PBXBuildFile; fileRef = 531AEB2316BF1C8300F2B943 /* example3.com.zone */; };
+		531AEB2816BF1C8300F2B943 /* zonefile.example in Resources */ = {isa = PBXBuildFile; fileRef = 531AEB2416BF1C8300F2B943 /* zonefile.example */; };
 		531DFD5616B43D1500D6EE07 /* CoreNetworking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 531DFD4C16B43CF900D6EE07 /* CoreNetworking.framework */; };
 		531DFD5716B43D1900D6EE07 /* CoreNetworking.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 531DFD4C16B43CF900D6EE07 /* CoreNetworking.framework */; };
 		532110101699FEC700D26765 /* AFNetworkDomainRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 5321100F1699FEC700D26765 /* AFNetworkDomainRecord.m */; };
 		53211016169A018800D26765 /* libresolv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 53211015169A018800D26765 /* libresolv.dylib */; };
+		534EE82916C6B4BF00264AC8 /* AFNetworkDomainZone_RecordTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 534EE82816C6B4BF00264AC8 /* AFNetworkDomainZone_RecordTests.m */; };
 		5367A6F9169497AA002534FF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5367A6F7169497AA002534FF /* InfoPlist.strings */; };
 		5367A7011694980A002534FF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5367A7001694980A002534FF /* main.m */; };
 		5367A7181694A651002534FF /* AFNetworkDomainServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 5367A7171694A651002534FF /* AFNetworkDomainServer.m */; };
@@ -75,10 +80,16 @@
 		531AEB1416BDD33500F2B943 /* db.test.example.com */ = {isa = PBXFileReference; lastKnownFileType = text; path = db.test.example.com; sourceTree = "<group>"; };
 		531AEB1716BDD38000F2B943 /* AFNetworkDomainZone_ZoneTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkDomainZone_ZoneTests.h; sourceTree = "<group>"; };
 		531AEB1816BDD38000F2B943 /* AFNetworkDomainZone_ZoneTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkDomainZone_ZoneTests.m; sourceTree = "<group>"; };
+		531AEB2116BF1C8300F2B943 /* example.com.zone */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = example.com.zone; path = Externals/ExampleZoneFiles/doc/example.com.zone; sourceTree = "<group>"; };
+		531AEB2216BF1C8300F2B943 /* example2.com.zone */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = example2.com.zone; path = Externals/ExampleZoneFiles/doc/example2.com.zone; sourceTree = "<group>"; };
+		531AEB2316BF1C8300F2B943 /* example3.com.zone */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = example3.com.zone; path = Externals/ExampleZoneFiles/doc/example3.com.zone; sourceTree = "<group>"; };
+		531AEB2416BF1C8300F2B943 /* zonefile.example */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = zonefile.example; path = Externals/ExampleZoneFiles/doc/zonefile.example; sourceTree = "<group>"; };
 		531DFD4216B43CF900D6EE07 /* CoreNetworking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CoreNetworking.xcodeproj; path = Externals/CoreNetworking/CoreNetworking.xcodeproj; sourceTree = "<group>"; };
 		5321100E1699FEC700D26765 /* AFNetworkDomainRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkDomainRecord.h; sourceTree = "<group>"; };
 		5321100F1699FEC700D26765 /* AFNetworkDomainRecord.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkDomainRecord.m; sourceTree = "<group>"; };
 		53211015169A018800D26765 /* libresolv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libresolv.dylib; path = usr/lib/libresolv.dylib; sourceTree = SDKROOT; };
+		534EE82716C6B4BF00264AC8 /* AFNetworkDomainZone_RecordTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkDomainZone_RecordTests.h; sourceTree = "<group>"; };
+		534EE82816C6B4BF00264AC8 /* AFNetworkDomainZone_RecordTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkDomainZone_RecordTests.m; sourceTree = "<group>"; };
 		5367A6EF169497AA002534FF /* DNS Server.app */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "DNS Server.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5367A6F6169497AA002534FF /* DNS Server-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "DNS Server-Info.plist"; sourceTree = "<group>"; };
 		5367A6F8169497AA002534FF /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -126,6 +137,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		531AEB1E16BF1C4900F2B943 /* Externals */ = {
+			isa = PBXGroup;
+			children = (
+				531AEB2016BF1C6E00F2B943 /* Example Zone Files */,
+			);
+			name = Externals;
+			sourceTree = "<group>";
+		};
+		531AEB2016BF1C6E00F2B943 /* Example Zone Files */ = {
+			isa = PBXGroup;
+			children = (
+				531AEB2116BF1C8300F2B943 /* example.com.zone */,
+				531AEB2216BF1C8300F2B943 /* example2.com.zone */,
+				531AEB2316BF1C8300F2B943 /* example3.com.zone */,
+				531AEB2416BF1C8300F2B943 /* zonefile.example */,
+			);
+			name = "Example Zone Files";
+			sourceTree = "<group>";
+		};
 		531DFD4316B43CF900D6EE07 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -142,6 +172,7 @@
 				5367A6F4169497AA002534FF /* DNS Server */,
 				53AD519516A210D600C6646F /* DNS Server Tests */,
 				5367A6F1169497AA002534FF /* Frameworks */,
+				531AEB1E16BF1C4900F2B943 /* Externals */,
 				5367A6F0169497AA002534FF /* Products */,
 			);
 			sourceTree = "<group>";
@@ -212,6 +243,8 @@
 			children = (
 				531AEB1716BDD38000F2B943 /* AFNetworkDomainZone_ZoneTests.h */,
 				531AEB1816BDD38000F2B943 /* AFNetworkDomainZone_ZoneTests.m */,
+				534EE82716C6B4BF00264AC8 /* AFNetworkDomainZone_RecordTests.h */,
+				534EE82816C6B4BF00264AC8 /* AFNetworkDomainZone_RecordTests.m */,
 				53AD51A216A210E900C6646F /* AFNetworkDomainZone_TimeTests.h */,
 				53AD51A316A210E900C6646F /* AFNetworkDomainZone_TimeTests.m */,
 				53AD519616A210D600C6646F /* Supporting Files */,
@@ -343,6 +376,10 @@
 				531AEB1A16BDD3A300F2B943 /* db.example.com in Resources */,
 				531AEB1B16BDD3A700F2B943 /* db.test.example.com in Resources */,
 				531AEB1C16BDD3AB00F2B943 /* db.example.local in Resources */,
+				531AEB2516BF1C8300F2B943 /* example.com.zone in Resources */,
+				531AEB2616BF1C8300F2B943 /* example2.com.zone in Resources */,
+				531AEB2716BF1C8300F2B943 /* example3.com.zone in Resources */,
+				531AEB2816BF1C8300F2B943 /* zonefile.example in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -384,6 +421,7 @@
 				531AEB1D16BEFDC200F2B943 /* AFNetworkDomainRecord.m in Sources */,
 				53AD51A416A210E900C6646F /* AFNetworkDomainZone_TimeTests.m in Sources */,
 				531AEB1916BDD38000F2B943 /* AFNetworkDomainZone_ZoneTests.m in Sources */,
+				534EE82916C6B4BF00264AC8 /* AFNetworkDomainZone_RecordTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -49,14 +49,14 @@ ttl-value	= 1*DIGIT
 ttl-unit	= "w" | "d" | "h" | "m" | "s"
 
 ;	syntactically <rdata> is the only required field, semantically the preceeding record(s) can provide the values for <name>, <class> and <type>, if there are no preceding records the zone is invalid
-record		= ( ( name 1*WS ) | 1*WS ) [ ttl-param 1*WS ] [ class 1*WS ] [ type 1*WS ] rdata
+record		= ( ( name 1*WS ) | 1*WS ) [ ttl-param 1*WS ] [ class 1*WS ] type 1*WS rdata
 
 ;	incomplete list of class types, but we're unlikely to need to return Chaosnet or Hesiod class records
 class		= "IN"
 
 ;	incomplete list of record types, but we're unlikely to need to return those unlisted, support should be easy to add if need be
 ;	adding support for new record types will require a type specific semantic validator (syntactically their data should already be supported by the rdata rule)
-type		= "A" | "AAAA" | "MX" | "NS" | "PTR" | "SOA" | "SRV" | "TXT"
+type		= "A" | "AAAA" | "MX" | "NS" | "PTR" | "SOA" | "SRV" | "TXT" | "CNAME" | "NAPTR" | "SPF"
 
 ;	<rdata> is 1 or more <data> productions, if multiple they are whitespace separated, the newline from <line> terminates the listing
 rdata		= data *( 1*WS data )
@@ -66,10 +66,11 @@ data		= data-field | ( "(" 1*( LWS ( data-field | comment | newline ) ) ")" )
 ;	if whitespace is semantically important to a data-field value it must be quoted-data to distinquish it from ignored whitespace between fields
 data-field	= quoted-data | 1*inner-data
 ;	quoted-data can contain whitespace, maximum length of quoted-data is 255 characters
-quoted-data = <"> *( inner-data | WS | quoted-pair ) <">
+quoted-data = <"> *( inner-data | common-excluded | quoted-pair ) <">
 ;	if data for a specific resource contains one of the excluded literal characters it must use quoted-data or they'll be confused for a separator
 inner-data	= <any TEXT except excluded>
-excluded	= <"> | ";" | "(" | ")" | WS
+excluded = <"> | common-excluded
+common-excluded = WS | ";" | "(" | ")"
 quoted-pair	= "\" CHAR
 
 blank		= LWS
@@ -81,7 +82,7 @@ name		= "@" | "*" | ( [ "*" "." ] ( dn | fqdn ) )
 dn			= label *( "." label )
 fqdn		= 1*( label "." )
 ;	wildcard labels are only supported as a prefix in <name>, not as a subsequent <label> in a <name>
-label		= 1*( ALPHA | DIGIT | "-" )
+label		= 1*( ALPHA | DIGIT | "-" | "_" )
 CHAR		= <any US-ASCII character (octets 0 - 127)>
 UPALPHA		= <any US-ASCII uppercase letter "A".."Z">
 LOALPHA		= <any US-ASCII lowercase letter "a".."z">

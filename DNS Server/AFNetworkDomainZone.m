@@ -66,6 +66,16 @@ static NSString *const AFDomainServerErrorDomain = @"com.thirty-three.corenetwor
 		return NO;
 	}
 	
+	BOOL read = [self _readFromString:zoneString error:errorRef];
+	if (!read) {
+		return NO;
+	}
+	
+	return YES;
+}
+
+- (BOOL)_readFromString:(NSString *)zoneString error:(NSError **)errorRef
+{
 	NSSet *newRecords = [self _parseRecordsFromZoneString:zoneString error:errorRef];
 	if (newRecords == nil) {
 		return NO;
@@ -79,15 +89,25 @@ static NSString *const AFDomainServerErrorDomain = @"com.thirty-three.corenetwor
 
 static NSString *scanStringFromArray(NSScanner *scanner, NSArray *strings)
 {
+	NSString *longestMatch = nil;
+	
 	for (NSString *currentString in strings) {
-		if (![scanner scanString:currentString intoString:NULL]) {
+		NSScanner *currentScanner = [[scanner copy] autorelease];
+		
+		NSString *match = nil;
+		if (![currentScanner scanString:currentString intoString:&match]) {
 			continue;
 		}
 		
-		return currentString;
+		if ([match length] <= [longestMatch length]) {
+			continue;
+		}
+		
+		longestMatch = match;
 	}
 	
-	return nil;
+	[scanner setScanLocation:([scanner scanLocation] + [longestMatch length])];
+	return longestMatch;
 }
 
 NSString *scanCharacterFromSet(NSScanner *scanner, NSCharacterSet *characterSet)
@@ -162,6 +182,7 @@ static NSString *scanLabel(NSScanner *scanner)
 	[labelCharacterSet formUnionWithCharacterSet:alphaCharacterSet];
 	[labelCharacterSet formUnionWithCharacterSet:digitCharacterSet];
 	[labelCharacterSet addCharactersInString:@"-"];
+	[labelCharacterSet addCharactersInString:@"_"];
 	
 	return scanCharacterSetMinMax(scanner, labelCharacterSet, 1, NSUIntegerMax);
 }
@@ -452,38 +473,71 @@ static NSString *scanComment(NSScanner *scanner)
 	return cumulativeDuration;
 }
 
+static void tryMatch(NSScanner *scanner, NSUInteger *longestMatchScanLocationRef, NSString **longestMatchRef, NSString * (^block)(NSScanner *))
+{
+	NSScanner *currentScanner = [[scanner copy] autorelease];
+	NSString *name = block(currentScanner);
+	if (name == nil) {
+		return;
+	}
+	
+	NSUInteger currentScanLocation = [currentScanner scanLocation];
+	if (currentScanLocation <= *longestMatchScanLocationRef) {
+		return;
+	}
+	
+	*longestMatchScanLocationRef = currentScanLocation;
+	*longestMatchRef = name;
+}
+
 static NSString *scanName(NSScanner *scanner)
 {
-	NSString *name = nil;
+	NSUInteger longestNameScanLocation = 0;
+	NSString *longestName = nil;
 	
-	if ([scanner scanString:@"@" intoString:&name] ||
-		[scanner scanString:@"*" intoString:&name]) {
-		return name;
-	}
+	tryMatch(scanner, &longestNameScanLocation, &longestName, ^ NSString * (NSScanner *innerScanner) {
+		NSString *name = nil;
+		
+		if ([innerScanner scanString:@"@" intoString:&name] ||
+			[innerScanner scanString:@"*" intoString:&name]) {
+			return name;
+		}
+		
+		return nil;
+	});
 	
-	NSUInteger startLocation = [scanner scanLocation];
-	
-	NSMutableString *cumulative = [NSMutableString string];
-	
-	NSString *prefix = nil;
-	if ([scanner scanString:@"*." intoString:&prefix]) {
-		[cumulative appendString:prefix];
-	}
-	
-	NSString *fqdn = scanFqdn(scanner);
-	if (fqdn != nil) {
-		[cumulative appendString:fqdn];
+	tryMatch(scanner, &longestNameScanLocation, &longestName, ^ NSString * (NSScanner *innerScanner) {
+		NSMutableString *cumulative = [NSMutableString string];
+		
+		NSString *prefix = nil;
+		if ([innerScanner scanString:@"*." intoString:&prefix]) {
+			[cumulative appendString:prefix];
+		}
+		
+		NSUInteger longestDnScanLocation = 0;
+		NSString *longestDn = nil;
+		
+		tryMatch(innerScanner, &longestDnScanLocation, &longestDn, ^ NSString * (NSScanner *innerScanner1) {
+			return scanFqdn(innerScanner1);
+		});
+		tryMatch(innerScanner, &longestDnScanLocation, &longestDn, ^ NSString * (NSScanner *innerScanner1) {
+			return scanDn(innerScanner1);
+		});
+		if (longestDn == nil) {
+			return nil;
+		}
+		[cumulative appendString:longestDn];
+		
+		[innerScanner setScanLocation:longestDnScanLocation];
 		return cumulative;
+	});
+	
+	if (longestName == nil) {
+		return nil;
 	}
 	
-	NSString *dn = scanDn(scanner);
-	if (dn != nil) {
-		[cumulative appendString:dn];
-		return cumulative;
-	}
-	
-	[scanner setScanLocation:startLocation];
-	return nil;
+	[scanner setScanLocation:longestNameScanLocation];
+	return longestName;
 }
 
 static NSString *scanClass(NSScanner *scanner)
@@ -493,14 +547,29 @@ static NSString *scanClass(NSScanner *scanner)
 
 static NSString *scanType(NSScanner *scanner)
 {
-	return scanStringFromArray(scanner, @[ @"A", @"AAAA", @"MX", @"NS", @"PTR", @"SOA", @"SRV", @"TXT" ]);
+	return scanStringFromArray(scanner, @[ @"A", @"AAAA", @"MX", @"NS", @"PTR", @"SOA", @"SRV", @"TXT", @"CNAME", @"NAPTR", @"SPF" ]);
 }
+
+static NSCharacterSet * (^commonExcludedCharacterSet)(void) = ^ NSCharacterSet * (void)
+{
+	NSMutableCharacterSet *characterSet = [[[NSMutableCharacterSet alloc] init] autorelease];
+	[characterSet addCharactersInString:@";()"];
+	[characterSet formUnionWithCharacterSet:[NSCharacterSet whitespaceCharacterSet]];
+	return characterSet;
+};
+
+static NSCharacterSet * (^excludedCharacterSet)(void) = ^ NSCharacterSet * (void)
+{
+	NSMutableCharacterSet *characterSet = [[[NSMutableCharacterSet alloc] init] autorelease];
+	[characterSet addCharactersInString:@"\""];
+	[characterSet formUnionWithCharacterSet:commonExcludedCharacterSet()];
+	return characterSet;
+};
 
 static NSString *scanInnerData(NSScanner *scanner, NSUInteger min, NSUInteger max)
 {
 	NSMutableCharacterSet *innerDataCharacterSet = [[textCharacterSet() mutableCopy] autorelease];
-	[innerDataCharacterSet removeCharactersInString:@"\";()"];
-	[innerDataCharacterSet formIntersectionWithCharacterSet:[[NSCharacterSet whitespaceCharacterSet] invertedSet]];
+	[innerDataCharacterSet formIntersectionWithCharacterSet:[excludedCharacterSet() invertedSet]];
 	return scanCharacterSetMinMax(scanner, innerDataCharacterSet, min, max);
 }
 
@@ -533,27 +602,29 @@ static NSString *scanQuotedData(NSScanner *scanner)
 	NSMutableString *cumulative = [NSMutableString string];
 	
 	while (1) {
+		NSUInteger longestCurrentScanLocation = 0;
 		NSString *current = nil;
 		
-		current = scanInnerData(scanner, 1, 1);
-		if (current != nil) {
-			[cumulative appendString:current];
-			continue;
+		tryMatch(scanner, &longestCurrentScanLocation, &current, ^ NSString * (NSScanner *innerScanner) {
+			return scanInnerData(innerScanner, 1, 1);
+		});
+		
+		tryMatch(scanner, &longestCurrentScanLocation, &current, ^ NSString * (NSScanner *innerScanner) {
+			return scanCharacterFromSet(innerScanner, commonExcludedCharacterSet());
+		});
+		
+		tryMatch(scanner, &longestCurrentScanLocation, &current, ^ NSString * (NSScanner *innerScanner) {
+			return scanQuotedPair(innerScanner);
+		});
+		
+		if (current == nil) {
+			break;
 		}
 		
-		current = scanWs(scanner, 1, 1);
-		if (current != nil) {
-			[cumulative appendString:current];
-			continue;
-		}
+		[cumulative appendString:current];
 		
-		current = scanQuotedPair(scanner);
-		if (current != nil) {
-			[cumulative appendString:current];
-			continue;
-		}
-		
-		break;
+		[scanner setScanLocation:longestCurrentScanLocation];
+		continue;
 	}
 	
 	if (![scanner scanString:@"\"" intoString:NULL]) {
@@ -755,27 +826,18 @@ static NSArray *scanRdata(NSScanner *scanner)
 		return NO;
 	}
 	
-	NSString *recordType = nil;
+	NSString *recordType = scanType(recordScanner);
 	do {
-		NSUInteger typeStartLocation = [recordScanner scanLocation];
-		
-		recordType = scanType(recordScanner);
-		if (recordType != nil) {
-			BOOL ws = scanWs(recordScanner, 1, NSUIntegerMax);
-			if (ws) {
-				break;
-			}
-			
-			[recordScanner setScanLocation:typeStartLocation];
+		if (recordType == nil) {
+#warning return error
+			return NO;
 		}
 		
-		recordType = [previousRecord recordType];
+		BOOL ws = scanWs(recordScanner, 1, NSUIntegerMax);
+		if (!ws) {
+			return NO;
+		}
 	} while (0);
-	
-	if (recordType == nil) {
-#warning return error
-		return NO;
-	}
 	
 	NSArray *recordFields = scanRdata(recordScanner);
 	if (recordFields == nil) {

@@ -12,9 +12,9 @@ example.com.	   SOA ns.example.com. username.example.com. 2007120710 1d 2h 4w 1h
 
 ;	implicit type from previous record
 ;	starts with the name of a class
-example.com.		   in.example.com. username.example.com. 2007120710 1d 2h 4w 1h ; comment
+example.com.	   SOA in.example.com. username.example.com. 2007120710 1d 2h 4w 1h ; comment
 ;	starts with the name of a type
-example.com.	       ns.example.com. username.example.com. 2007120710 1d 2h 4w 1h ; comment
+example.com.	   SOA ns.example.com. username.example.com. 2007120710 1d 2h 4w 1h ; comment
 
 ; implicit name from previous record, explicit type, class
 			 1h IN SOA ns.example.com. username.example.com. 2007120710 1d 2h 4w 1h ; comment
@@ -23,13 +23,13 @@ example.com.	       ns.example.com. username.example.com. 2007120710 1d 2h 4w 1h
 				   SOA ns.example.com. username.example.com. 2007120710 1d 2h 4w 1h ; comment
 
 ; implicit name from previous record
-					   ns.example.com. username.example.com. 2007120710 1d 2h 4w 1h ; comment
+				   SOA ns.example.com. username.example.com. 2007120710 1d 2h 4w 1h ; comment
 
 ;	non fqdn name
-@					   ns.example.com. username.example.com. 2007120710 1d 2h 4w 1h ; comment
+@				   SOA ns.example.com. username.example.com. 2007120710 1d 2h 4w 1h ; comment
 
 ;	split line rdata
-@					   (										; comment
+@				   SOA (										; comment
 							ns.example.com.						; comment
 							username.example.com.				; comment
 							2007120710							; comment
@@ -40,7 +40,7 @@ example.com.	       ns.example.com. username.example.com. 2007120710 1d 2h 4w 1h
 					   )										; comment
 						
 ;	combined data-field and split line data
-@					   ns.example.com. (						; comment
+@				   SOA ns.example.com. (						; comment
 							username.example.com.				; comment
 							2007120710							; comment
 							1d									; comment
@@ -50,7 +50,7 @@ example.com.	       ns.example.com. username.example.com. 2007120710 1d 2h 4w 1h
 					   )										; comment
 						
 ;	multiple data-field and split line data
-@					   ns.example.com. username.example.com. (	; comment
+@				   SOA ns.example.com. username.example.com. (	; comment
 							2007120710							; comment
 							1d									; comment
 							2h									; comment
