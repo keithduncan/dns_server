@@ -122,17 +122,108 @@ typedef NS_ENUM(int, DNSRcode) {
 	DNSRcode_Refused = 5,
 };
 
-- (void)networkLayer:(AFNetworkSocket *)socket didReceiveMessage:(NSData *)message fromSender:(AFNetworkSocket *)sender
-{
-	dns_header_t requestHeader = {};
-	
-	size_t cursor = 0;
-	if ((cursor + sizeof(requestHeader)) > [message length]) {
-		return;
+static BOOL SafeGetBytes(NSData *data, uint8_t *bytes, NSRange range) {
+	NSRange intersection = NSIntersectionRange(NSMakeRange(0, [data length]), range);
+	if (!NSEqualRanges(intersection, range)) {
+		return NO;
 	}
 	
-	[message getBytes:&requestHeader range:NSMakeRange(cursor, sizeof(requestHeader))];
-	cursor += sizeof(requestHeader);
+	[data getBytes:bytes range:range];
+	return YES;
+}
+
+static BOOL LengthByteIsLength(uint8_t length) {
+	return (length & /* 0b11000000 */ 192) == 0;
+}
+
+static BOOL LengthByteIsPointer(uint8_t length) {
+	return (length & /* 0b11000000 */ 192) == 192;
+}
+
+typedef NS_ENUM(NSUInteger, DNSLengthType) {
+	DNSLengthType_Invalid,
+	DNSLengthType_Length,
+	DNSLengthType_Pointer,
+};
+
+static DNSLengthType LengthByteGetType(uint8_t length) {
+	if (LengthByteIsLength(length)) {
+		return DNSLengthType_Length;
+	}
+	else if (LengthByteIsPointer(length)) {
+		return DNSLengthType_Pointer;
+	}
+	else {
+		return DNSLengthType_Invalid;
+	}
+}
+
+static NSString *ParseNameFromMessage(NSData *message, /* inout */ size_t *cursorRef) {
+	NSMutableArray *accumulation = [NSMutableArray array];
+	
+	while (1) {
+		uint8_t lengthByte = 0;
+		NSRange lengthByteRange = NSMakeRange(*cursorRef, sizeof(lengthByte));
+		
+		if (!SafeGetBytes(message, &lengthByte, lengthByteRange)) {
+			return nil;
+		}
+		*cursorRef = NSMaxRange(lengthByteRange);
+		
+		if (lengthByte == 0) {
+			goto Return;
+		}
+		
+		switch (LengthByteGetType(lengthByte)) {
+			case DNSLengthType_Invalid:
+			{
+				return nil;
+			}
+			case DNSLengthType_Length:
+			{
+				uint8_t labelBytes[lengthByte];
+				if (!SafeGetBytes(message, labelBytes, NSMakeRange(*cursorRef, lengthByte))) {
+					return nil;
+				}
+				
+				*cursorRef += lengthByte;
+				
+				NSString *label = [[[NSString alloc] initWithBytes:labelBytes length:lengthByte encoding:NSASCIIStringEncoding] autorelease];
+				[accumulation addObject:label];
+				break;
+			}
+			case DNSLengthType_Pointer:
+			{
+				size_t suffixCursor = (lengthByte & /* 0b00111111 */ 63);
+				
+#warning we need cycle detection, we shouldn't allow a client to refer back to a label already accumulated otherwise malicious messages can cause an infinite loop
+				
+				NSString *suffix = ParseNameFromMessage(message, &suffixCursor);
+				if (suffix == nil) {
+					return nil;
+				}
+				
+				[accumulation addObject:suffix];
+				goto Return;
+			}
+		}
+	}
+	
+Return:
+	return [accumulation componentsJoinedByString:@"."];
+}
+
+- (void)networkLayer:(AFNetworkSocket *)socket didReceiveMessage:(NSData *)message fromSender:(AFNetworkSocket *)sender
+{
+	size_t cursor = 0;
+	
+	dns_header_t requestHeader = {};
+	NSRange requestHeaderRange = NSMakeRange(cursor, sizeof(requestHeader));
+	
+	if (!SafeGetBytes(message, (uint8_t *)&requestHeader, requestHeaderRange)) {
+		return;
+	}
+	cursor = NSMaxRange(requestHeaderRange);
 	
 	uint16_t flags = requestHeader.flags;
 	
@@ -147,7 +238,7 @@ typedef NS_ENUM(int, DNSRcode) {
 		DNSFlagsSet(&responseHeader.flags, DNSFlag_QueryResponse, 1);
 		DNSFlagsSet(&responseHeader.flags, DNSFlag_Rcode, DNSRcode_NotImplemented);
 		
-		[self _sendResponse:&responseHeader to:sender];
+		[self _sendResponse:(uint8_t const *)&responseHeader length:sizeof(responseHeader) to:sender];
 		return;
 	}
 	
@@ -158,7 +249,7 @@ typedef NS_ENUM(int, DNSRcode) {
 		DNSFlagsSet(&responseHeader.flags, DNSFlag_QueryResponse, 1);
 		DNSFlagsSet(&responseHeader.flags, DNSFlag_Rcode, DNSRcode_Refused);
 		
-		[self _sendResponse:&responseHeader to:sender];
+		[self _sendResponse:(uint8_t const *)&responseHeader length:sizeof(responseHeader) to:sender];
 		return;
 	}
 	
@@ -167,17 +258,28 @@ typedef NS_ENUM(int, DNSRcode) {
 	}
 	
 	for (size_t questionIdx = 0; questionIdx < requestHeader.qdcount; questionIdx++) {
+		size_t currentCursor = cursor;
+		
+		dns_question_t currentQuestion = {};
+		
+		NSString *name = ParseNameFromMessage(message, &currentCursor);
+		if (name == nil) {
+			return;
+		}
+		
+		currentQuestion.name = (char *)[name UTF8String];
+		
 		
 	}
 }
 
-- (void)_sendResponse:(dns_header_t *)responseHeaderRef to:(AFNetworkSocket *)destination
+- (void)_sendResponse:(uint8_t const *)response length:(size_t)length to:(AFNetworkSocket *)destination
 {
 	AFNetworkTransport *transport = [[[AFNetworkTransport alloc] initWithLowerLayer:(id)destination] autorelease];
 	transport.delegate = (id)self;
 	
-	NSData *response = [NSData dataWithBytes:responseHeaderRef length:sizeof(*responseHeaderRef)];
-	[transport performWrite:response withTimeout:-1 context:NULL];
+	NSData *responseData = [NSData dataWithBytes:response length:length];
+	[transport performWrite:responseData withTimeout:-1 context:NULL];
 	
 	[transport performWrite:[[[AFNetworkPacketClose alloc] init] autorelease] withTimeout:-1 context:NULL];
 	
