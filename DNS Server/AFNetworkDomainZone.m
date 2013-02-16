@@ -851,7 +851,7 @@ static NSArray *scanRdata(NSScanner *scanner)
 	return YES;
 }
 
-- (AFNetworkDomainRecord *)recordForFullyQualifiedDomainName:(NSString *)fullyQualifiedDomainName recordClass:(NSString *)recordClass recordType:(NSString *)recordType
+- (NSSet *)recordsForFullyQualifiedDomainName:(NSString *)fullyQualifiedDomainName recordClass:(NSString *)recordClass recordType:(NSString *)recordType
 {
 	return nil;
 }
