@@ -10,6 +10,8 @@
 
 #import <dns_util.h>
 
+#import "AFNetworkDomainZone.h"
+
 @interface AFNetworkDomainServer () <AFNetworkSocketHostDelegate>
 @property (retain, nonatomic) NSMutableSet *zones;
 @end
@@ -142,13 +144,19 @@ static BOOL LengthByteIsPointer(uint8_t length) {
 
 typedef NS_ENUM(NSUInteger, DNSLengthType) {
 	DNSLengthType_Invalid,
+	DNSLengthType_Root,
 	DNSLengthType_Length,
 	DNSLengthType_Pointer,
 };
 
 static DNSLengthType LengthByteGetType(uint8_t length) {
 	if (LengthByteIsLength(length)) {
-		return DNSLengthType_Length;
+		if (length == 0) {
+			return DNSLengthType_Root;
+		}
+		else {
+			return DNSLengthType_Length;
+		}
 	}
 	else if (LengthByteIsPointer(length)) {
 		return DNSLengthType_Pointer;
@@ -172,14 +180,15 @@ static NSString *ParseNameFromMessage(NSData *message, /* inout */ size_t *curso
 		}
 		*cursorRef = NSMaxRange(lengthByteRange);
 		
-		if (lengthByte == 0) {
-			goto Return;
-		}
-		
 		switch (LengthByteGetType(lengthByte)) {
 			case DNSLengthType_Invalid:
 			{
 				return nil;
+			}
+			case DNSLengthType_Root:
+			{
+				[accumulation addObject:@""];
+				goto Return;
 			}
 			case DNSLengthType_Length:
 			{
@@ -187,7 +196,6 @@ static NSString *ParseNameFromMessage(NSData *message, /* inout */ size_t *curso
 				if (!SafeGetBytes(message, labelBytes, NSMakeRange(*cursorRef, lengthByte))) {
 					return nil;
 				}
-				
 				*cursorRef += lengthByte;
 				
 				NSString *label = [[[NSString alloc] initWithBytes:labelBytes length:lengthByte encoding:NSASCIIStringEncoding] autorelease];
@@ -196,7 +204,16 @@ static NSString *ParseNameFromMessage(NSData *message, /* inout */ size_t *curso
 			}
 			case DNSLengthType_Pointer:
 			{
-				size_t suffixCursor = (lengthByte & /* 0b00111111 */ 63);
+				uint8_t suffixCursorTopBits = (lengthByte & /* 0b00111111 */ 63);
+				
+				uint8_t suffixCursorBottomBits = 0;
+				NSRange suffixCursorBottomBitsRange = NSMakeRange(*cursorRef, 1);
+				if (!SafeGetBytes(message, &suffixCursorBottomBits, suffixCursorBottomBitsRange)) {
+					return nil;
+				}
+				*cursorRef = NSMaxRange(suffixCursorBottomBitsRange);
+				
+				size_t suffixCursor = (uint16_t)suffixCursorTopBits | (uint16_t)suffixCursorBottomBits;
 				
 				/*
 					Note
@@ -220,6 +237,29 @@ static NSString *ParseNameFromMessage(NSData *message, /* inout */ size_t *curso
 	
 Return:
 	return [accumulation componentsJoinedByString:@"."];
+}
+
+static NSUInteger DNSQuestionSizeFunction(void const *item) {
+	return sizeof(dns_question_t);
+}
+
+static void *DNSQuestionAcquireFunction(const void *src, NSUInteger (*size)(const void *item), BOOL shouldCopy) {
+	NSCParameterAssert(size(src) == DNSQuestionSizeFunction(src));
+	NSCParameterAssert(shouldCopy);
+	
+	dns_question_t *originalQuestion = (dns_question_t *)src;
+	
+	dns_question_t *newQuestion = malloc(sizeof(dns_question_t));
+	newQuestion->name = strdup(originalQuestion->name);
+	newQuestion->dnstype = originalQuestion->dnstype;
+	newQuestion->dnsclass = originalQuestion->dnsclass;
+	return newQuestion;
+}
+
+static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(const void *item)) {
+	dns_question_t *question = (dns_question_t *)item;
+	free(question->name);
+	free(question);
 }
 
 - (void)networkLayer:(AFNetworkSocket *)socket didReceiveMessage:(NSData *)message fromSender:(AFNetworkSocket *)sender
@@ -266,7 +306,15 @@ Return:
 		return;
 	}
 	
-	for (size_t questionIdx = 0; questionIdx < requestHeader.qdcount; questionIdx++) {
+	NSPointerFunctions *questionsPointerFunctions = [[NSPointerFunctions alloc] initWithOptions:(NSPointerFunctionsMallocMemory | NSPointerFunctionsStructPersonality | NSPointerFunctionsCopyIn)];
+	questionsPointerFunctions.sizeFunction = DNSQuestionSizeFunction;
+	questionsPointerFunctions.acquireFunction = DNSQuestionAcquireFunction;
+	questionsPointerFunctions.relinquishFunction = DNSQuestionRelinquishFunction;
+	
+	NSPointerArray *questions = [NSPointerArray pointerArrayWithPointerFunctions:questionsPointerFunctions];
+	
+	uint16_t questionCount = ntohs(requestHeader.qdcount);
+	for (size_t questionIdx = 0; questionIdx < questionCount; questionIdx++) {
 		size_t currentCursor = cursor;
 		
 		dns_question_t currentQuestion = {};
@@ -275,10 +323,48 @@ Return:
 		if (name == nil) {
 			return;
 		}
-		
 		currentQuestion.name = (char *)[name UTF8String];
 		
+		NSRange currentQuestionTypeRange = NSMakeRange(currentCursor, 2);
+		if (!SafeGetBytes(message, (uint8_t *)&currentQuestion.dnstype, currentQuestionTypeRange)) {
+			return;
+		}
+		currentCursor = NSMaxRange(currentQuestionTypeRange);
 		
+		NSRange currentQuestionClassRange = NSMakeRange(currentCursor, 2);
+		if (!SafeGetBytes(message, (uint8_t *)&currentQuestion.dnsclass, currentQuestionClassRange)) {
+			return;
+		}
+		currentCursor = NSMaxRange(currentQuestionClassRange);
+		
+		[questions addPointer:&currentQuestion];
+		
+		cursor = currentCursor;
+	}
+	
+	NSMutableSet *answerRecords = [NSMutableSet set];
+	
+	for (NSUInteger idx = 0; idx < questions.count; idx++) {
+		dns_question_t *currentQuestion = [questions pointerAtIndex:idx];
+		
+		char const *classStringBytes = dns_class_string(ntohs(currentQuestion->dnsclass));
+		if (classStringBytes == NULL) {
+			continue;
+		}
+		NSString *classString = [NSString stringWithUTF8String:classStringBytes];
+		
+		char const *typeStringBytes = dns_type_string(ntohs(currentQuestion->dnstype));
+		if (typeStringBytes == NULL) {
+			continue;
+		}
+		NSString *typeString = [NSString stringWithUTF8String:typeStringBytes];
+		
+		char const *nameStringBytes = currentQuestion->name;
+		NSString *nameString = [NSString stringWithUTF8String:nameStringBytes];
+		
+		for (AFNetworkDomainZone *currentZone in self.zones) {
+			[answerRecords unionSet:[currentZone recordsForFullyQualifiedDomainName:nameString recordClass:classString recordType:typeString]];
+		}
 	}
 }
 
