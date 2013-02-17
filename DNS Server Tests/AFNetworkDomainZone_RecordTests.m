@@ -9,7 +9,7 @@
 #import "AFNetworkDomainZone_RecordTests.h"
 
 #import "AFNetworkDomainZone.h"
-#import "AFNetworkDomainZone+AFNetworkPrivate.h"
+#import "AFNetworkDomainZone+RecordParsing.h"
 
 @implementation AFNetworkDomainZone_RecordTests
 

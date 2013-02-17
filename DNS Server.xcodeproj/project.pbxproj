@@ -20,15 +20,19 @@
 		531DFD5716B43D1900D6EE07 /* CoreNetworking.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 531DFD4C16B43CF900D6EE07 /* CoreNetworking.framework */; };
 		532110101699FEC700D26765 /* AFNetworkDomainRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 5321100F1699FEC700D26765 /* AFNetworkDomainRecord.m */; };
 		53211016169A018800D26765 /* libresolv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 53211015169A018800D26765 /* libresolv.dylib */; };
+		534862CF16D1172300A0F4BA /* AFNetworkDomainZone.m in Sources */ = {isa = PBXBuildFile; fileRef = 534862CE16D1172300A0F4BA /* AFNetworkDomainZone.m */; };
+		534862D016D1172800A0F4BA /* AFNetworkDomainZone.m in Sources */ = {isa = PBXBuildFile; fileRef = 534862CE16D1172300A0F4BA /* AFNetworkDomainZone.m */; };
+		534862D416D1185A00A0F4BA /* AFNetworkDomainZone+AFNetworkPrivate.m in Sources */ = {isa = PBXBuildFile; fileRef = 534862D316D1185A00A0F4BA /* AFNetworkDomainZone+AFNetworkPrivate.m */; };
+		534862D516D1185A00A0F4BA /* AFNetworkDomainZone+AFNetworkPrivate.m in Sources */ = {isa = PBXBuildFile; fileRef = 534862D316D1185A00A0F4BA /* AFNetworkDomainZone+AFNetworkPrivate.m */; };
 		534EE82916C6B4BF00264AC8 /* AFNetworkDomainZone_RecordTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 534EE82816C6B4BF00264AC8 /* AFNetworkDomainZone_RecordTests.m */; };
 		5367A6F9169497AA002534FF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5367A6F7169497AA002534FF /* InfoPlist.strings */; };
 		5367A7011694980A002534FF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5367A7001694980A002534FF /* main.m */; };
 		5367A7181694A651002534FF /* AFNetworkDomainServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 5367A7171694A651002534FF /* AFNetworkDomainServer.m */; };
-		5367A71D1694A75C002534FF /* AFNetworkDomainZone.m in Sources */ = {isa = PBXBuildFile; fileRef = 5367A71C1694A75C002534FF /* AFNetworkDomainZone.m */; };
+		5367A71D1694A75C002534FF /* AFNetworkDomainZone+RecordParsing.m in Sources */ = {isa = PBXBuildFile; fileRef = 5367A71C1694A75C002534FF /* AFNetworkDomainZone+RecordParsing.m */; };
 		53AD518E16A210D600C6646F /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53AD518D16A210D600C6646F /* SenTestingKit.framework */; };
 		53AD519A16A210D600C6646F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 53AD519816A210D600C6646F /* InfoPlist.strings */; };
 		53AD51A416A210E900C6646F /* AFNetworkDomainZone_TimeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 53AD51A316A210E900C6646F /* AFNetworkDomainZone_TimeTests.m */; };
-		53AD51A516A210F900C6646F /* AFNetworkDomainZone.m in Sources */ = {isa = PBXBuildFile; fileRef = 5367A71C1694A75C002534FF /* AFNetworkDomainZone.m */; };
+		53AD51A516A210F900C6646F /* AFNetworkDomainZone+RecordParsing.m in Sources */ = {isa = PBXBuildFile; fileRef = 5367A71C1694A75C002534FF /* AFNetworkDomainZone+RecordParsing.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -88,6 +92,10 @@
 		5321100E1699FEC700D26765 /* AFNetworkDomainRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkDomainRecord.h; sourceTree = "<group>"; };
 		5321100F1699FEC700D26765 /* AFNetworkDomainRecord.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkDomainRecord.m; sourceTree = "<group>"; };
 		53211015169A018800D26765 /* libresolv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libresolv.dylib; path = usr/lib/libresolv.dylib; sourceTree = SDKROOT; };
+		534862CE16D1172300A0F4BA /* AFNetworkDomainZone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkDomainZone.m; sourceTree = "<group>"; };
+		534862D116D1179700A0F4BA /* AFNetworkDomainZone+RecordParsing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AFNetworkDomainZone+RecordParsing.h"; sourceTree = "<group>"; };
+		534862D216D1185A00A0F4BA /* AFNetworkDomainZone+AFNetworkPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AFNetworkDomainZone+AFNetworkPrivate.h"; sourceTree = "<group>"; };
+		534862D316D1185A00A0F4BA /* AFNetworkDomainZone+AFNetworkPrivate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AFNetworkDomainZone+AFNetworkPrivate.m"; sourceTree = "<group>"; };
 		534EE82716C6B4BF00264AC8 /* AFNetworkDomainZone_RecordTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkDomainZone_RecordTests.h; sourceTree = "<group>"; };
 		534EE82816C6B4BF00264AC8 /* AFNetworkDomainZone_RecordTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkDomainZone_RecordTests.m; sourceTree = "<group>"; };
 		5367A6EF169497AA002534FF /* DNS Server.app */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "DNS Server.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -99,10 +107,9 @@
 		5367A7171694A651002534FF /* AFNetworkDomainServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkDomainServer.m; sourceTree = "<group>"; };
 		5367A7191694A6E2002534FF /* db.example.com */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = db.example.com; sourceTree = "<group>"; };
 		5367A71B1694A75C002534FF /* AFNetworkDomainZone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkDomainZone.h; sourceTree = "<group>"; };
-		5367A71C1694A75C002534FF /* AFNetworkDomainZone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkDomainZone.m; sourceTree = "<group>"; };
+		5367A71C1694A75C002534FF /* AFNetworkDomainZone+RecordParsing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AFNetworkDomainZone+RecordParsing.m"; sourceTree = "<group>"; };
 		538DEA79169B8DAF00AA0663 /* db.example.local */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = db.example.local; sourceTree = "<group>"; };
 		53A709B816B48F4B009B1E4C /* zone.bnf */ = {isa = PBXFileReference; lastKnownFileType = text; path = zone.bnf; sourceTree = "<group>"; };
-		53AD518416A2109E00C6646F /* AFNetworkDomainZone+AFNetworkPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AFNetworkDomainZone+AFNetworkPrivate.h"; sourceTree = "<group>"; };
 		53AD518C16A210D600C6646F /* DNS Server Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "DNS Server Tests.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		53AD518D16A210D600C6646F /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		53AD519216A210D600C6646F /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -204,8 +211,11 @@
 				5367A7161694A651002534FF /* AFNetworkDomainServer.h */,
 				5367A7171694A651002534FF /* AFNetworkDomainServer.m */,
 				5367A71B1694A75C002534FF /* AFNetworkDomainZone.h */,
-				53AD518416A2109E00C6646F /* AFNetworkDomainZone+AFNetworkPrivate.h */,
-				5367A71C1694A75C002534FF /* AFNetworkDomainZone.m */,
+				534862CE16D1172300A0F4BA /* AFNetworkDomainZone.m */,
+				534862D216D1185A00A0F4BA /* AFNetworkDomainZone+AFNetworkPrivate.h */,
+				534862D316D1185A00A0F4BA /* AFNetworkDomainZone+AFNetworkPrivate.m */,
+				534862D116D1179700A0F4BA /* AFNetworkDomainZone+RecordParsing.h */,
+				5367A71C1694A75C002534FF /* AFNetworkDomainZone+RecordParsing.m */,
 				5321100E1699FEC700D26765 /* AFNetworkDomainRecord.h */,
 				5321100F1699FEC700D26765 /* AFNetworkDomainRecord.m */,
 				53A709B816B48F4B009B1E4C /* zone.bnf */,
@@ -408,8 +418,10 @@
 			files = (
 				5367A7011694980A002534FF /* main.m in Sources */,
 				5367A7181694A651002534FF /* AFNetworkDomainServer.m in Sources */,
-				5367A71D1694A75C002534FF /* AFNetworkDomainZone.m in Sources */,
+				5367A71D1694A75C002534FF /* AFNetworkDomainZone+RecordParsing.m in Sources */,
 				532110101699FEC700D26765 /* AFNetworkDomainRecord.m in Sources */,
+				534862CF16D1172300A0F4BA /* AFNetworkDomainZone.m in Sources */,
+				534862D416D1185A00A0F4BA /* AFNetworkDomainZone+AFNetworkPrivate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -417,11 +429,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				53AD51A516A210F900C6646F /* AFNetworkDomainZone.m in Sources */,
+				53AD51A516A210F900C6646F /* AFNetworkDomainZone+RecordParsing.m in Sources */,
 				531AEB1D16BEFDC200F2B943 /* AFNetworkDomainRecord.m in Sources */,
 				53AD51A416A210E900C6646F /* AFNetworkDomainZone_TimeTests.m in Sources */,
 				531AEB1916BDD38000F2B943 /* AFNetworkDomainZone_ZoneTests.m in Sources */,
 				534EE82916C6B4BF00264AC8 /* AFNetworkDomainZone_RecordTests.m in Sources */,
+				534862D016D1172800A0F4BA /* AFNetworkDomainZone.m in Sources */,
+				534862D516D1185A00A0F4BA /* AFNetworkDomainZone+AFNetworkPrivate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

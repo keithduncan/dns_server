@@ -2,16 +2,14 @@
 //  AFNetworkDomainZone+AFNetworkPrivate.h
 //  DNS Server
 //
-//  Created by Keith Duncan on 12/01/2013.
+//  Created by Keith Duncan on 17/02/2013.
 //  Copyright (c) 2013 Keith Duncan. All rights reserved.
 //
 
 #import "AFNetworkDomainZone.h"
 
-@interface AFNetworkDomainZone ()
+extern NSString *const AFDomainServerErrorDomain;
 
-- (BOOL)_readFromString:(NSString *)zoneString error:(NSError **)errorRef;
-
-- (NSTimeInterval)_scanTimeValue:(NSScanner *)timeScanner;
+@interface AFNetworkDomainZone (AFNetworkPrivate)
 
 @end

@@ -8,7 +8,7 @@
 
 #import "AFNetworkDomainZone_TimeTests.h"
 
-#import "AFNetworkDomainZone+AFNetworkPrivate.h"
+#import "AFNetworkDomainZone+RecordParsing.h"
 
 @implementation AFNetworkDomainZone_TimeTests
 
