@@ -362,13 +362,13 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 		if (classStringBytes == NULL) {
 			continue;
 		}
-		NSString *classString = [NSString stringWithUTF8String:classStringBytes];
+		NSString *classString = [[NSString stringWithUTF8String:classStringBytes] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 		
 		char const *typeStringBytes = dns_type_string(ntohs(currentQuestion->dnstype));
 		if (typeStringBytes == NULL) {
 			continue;
 		}
-		NSString *typeString = [NSString stringWithUTF8String:typeStringBytes];
+		NSString *typeString = [[NSString stringWithUTF8String:typeStringBytes] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 		
 		char const *nameStringBytes = currentQuestion->name;
 		NSString *nameString = [NSString stringWithUTF8String:nameStringBytes];
