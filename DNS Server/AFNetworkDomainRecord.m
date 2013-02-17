@@ -11,6 +11,8 @@
 @interface AFNetworkDomainRecord ()
 @property (readwrite, copy, nonatomic) NSString *fullyQualifiedDomainName;
 
+@property (readwrite, assign, nonatomic) NSTimeInterval ttl;
+
 @property (readwrite, copy, nonatomic) NSString *recordClass;
 @property (readwrite, copy, nonatomic) NSString *recordType;
 
@@ -19,7 +21,7 @@
 
 @implementation AFNetworkDomainRecord
 
-- (id)initWithFullyQualifiedDomainName:(NSString *)fullyQualifiedDomainName recordClass:(NSString *)recordClass recordType:(NSString *)recordType fields:(NSArray *)fields
+- (id)initWithFullyQualifiedDomainName:(NSString *)fullyQualifiedDomainName ttl:(NSTimeInterval)ttl recordClass:(NSString *)recordClass recordType:(NSString *)recordType fields:(NSArray *)fields
 {
 	self = [self init];
 	if (self == nil) {
@@ -27,6 +29,8 @@
 	}
 	
 	_fullyQualifiedDomainName = [fullyQualifiedDomainName copy];
+	
+	_ttl = ttl;
 	
 	_recordClass = [recordClass copy];
 	_recordType = [recordType copy];

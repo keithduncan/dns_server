@@ -786,7 +786,7 @@ static NSArray *scanRdata(NSScanner *scanner)
 		return NO;
 	}
 	
-	AFNetworkDomainRecord *newRecord = [[[AFNetworkDomainRecord alloc] initWithFullyQualifiedDomainName:recordName recordClass:recordClass recordType:recordType fields:recordFields] autorelease];
+	AFNetworkDomainRecord *newRecord = [[[AFNetworkDomainRecord alloc] initWithFullyQualifiedDomainName:recordName ttl:recordTtl recordClass:recordClass recordType:recordType fields:recordFields] autorelease];
 	[records addObject:newRecord];
 	
 	return YES;
