@@ -14,6 +14,8 @@
 
 #import "CoreNetworking/CoreNetworking.h"
 
+NSString *const AFNetworkDomainZoneErrorDomain = @"com.thirty-three.corenetworking.domain-zone";
+
 @implementation AFNetworkDomainZone
 
 @synthesize origin=_origin;
@@ -55,7 +57,7 @@
 			NSDictionary *errorInfo = @{
 				NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Couldn\u2019t read the contents of the zone file as %@ data", encodingName],
 			};
-			*errorRef = [NSError errorWithDomain:AFDomainServerErrorDomain code:AFNetworkErrorUnknown userInfo:errorInfo];
+			*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
 		}
 		return NO;
 	}

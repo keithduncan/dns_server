@@ -259,7 +259,7 @@ static NSString *scanComment(NSScanner *scanner)
 						NSDictionary *errorInfo = @{
 							NSLocalizedDescriptionKey : @"ORIGIN directive must be followed by a fully qualified domain name",
 						};
-						*errorRef = [NSError errorWithDomain:AFDomainServerErrorDomain code:AFNetworkErrorUnknown userInfo:errorInfo];
+						*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
 					}
 					return NO;
 				}
@@ -277,7 +277,7 @@ static NSString *scanComment(NSScanner *scanner)
 						NSDictionary *errorInfo = @{
 							NSLocalizedDescriptionKey : @"TTL directive must be followed by a time value",
 						};
-						*errorRef = [NSError errorWithDomain:AFDomainServerErrorDomain code:AFNetworkErrorUnknown userInfo:errorInfo];
+						*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
 					}
 					return NO;
 				}
@@ -289,21 +289,21 @@ static NSString *scanComment(NSScanner *scanner)
 					NSDictionary *errorInfo = @{
 						NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Cannot process directive"],
 					};
-					*errorRef = [NSError errorWithDomain:AFDomainServerErrorDomain code:AFNetworkErrorUnknown userInfo:errorInfo];
+					*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
 				}
 				return NO;
 			}
 		}
 		
 		// Record
-		else if ([self _scanRecord:scanner intoArray:records]) {
-			
+		else {
+			if (![self _scanRecord:scanner intoArray:records error:errorRef]) {
+				return NO;
+			}
 		}
 		
 		// Blank
-		else if (1) {
-			
-		}
+		//nop
 		
 		// LWS
 		
@@ -347,7 +347,7 @@ static NSString *scanComment(NSScanner *scanner)
 			NSDictionary *errorInfo = @{
 				NSLocalizedDescriptionKey : @"Couldn\u2019t parse all the zone file entries, some data may be missing",
 			};
-			*errorRef = [NSError errorWithDomain:AFDomainServerErrorDomain code:AFNetworkErrorUnknown userInfo:errorInfo];
+			*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
 		}
 		return NO;
 	}
@@ -680,11 +680,31 @@ static NSArray *scanRdata(NSScanner *scanner)
 	return cumulative;
 }
 
-- (BOOL)_scanRecord:(NSScanner *)recordScanner intoArray:(NSMutableArray *)records
+- (BOOL)_scanRecord:(NSScanner *)recordScanner intoArray:(NSMutableArray *)records error:(NSError **)errorRef
 {
 	NSUInteger startLocation = [recordScanner scanLocation];
 	
 	AFNetworkDomainRecord *previousRecord = [records lastObject];
+	
+	__block NSUInteger lineIndex = 0;
+	NSString *fullString = [recordScanner string];
+	[fullString enumerateSubstringsInRange:NSMakeRange(0, [fullString length]) options:(NSStringEnumerationByLines | NSStringEnumerationSubstringNotRequired) usingBlock:^ (NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
+		if (!NSLocationInRange(startLocation, enclosingRange)) {
+			lineIndex++;
+			return;
+		}
+		
+		*stop = YES;
+	}];
+	NSDictionary *errorInfo = @{
+		NSLocalizedFailureReasonErrorKey : [NSString stringWithFormat:NSLocalizedString(@"Line %lu is not valid", @"AFNetworkDomainZone RecordParsing error failure reason"), (unsigned long)(lineIndex + 1)],
+	};
+	
+	NSDictionary * (^dictionaryByAddingEntries)(NSDictionary *, NSDictionary *) = ^ NSDictionary * (NSDictionary *dictionary, NSDictionary *entries) {
+		NSMutableDictionary *newDictionary = [NSMutableDictionary dictionaryWithDictionary:dictionary];
+		[newDictionary addEntriesFromDictionary:entries];
+		return newDictionary;
+	};
 	
 	NSString *recordName = nil;
 	do {
@@ -700,7 +720,7 @@ static NSArray *scanRdata(NSScanner *scanner)
 		BOOL ws = scanWs(recordScanner, 1, NSUIntegerMax);
 		if (ws) {
 			if (previousRecord == nil) {
-#warning return error
+				break;
 			}
 			
 			recordName = [previousRecord fullyQualifiedDomainName];
@@ -709,6 +729,13 @@ static NSArray *scanRdata(NSScanner *scanner)
 	
 	if (recordName == nil) {
 		[recordScanner setScanLocation:startLocation];
+		
+		if (errorRef != NULL) {
+			errorInfo = dictionaryByAddingEntries(errorInfo, @{
+				NSLocalizedDescriptionKey : NSLocalizedString(@"No record name given and no prior record name to use", @"AFNetworkDomainZone ResourceParsing no name error description"),
+			});
+			*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
+		}
 		return NO;
 	}
 	else if ([recordName isEqualToString:@"@"]) {
@@ -738,7 +765,13 @@ static NSArray *scanRdata(NSScanner *scanner)
 	
 	if (recordTtl == -1) {
 		if (self.ttl == -1) {
-#warning return error
+			if (errorRef != NULL) {
+				dictionaryByAddingEntries(errorInfo, @{
+					NSLocalizedDescriptionKey : NSLocalizedString(@"No record TTL given and no $TTL directive to give a default", @"AFNetworkDomainZone ResourceParsing no TTL error description"),
+				});
+				*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
+			}
+			return NO;
 		}
 		else {
 			recordTtl = self.ttl;
@@ -763,19 +796,35 @@ static NSArray *scanRdata(NSScanner *scanner)
 	} while (0);
 	
 	if (recordClass == nil) {
-#warning return error
+		if (errorRef != NULL) {
+			errorInfo = dictionaryByAddingEntries(errorInfo, @{
+				NSLocalizedDescriptionKey : NSLocalizedString(@"No record class given and no prior record class to use", @"AFNetworkDomainZone ResourceParsing no class error description"),
+			});
+			*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
+		}
 		return NO;
 	}
 	
 	NSString *recordType = scanType(recordScanner);
 	do {
 		if (recordType == nil) {
-#warning return error
+			if (errorRef != NULL) {
+				errorInfo = dictionaryByAddingEntries(errorInfo, @{
+					NSLocalizedDescriptionKey : NSLocalizedString(@"No record type given, type is not optional", @"AFNetworkDomainZone ResourceParsing no type error description"),
+				});
+				*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
+			}
 			return NO;
 		}
 		
 		BOOL ws = scanWs(recordScanner, 1, NSUIntegerMax);
 		if (!ws) {
+			if (errorRef != NULL) {
+				errorInfo = dictionaryByAddingEntries(errorInfo, @{
+					NSLocalizedDescriptionKey : NSLocalizedString(@"No whitespace following record type, this is required to separate the type from the record data", @"AFNetworkDomainZone ResourceParsing no whitespace after type error description"),
+				});
+				*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
+			}
 			return NO;
 		}
 	} while (0);
@@ -783,12 +832,31 @@ static NSArray *scanRdata(NSScanner *scanner)
 	NSArray *recordFields = scanRdata(recordScanner);
 	if (recordFields == nil) {
 		[recordScanner setScanLocation:startLocation];
+		
+		if (errorRef != NULL) {
+			errorInfo = dictionaryByAddingEntries(errorInfo, @{
+				NSLocalizedDescriptionKey : NSLocalizedString(@"No record data given, record data is not optional", @"AFNetworkDomainZone ResourceParsing no record data error description"),
+			});
+			*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
+		}
 		return NO;
 	}
 	
 	AFNetworkDomainRecord *newRecord = [[[AFNetworkDomainRecord alloc] initWithFullyQualifiedDomainName:recordName ttl:recordTtl recordClass:recordClass recordType:recordType fields:recordFields] autorelease];
-	[records addObject:newRecord];
 	
+	NSError *encodeError = nil;
+	NSData *encode = [newRecord encodeRecord:&encodeError];
+	if (encode == nil) {
+		if (errorRef != NULL) {
+			errorInfo = dictionaryByAddingEntries(errorInfo, @{
+				NSLocalizedDescriptionKey : NSLocalizedString(@"Cannot encode record data for answers", @"AFNetworkDomainZone ResourceParsing record data encode error description"),
+			});
+			*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
+		}
+		return NO;
+	}
+	
+	[records addObject:newRecord];
 	return YES;
 }
 

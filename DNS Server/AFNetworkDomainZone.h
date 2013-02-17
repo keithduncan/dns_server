@@ -10,6 +10,12 @@
 
 @class AFNetworkDomainRecord;
 
+extern NSString *const AFNetworkDomainZoneErrorDomain;
+
+typedef NS_ENUM(NSInteger, AFNetworkDomainZoneErrorCode) {
+	AFNetworkDomainZoneErrorCodeUnknown = 0,
+};
+
 @interface AFNetworkDomainZone : NSObject
 
 - (BOOL)readFromURL:(NSURL *)URL options:(NSDictionary *)options error:(NSError **)errorRef;

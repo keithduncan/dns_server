@@ -21,4 +21,6 @@
 
 @property (readonly, copy, nonatomic) NSArray *fields;
 
+- (NSData *)encodeRecord:(NSError **)errorRef;
+
 @end

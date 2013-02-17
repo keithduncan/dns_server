@@ -8,8 +8,6 @@
 
 #import "AFNetworkDomainZone.h"
 
-extern NSString *const AFDomainServerErrorDomain;
-
 @interface AFNetworkDomainZone ()
 @property (retain, nonatomic) NSSet *records;
 @end

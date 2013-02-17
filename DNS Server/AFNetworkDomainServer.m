@@ -11,6 +11,7 @@
 #import <dns_util.h>
 
 #import "AFNetworkDomainZone.h"
+#import "AFNetworkDomainRecord.h"
 
 @interface AFNetworkDomainServer () <AFNetworkSocketHostDelegate>
 @property (retain, nonatomic) NSMutableSet *zones;
@@ -281,8 +282,9 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 	}
 	
 	if (DNSFlagsGet(flags, DNSFlag_Opcode) != DNSOpcode_Standard) {
-		dns_header_t responseHeader = {};
-		responseHeader.xid = requestHeader.xid;
+		dns_header_t responseHeader = {
+			.xid = requestHeader.xid,
+		};
 		
 		DNSFlagsSet(&responseHeader.flags, DNSFlag_QueryResponse, 1);
 		DNSFlagsSet(&responseHeader.flags, DNSFlag_Rcode, DNSRcode_NotImplemented);
@@ -292,8 +294,9 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 	}
 	
 	if (DNSFlagsGet(flags, DNSFlag_RD) != 0) {
-		dns_header_t responseHeader = {};
-		responseHeader.xid = requestHeader.xid;
+		dns_header_t responseHeader = {
+			.xid = requestHeader.xid,
+		};
 		
 		DNSFlagsSet(&responseHeader.flags, DNSFlag_QueryResponse, 1);
 		DNSFlagsSet(&responseHeader.flags, DNSFlag_Rcode, DNSRcode_Refused);
@@ -377,10 +380,36 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 			[answerRecords unionSet:[currentZone recordsForFullyQualifiedDomainName:nameString recordClass:classString recordType:typeString]];
 		}
 	}
+	
+	dns_header_t responseHeader = {
+		.xid = requestHeader.xid,
+		.ancount = htons(answerRecords.count),
+	};
+	
+	DNSFlagsSet(&responseHeader.flags, DNSFlag_QueryResponse, 1);
+	DNSFlagsSet(&responseHeader.flags, DNSFlag_Rcode, DNSRcode_OK);
+	
+	NSMutableData *response = [NSMutableData data];
+	[response appendBytes:&responseHeader length:sizeof(responseHeader)];
+	
+	for (AFNetworkDomainRecord *currentRecord in answerRecords) {
+		NSData *currentRecordData = [currentRecord encodeRecord:NULL];
+		if (currentRecordData == nil) {
+			return;
+		}
+		
+		[response appendData:currentRecordData];
+	}
+	
+	[self _sendResponse:(uint8_t const *)[response bytes] length:[response length] to:sender];
 }
 
 - (void)_sendResponse:(uint8_t const *)response length:(size_t)length to:(AFNetworkSocket *)destination
 {
+#warning needs to branch based on the transport type and prepend a message length for TCP transports
+	
+#warning needs to respect the 512 byte limit for unicast DNS and the destination interface MTU for multicast DNS responses (and set the truncation bit)
+	
 	AFNetworkTransport *transport = [[[AFNetworkTransport alloc] initWithLowerLayer:(id)destination] autorelease];
 	transport.delegate = (id)self;
 	
