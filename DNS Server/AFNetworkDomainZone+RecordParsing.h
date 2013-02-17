@@ -13,8 +13,6 @@
 @property (copy, nonatomic) NSString *origin;
 @property (assign, nonatomic) NSTimeInterval ttl;
 
-@property (retain, nonatomic) NSSet *records;
-
 @end
 
 @interface AFNetworkDomainZone (AFNetworkRecordParsing)

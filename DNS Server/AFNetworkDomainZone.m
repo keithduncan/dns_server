@@ -8,7 +8,9 @@
 
 #import "AFNetworkDomainZone.h"
 #import "AFNetworkDomainZone+AFNetworkPrivate.h"
+
 #import "AFNetworkDomainZone+RecordParsing.h"
+#import "AFNetworkDomainZone+RecordMatching.h"
 
 #import "CoreNetworking/CoreNetworking.h"
 
@@ -51,8 +53,8 @@
 			NSString *encodingName = (NSString *)CFStringConvertEncodingToIANACharSetName(CFStringConvertNSStringEncodingToEncoding(stringEncoding));
 			
 			NSDictionary *errorInfo = @{
-							   NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Couldn\u2019t read the contents of the zone file as %@ data", encodingName],
-		  };
+				NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Couldn\u2019t read the contents of the zone file as %@ data", encodingName],
+			};
 			*errorRef = [NSError errorWithDomain:AFDomainServerErrorDomain code:AFNetworkErrorUnknown userInfo:errorInfo];
 		}
 		return NO;
@@ -68,7 +70,7 @@
 
 - (NSSet *)recordsForFullyQualifiedDomainName:(NSString *)fullyQualifiedDomainName recordClass:(NSString *)recordClass recordType:(NSString *)recordType
 {
-	return nil;
+	return [self _recordsMatchingName:fullyQualifiedDomainName recordClass:recordClass recordType:recordType];
 }
 
 @end

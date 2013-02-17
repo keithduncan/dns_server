@@ -6,9 +6,8 @@
 //  Copyright (c) 2013 Keith Duncan. All rights reserved.
 //
 
-#import "AFNetworkDomainZone.h"
-#import "AFNetworkDomainZone+AFNetworkPrivate.h"
 #import "AFNetworkDomainZone+RecordParsing.h"
+#import "AFNetworkDomainZone+AFNetworkPrivate.h"
 
 #import "CoreNetworking/CoreNetworking.h"
 

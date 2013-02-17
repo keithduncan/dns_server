@@ -10,6 +10,10 @@
 
 extern NSString *const AFDomainServerErrorDomain;
 
+@interface AFNetworkDomainZone ()
+@property (retain, nonatomic) NSSet *records;
+@end
+
 @interface AFNetworkDomainZone (AFNetworkPrivate)
 
 @end
