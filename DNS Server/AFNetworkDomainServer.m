@@ -161,6 +161,8 @@ static DNSLengthType LengthByteGetType(uint8_t length) {
 static NSString *ParseNameFromMessage(NSData *message, /* inout */ size_t *cursorRef) {
 	NSMutableArray *accumulation = [NSMutableArray array];
 	
+	size_t startCursor = *cursorRef;
+	
 	while (1) {
 		uint8_t lengthByte = 0;
 		NSRange lengthByteRange = NSMakeRange(*cursorRef, sizeof(lengthByte));
@@ -196,7 +198,14 @@ static NSString *ParseNameFromMessage(NSData *message, /* inout */ size_t *curso
 			{
 				size_t suffixCursor = (lengthByte & /* 0b00111111 */ 63);
 				
-#warning we need cycle detection, we shouldn't allow a client to refer back to a label already accumulated otherwise malicious messages can cause an infinite loop
+				/*
+					Note
+					
+					<http://tools.ietf.org/html/rfc1035#section-4.1.4> limits pointers to prior occurrences to prevent infinite loops
+				 */
+				if (suffixCursor >= startCursor) {
+					return nil;
+				}
 				
 				NSString *suffix = ParseNameFromMessage(message, &suffixCursor);
 				if (suffix == nil) {
