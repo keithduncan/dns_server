@@ -59,7 +59,7 @@ class		= "IN"
 
 ;	incomplete list of record types, but we're unlikely to need to return those unlisted, support should be easy to add if need be
 ;	adding support for new record types will require a type specific semantic validator (syntactically their data should already be supported by the rdata rule)
-type		= "A" | "AAAA" | "MX" | "NS" | "PTR" | "SOA" | "SRV" | "TXT" | "CNAME" | "NAPTR" | "SPF"
+type		= 1*ALPHA
 
 ;	<rdata> is 1 or more <data> productions, if multiple they are whitespace separated, the newline from <line> terminates the listing
 rdata		= data *( 1*WS data )

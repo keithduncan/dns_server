@@ -21,37 +21,55 @@
 	if (newRecords == nil) {
 		return NO;
 	}
-	self.records = newRecords;
 	
+	self.records = newRecords;
 	return YES;
 }
 
 #pragma mark -
 
+static void tryMatch(NSScanner *scanner, NSUInteger *longestMatchScanLocationRef, NSString **longestMatchRef, NSString * (^block)(NSScanner *))
+{
+	NSScanner *currentScanner = [[scanner copy] autorelease];
+	NSString *name = block(currentScanner);
+	if (name == nil) {
+		return;
+	}
+	
+	NSUInteger currentScanLocation = [currentScanner scanLocation];
+	if (currentScanLocation <= *longestMatchScanLocationRef) {
+		return;
+	}
+	
+	*longestMatchScanLocationRef = currentScanLocation;
+	*longestMatchRef = name;
+}
+
 static NSString *scanStringFromArray(NSScanner *scanner, NSArray *strings)
 {
+	NSUInteger longestMatchScanLocation = 0;
 	NSString *longestMatch = nil;
 	
 	for (NSString *currentString in strings) {
-		NSScanner *currentScanner = [[scanner copy] autorelease];
-		
-		NSString *match = nil;
-		if (![currentScanner scanString:currentString intoString:&match]) {
-			continue;
-		}
-		
-		if ([match length] <= [longestMatch length]) {
-			continue;
-		}
-		
-		longestMatch = match;
+		tryMatch(scanner, &longestMatchScanLocation, &longestMatch, ^ NSString * (NSScanner *innerScanner) {
+			NSString *match = nil;
+			if (![innerScanner scanString:currentString intoString:&match]) {
+				return nil;
+			}
+			
+			return match;
+		});
 	}
 	
-	[scanner setScanLocation:([scanner scanLocation] + [longestMatch length])];
+	if (longestMatch == nil) {
+		return nil;
+	}
+	
+	[scanner setScanLocation:longestMatchScanLocation];
 	return longestMatch;
 }
 
-NSString *scanCharacterFromSet(NSScanner *scanner, NSCharacterSet *characterSet)
+static NSString *scanCharacterFromSet(NSScanner *scanner, NSCharacterSet *characterSet)
 {
 	NSString *originalString = [scanner string];
 	NSRange characterRange = [originalString rangeOfCharacterFromSet:characterSet options:NSAnchoredSearch range:NSMakeRange([scanner scanLocation], [originalString length] - [scanner scanLocation])];
@@ -64,7 +82,7 @@ NSString *scanCharacterFromSet(NSScanner *scanner, NSCharacterSet *characterSet)
 	return [originalString substringWithRange:characterRange];
 }
 
-NSString *scanCharacterSetMinMax(NSScanner *scanner, NSCharacterSet *characterSet, NSUInteger min, NSUInteger max)
+static NSString *scanCharacterSetMinMax(NSScanner *scanner, NSCharacterSet *characterSet, NSUInteger min, NSUInteger max)
 {
 	NSUInteger startLocation = [scanner scanLocation];
 	
@@ -91,11 +109,11 @@ NSString *scanCharacterSetMinMax(NSScanner *scanner, NSCharacterSet *characterSe
 
 static BOOL scanNewline(NSScanner *scanner)
 {
-	if ([scanner scanString:@"\n" intoString:NULL]) {
-		return YES;
+	NSString *newline = scanStringFromArray(scanner, @[ @"\n", @"\r\n" ]);
+	if (newline == nil) {
+		return NO;
 	}
-	
-	return [scanner scanString:@"\r\n" intoString:NULL];
+	return YES;
 }
 
 static BOOL scanWs(NSScanner *scanner, NSUInteger min, NSUInteger max)
@@ -104,17 +122,23 @@ static BOOL scanWs(NSScanner *scanner, NSUInteger min, NSUInteger max)
 	return (scanCharacterSetMinMax(scanner, whitespaceCharacterSet, min, max) != nil);
 }
 
-void scanLws(NSScanner *scanner)
+static void scanLws(NSScanner *scanner)
 {
 	scanWs(scanner, 0, NSUIntegerMax);
 }
 
-static NSString *scanLabel(NSScanner *scanner)
+static NSCharacterSet *makeAlphaCharacterSet(void)
 {
-	NSString *alphaCharacters = @"abcdefghijklmnopqrstuvwxyz";
 	NSMutableCharacterSet *alphaCharacterSet = [[[NSMutableCharacterSet alloc] init] autorelease];
+	NSString *alphaCharacters = @"abcdefghijklmnopqrstuvwxyz";
 	[alphaCharacterSet addCharactersInString:[alphaCharacters lowercaseString]];
 	[alphaCharacterSet addCharactersInString:[alphaCharacters uppercaseString]];
+	return alphaCharacterSet;
+}
+
+static NSCharacterSet *makeLabelCharacterSet(void)
+{
+	NSCharacterSet *alphaCharacterSet = makeAlphaCharacterSet();
 	
 	NSString *digitCharacters = @"0123456789";
 	NSCharacterSet *digitCharacterSet = [NSCharacterSet characterSetWithCharactersInString:digitCharacters];
@@ -125,7 +149,12 @@ static NSString *scanLabel(NSScanner *scanner)
 	[labelCharacterSet addCharactersInString:@"-"];
 	[labelCharacterSet addCharactersInString:@"_"];
 	
-	return scanCharacterSetMinMax(scanner, labelCharacterSet, 1, NSUIntegerMax);
+	return labelCharacterSet;
+}
+
+static NSString *scanLabel(NSScanner *scanner)
+{
+	return scanCharacterSetMinMax(scanner, makeLabelCharacterSet(), 1, NSUIntegerMax);
 }
 
 static NSString *scanFqdn(NSScanner *scanner)
@@ -188,11 +217,10 @@ static NSString *scanDn(NSScanner *scanner)
 	}
 	
 	[scanner setScanLocation:lastLabelLocation];
-	
 	return cumulative;
 }
 
-static NSCharacterSet *textCharacterSet(void)
+static NSCharacterSet *makeTextCharacterSet(void)
 {
 	NSMutableCharacterSet *textCharacterSet = [[NSMutableCharacterSet alloc] init];
 	
@@ -208,7 +236,7 @@ static NSCharacterSet *textCharacterSet(void)
 
 static NSString *scanText(NSScanner *scanner)
 {
-	return scanCharacterSetMinMax(scanner, textCharacterSet(), 0, NSUIntegerMax);
+	return scanCharacterSetMinMax(scanner, makeTextCharacterSet(), 0, NSUIntegerMax);
 }
 
 static NSString *scanComment(NSScanner *scanner)
@@ -228,119 +256,27 @@ static NSString *scanComment(NSScanner *scanner)
 	return comment;
 }
 
+static BOOL scanEof(NSScanner *scanner)
+{
+	return [scanner isAtEnd];
+}
+
+static BOOL scanEol(NSScanner *scanner)
+{
+	return (scanNewline(scanner) || scanEof(scanner));
+}
+
 #pragma mark -
 
 - (NSSet *)_parseRecordsFromZoneString:(NSString *)zoneString error:(NSError **)errorRef
 {
-	NSUInteger recordCapacityHint = [[zoneString componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]] count];
-	
-	// Order the records are read in is important for back references to class and type
-	NSMutableArray *records = [NSMutableArray arrayWithCapacity:recordCapacityHint];
-	
-	/*
-		Zone Parser
-	 */
-	
-	BOOL (^scanLine)(NSScanner *) = ^ BOOL (NSScanner *scanner) {
-		/*
-			Line Parser
-		 */
-		
-		// Directive
-		if ([scanner scanString:@"$" intoString:NULL]) {
-			if ([scanner scanString:@"ORIGIN" intoString:NULL]) {
-				if (!scanWs(scanner, 1, NSUIntegerMax)) {
-					return NO;
-				}
-				
-				NSString *fqdn = scanFqdn(scanner);
-				if (fqdn == nil) {
-					if (errorRef != NULL) {
-						NSDictionary *errorInfo = @{
-							NSLocalizedDescriptionKey : @"ORIGIN directive must be followed by a fully qualified domain name",
-						};
-						*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
-					}
-					return NO;
-				}
-				
-				self.origin = fqdn;
-			}
-			else if ([scanner scanString:@"TTL" intoString:NULL]) {
-				if (!scanWs(scanner, 1, NSUIntegerMax)) {
-					return NO;
-				}
-				
-				NSTimeInterval ttl = [self _scanTimeValue:scanner];
-				if (ttl == -1) {
-					if (errorRef != NULL) {
-						NSDictionary *errorInfo = @{
-							NSLocalizedDescriptionKey : @"TTL directive must be followed by a time value",
-						};
-						*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
-					}
-					return NO;
-				}
-				
-				self.ttl = ttl;
-			}
-			else {
-				if (errorRef != NULL) {
-					NSDictionary *errorInfo = @{
-						NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Cannot process directive"],
-					};
-					*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
-				}
-				return NO;
-			}
-		}
-		
-		// Record
-		else {
-			if (![self _scanRecord:scanner intoArray:records error:errorRef]) {
-				return NO;
-			}
-		}
-		
-		// Blank
-		//nop
-		
-		// LWS
-		
-		scanLws(scanner);
-		
-		// Comment
-		
-		scanComment(scanner);
-		
-		return YES;
-	};
-	
 	NSScanner *zoneScanner = [NSScanner scannerWithString:zoneString];
 	[zoneScanner setCharactersToBeSkipped:nil];
 	
-	do {
-		BOOL firstLine = scanLine(zoneScanner);
-		if (!firstLine) {
-			return nil;
-		}
-		
-		NSUInteger lastLocation = [zoneScanner scanLocation];
-		
-		while (1) {
-			BOOL newline = scanNewline(zoneScanner);
-			if (!newline) {
-				break;
-			}
-			
-			BOOL line = scanLine(zoneScanner);
-			if (!line) {
-				break;
-			}
-			
-			lastLocation = [zoneScanner scanLocation];
-		}
-	} while (0);
+	NSSet *records = [self _scanZone:zoneScanner error:errorRef];
+	if (records == nil) {
+		return nil;
+	}
 	
 	if (![zoneScanner isAtEnd]) {
 		if (errorRef != NULL) {
@@ -352,7 +288,212 @@ static NSString *scanComment(NSScanner *scanner)
 		return NO;
 	}
 	
+	return records;
+}
+
+- (NSSet *)_scanZone:(NSScanner *)zoneScanner error:(NSError **)errorRef
+{
+	NSUInteger recordCapacityHint = [[[zoneScanner string] componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]] count];
+	// The order the records are read in is important for back references to record names and classes
+	NSMutableArray *records = [NSMutableArray arrayWithCapacity:recordCapacityHint];
+	
+	while (![zoneScanner isAtEnd]) {
+		BOOL scanLine = [self _scanLine:zoneScanner records:records error:errorRef];
+		if (!scanLine) {
+			break;
+		}
+	}
+	
 	return [NSSet setWithArray:records];
+}
+
+- (BOOL)_scanLine:(NSScanner *)scanner records:(NSMutableArray *)records error:(NSError **)errorRef
+{
+	NSUInteger lineNumber = [self _lineNumberForScanner:scanner];
+	
+	NSError *scanLineError = nil;
+	BOOL scanLine = [self __scanLine:scanner records:records error:&scanLineError];
+	if (!scanLine) {
+		if (errorRef != NULL) {
+			NSDictionary * (^dictionaryByAddingEntries)(NSDictionary *, NSDictionary *) = ^ NSDictionary * (NSDictionary *dictionary, NSDictionary *entries) {
+				NSMutableDictionary *newDictionary = [NSMutableDictionary dictionaryWithDictionary:dictionary];
+				[newDictionary addEntriesFromDictionary:entries];
+				return newDictionary;
+			};
+			
+			NSDictionary *errorInfo = dictionaryByAddingEntries([scanLineError userInfo], @{
+				NSLocalizedFailureReasonErrorKey : [NSString stringWithFormat:NSLocalizedString(@"Line %lu is invalid", @"AFNetworkDomainZone RecordParsing error failure reason"), (unsigned long)lineNumber],
+			});
+			*errorRef = [NSError errorWithDomain:[scanLineError domain] code:[scanLineError code] userInfo:errorInfo];
+		}
+		return NO;
+	}
+	return YES;
+}
+
+- (NSUInteger)_lineNumberForScanner:(NSScanner *)scanner
+{
+	NSUInteger startLocation = [scanner scanLocation];
+	
+	__block NSUInteger lineIndex = 0;
+	NSString *fullString = [scanner string];
+	[fullString enumerateSubstringsInRange:NSMakeRange(0, [fullString length]) options:(NSStringEnumerationByLines | NSStringEnumerationSubstringNotRequired) usingBlock:^ (NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
+		if (!NSLocationInRange(startLocation, enclosingRange)) {
+			lineIndex++;
+			return;
+		}
+		
+		*stop = YES;
+	}];
+	return lineIndex + 1;
+}
+
+- (BOOL)__scanLine:(NSScanner *)scanner records:(NSMutableArray *)records error:(NSError **)errorRef
+{
+	BOOL match = NO;
+	
+	// Directive
+	do {
+		if (match) {
+			break;
+		}
+		
+		NSError *scanDirectiveError = nil;
+		BOOL scanDirective = [self _scanDirective:scanner error:&scanDirectiveError];
+		if (scanDirective) {
+			match = YES;
+			break;
+		}
+		
+		if ([[scanDirectiveError domain] isEqualToString:AFNetworkDomainZoneInternalErrorDomain] && [scanDirectiveError code] == AFNetworkDomainZoneInternalErrorCodeNotMatch) {
+			break;
+		}
+		
+		if (errorRef != NULL) {
+			*errorRef = scanDirectiveError;
+		}
+		return NO;
+	} while (0);
+	
+	// Record
+	do {
+		if (match) {
+			break;
+		}
+		
+		NSError *scanRecordError = nil;
+		BOOL scanRecord = [self _scanRecord:scanner intoArray:records error:&scanRecordError];
+		if (scanRecord) {
+			match = YES;
+			break;
+		}
+		
+		break;
+	} while (0);
+	
+	// Blank
+	do {
+		if (match) {
+			break;
+		}
+		
+		scanLws(scanner);
+		
+		match = YES;
+	} while (0);
+	
+	if (!match) {
+		return [self __scanLineError:errorRef];
+	}
+	
+	// LWS
+	
+	scanLws(scanner);
+	
+	// Comment
+	
+	__unused NSString *comment = scanComment(scanner);
+	
+	BOOL endOfLine = scanEol(scanner);
+	if (!endOfLine) {
+		return [self __scanLineError:errorRef];
+	}
+	
+	return YES;
+}
+
+- (BOOL)__scanLineError:(NSError **)errorRef
+{
+	if (errorRef != NULL) {
+		NSDictionary *errorInfo = @{
+			NSLocalizedDescriptionKey : NSLocalizedString(@"Lines must be directives, records or blank (with optional comment)", @"AFNetworkDomainZone RecordParsing line no match error description"),
+		};
+		*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneInternalErrorDomain code:AFNetworkDomainZoneInternalErrorCodeUnknown userInfo:errorInfo];
+	}
+	return NO;
+}
+
+- (BOOL)_scanDirective:(NSScanner *)scanner error:(NSError **)errorRef
+{
+	// Directive
+	if (![scanner scanString:@"$" intoString:NULL]) {
+		if (errorRef != NULL) {
+			*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneInternalErrorDomain code:AFNetworkDomainZoneInternalErrorCodeNotMatch userInfo:nil];
+		}
+		return NO;
+	}
+	
+	NSString *directiveName = scanCharacterSetMinMax(scanner, makeAlphaCharacterSet(), 1, NSUIntegerMax);
+	
+	if ([directiveName caseInsensitiveCompare:@"ORIGIN"] == NSOrderedSame) {
+		if (errorRef != NULL) {
+			NSDictionary *errorInfo = @{
+				NSLocalizedDescriptionKey : NSLocalizedString(@"ORIGIN directive must be followed by a fully qualified domain name", @"AFNetworkDomainZone RecordParsing origin directive without fqdn error description"),
+			};
+			*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
+		}
+		
+		if (!scanWs(scanner, 1, NSUIntegerMax)) {
+			return NO;
+		}
+		
+		NSString *fqdn = scanFqdn(scanner);
+		if (fqdn == nil) {
+			return NO;
+		}
+		
+		self.origin = fqdn;
+		return YES;
+	}
+	
+	if ([directiveName caseInsensitiveCompare:@"TTL"] == NSOrderedSame) {
+		if (errorRef != NULL) {
+			NSDictionary *errorInfo = @{
+				NSLocalizedDescriptionKey : NSLocalizedString(@"TTL directive must be followed by a time value", @"AFNetworkDomainZone RecordParsing ttl directive without time value error description"),
+			};
+			*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
+		}
+		
+		if (!scanWs(scanner, 1, NSUIntegerMax)) {
+			return NO;
+		}
+		
+		NSTimeInterval ttl = [self _scanTimeValue:scanner];
+		if (ttl == -1) {
+			return NO;
+		}
+		
+		self.ttl = ttl;
+		return YES;
+	}
+	
+	if (errorRef != NULL) {
+		NSDictionary *errorInfo = @{
+			NSLocalizedDescriptionKey : [NSString stringWithFormat:NSLocalizedString(@"Cannot process directive \u201c%@\u201d", @"AFNetworkDomainZone RecordParsing unknown directive error description"), directiveName],
+		};
+		*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
+	}
+	return NO;
 }
 
 - (NSTimeInterval)_scanTimeValue:(NSScanner *)timeScanner
@@ -414,23 +555,6 @@ static NSString *scanComment(NSScanner *scanner)
 	return cumulativeDuration;
 }
 
-static void tryMatch(NSScanner *scanner, NSUInteger *longestMatchScanLocationRef, NSString **longestMatchRef, NSString * (^block)(NSScanner *))
-{
-	NSScanner *currentScanner = [[scanner copy] autorelease];
-	NSString *name = block(currentScanner);
-	if (name == nil) {
-		return;
-	}
-	
-	NSUInteger currentScanLocation = [currentScanner scanLocation];
-	if (currentScanLocation <= *longestMatchScanLocationRef) {
-		return;
-	}
-	
-	*longestMatchScanLocationRef = currentScanLocation;
-	*longestMatchRef = name;
-}
-
 static NSString *scanName(NSScanner *scanner)
 {
 	NSUInteger longestNameScanLocation = 0;
@@ -464,9 +588,11 @@ static NSString *scanName(NSScanner *scanner)
 		tryMatch(innerScanner, &longestDnScanLocation, &longestDn, ^ NSString * (NSScanner *innerScanner1) {
 			return scanDn(innerScanner1);
 		});
+		
 		if (longestDn == nil) {
 			return nil;
 		}
+		
 		[cumulative appendString:longestDn];
 		
 		[innerScanner setScanLocation:longestDnScanLocation];
@@ -488,30 +614,36 @@ static NSString *scanClass(NSScanner *scanner)
 
 static NSString *scanType(NSScanner *scanner)
 {
-	return scanStringFromArray(scanner, @[ @"A", @"AAAA", @"MX", @"NS", @"PTR", @"SOA", @"SRV", @"TXT", @"CNAME", @"NAPTR", @"SPF" ]);
+	NSCharacterSet *alphaCharacterSet = makeAlphaCharacterSet();
+	return scanCharacterSetMinMax(scanner, alphaCharacterSet, 1, NSUIntegerMax);
 }
 
-static NSCharacterSet * (^commonExcludedCharacterSet)(void) = ^ NSCharacterSet * (void)
+static NSCharacterSet *commonExcludedCharacterSet(void)
 {
 	NSMutableCharacterSet *characterSet = [[[NSMutableCharacterSet alloc] init] autorelease];
 	[characterSet addCharactersInString:@";()"];
 	[characterSet formUnionWithCharacterSet:[NSCharacterSet whitespaceCharacterSet]];
 	return characterSet;
-};
+}
 
-static NSCharacterSet * (^excludedCharacterSet)(void) = ^ NSCharacterSet * (void)
+static NSCharacterSet *makeExcludedCharacterSet(void)
 {
 	NSMutableCharacterSet *characterSet = [[[NSMutableCharacterSet alloc] init] autorelease];
 	[characterSet addCharactersInString:@"\""];
 	[characterSet formUnionWithCharacterSet:commonExcludedCharacterSet()];
 	return characterSet;
-};
+}
+
+static NSCharacterSet *makeInnerDataCharacterSet(void)
+{
+	NSMutableCharacterSet *innerDataCharacterSet = [[makeTextCharacterSet() mutableCopy] autorelease];
+	[innerDataCharacterSet formIntersectionWithCharacterSet:[makeExcludedCharacterSet() invertedSet]];
+	return innerDataCharacterSet;
+}
 
 static NSString *scanInnerData(NSScanner *scanner, NSUInteger min, NSUInteger max)
 {
-	NSMutableCharacterSet *innerDataCharacterSet = [[textCharacterSet() mutableCopy] autorelease];
-	[innerDataCharacterSet formIntersectionWithCharacterSet:[excludedCharacterSet() invertedSet]];
-	return scanCharacterSetMinMax(scanner, innerDataCharacterSet, min, max);
+	return scanCharacterSetMinMax(scanner, makeInnerDataCharacterSet(), min, max);
 }
 
 static NSString *scanQuotedPair(NSScanner *scanner)
@@ -686,26 +818,6 @@ static NSArray *scanRdata(NSScanner *scanner)
 	
 	AFNetworkDomainRecord *previousRecord = [records lastObject];
 	
-	__block NSUInteger lineIndex = 0;
-	NSString *fullString = [recordScanner string];
-	[fullString enumerateSubstringsInRange:NSMakeRange(0, [fullString length]) options:(NSStringEnumerationByLines | NSStringEnumerationSubstringNotRequired) usingBlock:^ (NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
-		if (!NSLocationInRange(startLocation, enclosingRange)) {
-			lineIndex++;
-			return;
-		}
-		
-		*stop = YES;
-	}];
-	NSDictionary *errorInfo = @{
-		NSLocalizedFailureReasonErrorKey : [NSString stringWithFormat:NSLocalizedString(@"Line %lu is not valid", @"AFNetworkDomainZone RecordParsing error failure reason"), (unsigned long)(lineIndex + 1)],
-	};
-	
-	NSDictionary * (^dictionaryByAddingEntries)(NSDictionary *, NSDictionary *) = ^ NSDictionary * (NSDictionary *dictionary, NSDictionary *entries) {
-		NSMutableDictionary *newDictionary = [NSMutableDictionary dictionaryWithDictionary:dictionary];
-		[newDictionary addEntriesFromDictionary:entries];
-		return newDictionary;
-	};
-	
 	NSString *recordName = nil;
 	do {
 		recordName = scanName(recordScanner);
@@ -731,9 +843,9 @@ static NSArray *scanRdata(NSScanner *scanner)
 		[recordScanner setScanLocation:startLocation];
 		
 		if (errorRef != NULL) {
-			errorInfo = dictionaryByAddingEntries(errorInfo, @{
+			NSDictionary *errorInfo = @{
 				NSLocalizedDescriptionKey : NSLocalizedString(@"No record name given and no prior record name to use", @"AFNetworkDomainZone ResourceParsing no name error description"),
-			});
+			};
 			*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
 		}
 		return NO;
@@ -766,9 +878,9 @@ static NSArray *scanRdata(NSScanner *scanner)
 	if (recordTtl == -1) {
 		if (self.ttl == -1) {
 			if (errorRef != NULL) {
-				dictionaryByAddingEntries(errorInfo, @{
+				NSDictionary *errorInfo = @{
 					NSLocalizedDescriptionKey : NSLocalizedString(@"No record TTL given and no $TTL directive to give a default", @"AFNetworkDomainZone ResourceParsing no TTL error description"),
-				});
+				};
 				*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
 			}
 			return NO;
@@ -797,9 +909,9 @@ static NSArray *scanRdata(NSScanner *scanner)
 	
 	if (recordClass == nil) {
 		if (errorRef != NULL) {
-			errorInfo = dictionaryByAddingEntries(errorInfo, @{
+			NSDictionary *errorInfo = @{
 				NSLocalizedDescriptionKey : NSLocalizedString(@"No record class given and no prior record class to use", @"AFNetworkDomainZone ResourceParsing no class error description"),
-			});
+			};
 			*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
 		}
 		return NO;
@@ -809,9 +921,9 @@ static NSArray *scanRdata(NSScanner *scanner)
 	do {
 		if (recordType == nil) {
 			if (errorRef != NULL) {
-				errorInfo = dictionaryByAddingEntries(errorInfo, @{
-					NSLocalizedDescriptionKey : NSLocalizedString(@"No record type given, type is not optional", @"AFNetworkDomainZone ResourceParsing no type error description"),
-				});
+				NSDictionary *errorInfo = @{
+					NSLocalizedDescriptionKey : NSLocalizedString(@"No record type given, type is required", @"AFNetworkDomainZone ResourceParsing no type error description"),
+				};
 				*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
 			}
 			return NO;
@@ -820,9 +932,9 @@ static NSArray *scanRdata(NSScanner *scanner)
 		BOOL ws = scanWs(recordScanner, 1, NSUIntegerMax);
 		if (!ws) {
 			if (errorRef != NULL) {
-				errorInfo = dictionaryByAddingEntries(errorInfo, @{
+				NSDictionary *errorInfo = @{
 					NSLocalizedDescriptionKey : NSLocalizedString(@"No whitespace following record type, this is required to separate the type from the record data", @"AFNetworkDomainZone ResourceParsing no whitespace after type error description"),
-				});
+				};
 				*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
 			}
 			return NO;
@@ -834,9 +946,9 @@ static NSArray *scanRdata(NSScanner *scanner)
 		[recordScanner setScanLocation:startLocation];
 		
 		if (errorRef != NULL) {
-			errorInfo = dictionaryByAddingEntries(errorInfo, @{
-				NSLocalizedDescriptionKey : NSLocalizedString(@"No record data given, record data is not optional", @"AFNetworkDomainZone ResourceParsing no record data error description"),
-			});
+			NSDictionary *errorInfo = @{
+				NSLocalizedDescriptionKey : NSLocalizedString(@"No record data given, record data is required", @"AFNetworkDomainZone ResourceParsing no record data error description"),
+			};
 			*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
 		}
 		return NO;
@@ -848,9 +960,10 @@ static NSArray *scanRdata(NSScanner *scanner)
 	NSData *encode = [newRecord encodeRecord:&encodeError];
 	if (encode == nil) {
 		if (errorRef != NULL) {
-			errorInfo = dictionaryByAddingEntries(errorInfo, @{
+			NSDictionary *errorInfo = @{
 				NSLocalizedDescriptionKey : NSLocalizedString(@"Cannot encode record data for answers", @"AFNetworkDomainZone ResourceParsing record data encode error description"),
-			});
+				NSUnderlyingErrorKey : encodeError,
+			};
 			*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
 		}
 		return NO;
