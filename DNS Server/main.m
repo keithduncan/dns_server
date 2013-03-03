@@ -13,7 +13,8 @@
 #import "AFNetworkDomainServer.h"
 #import "AFNetworkDomainZone.h"
 
-static AFNetworkDomainServer *StartDomainServer(AFNetworkSchedule *schedule) {
+static AFNetworkDomainServer *StartDomainServer(AFNetworkSchedule *schedule)
+{
 	AFNetworkDomainServer *server = [AFNetworkDomainServer server];
 	server.schedule = schedule;
 	
@@ -67,11 +68,9 @@ static AFNetworkDomainServer *StartDomainServer(AFNetworkSchedule *schedule) {
 	return server;
 }
 
-void server_main(void) {
-	AFNetworkSchedule *newSchedule = [[[AFNetworkSchedule alloc] init] autorelease];
-	[newSchedule scheduleInQueue:dispatch_get_main_queue()];
-	
-	__unused AFNetworkDomainServer *domainServer = [StartDomainServer(newSchedule) retain];
+static void server_main(AFNetworkSchedule *schedule)
+{
+	AFNetworkDomainServer *domainServer = [StartDomainServer(schedule) retain];
 	
 	AFNetworkDomainZone *zone = [[AFNetworkDomainZone alloc] init];
 	
@@ -80,13 +79,22 @@ void server_main(void) {
 	NSCParameterAssert(readZone);
 	
 	[domainServer addZone:zone];
-	
-	dispatch_main();
 }
 
-int main(int argc, const char **argv) {
+static void runloop_main(void)
+{
+	AFNetworkSchedule *newSchedule = [[[AFNetworkSchedule alloc] init] autorelease];
+	[newSchedule scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+	
+	server_main(newSchedule);
+	
+	[[NSRunLoop currentRunLoop] run];
+}
+
+int main(int argc, const char **argv)
+{
 	@autoreleasepool {
-		server_main();
+		runloop_main();
 	}
     return 0;
 }
