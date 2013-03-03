@@ -123,15 +123,29 @@
 	return encodedName;
 }
 
-typedef uint16_t (*DNSRecordNumberFunction)(char const *, uint16_t *);
+typedef int32_t (*DNSRecordNumberFunction)(NSString *, uint16_t *);
+
+static int32_t DNSRecordTypeFunction(NSString *type, uint16_t *numberRef)
+{
+	NSDictionary *map = @{
+		@"SPF" : @(99),
+	};
+	NSNumber *value = map[[type uppercaseString]];
+	if (value != nil) {
+		*numberRef = [value integerValue];
+		return (int32_t)0;
+	}
+	
+	return dns_type_number([type UTF8String], numberRef);
+}
 
 - (NSData *)_encodeType:(NSError **)errorRef {
 	NSString *recordType = [self recordType];
-	NSData *encodedType = [self _encodeString:recordType function:(DNSRecordNumberFunction)dns_type_number];
+	NSData *encodedType = [self _encodeString:recordType function:(DNSRecordNumberFunction)DNSRecordTypeFunction];
 	if (encodedType == nil) {
 		if (errorRef != NULL) {
 			NSDictionary *errorInfo = @{
-							   NSLocalizedDescriptionKey : [NSString stringWithFormat:NSLocalizedString(@"Cannot encode type \u201c%@\u201d", @"AFNetworkDomainRecord encode type error description"), recordType],
+				NSLocalizedDescriptionKey : [NSString stringWithFormat:NSLocalizedString(@"Cannot encode type \u201c%@\u201d", @"AFNetworkDomainRecord encode type error description"), recordType],
 			};
 			*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
 		}
@@ -141,9 +155,14 @@ typedef uint16_t (*DNSRecordNumberFunction)(char const *, uint16_t *);
 	return encodedType;
 }
 
+static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
+{
+	return dns_class_number([class UTF8String], numberRef);
+}
+
 - (NSData *)_encodeClass:(NSError **)errorRef {
 	NSString *recordClass = [self recordClass];
-	NSData *encodedClass = [self _encodeString:recordClass function:(DNSRecordNumberFunction)dns_class_number];
+	NSData *encodedClass = [self _encodeString:recordClass function:(DNSRecordNumberFunction)DNSRecordClassFunction];
 	if (encodedClass == nil) {
 		if (errorRef != NULL) {
 			NSDictionary *errorInfo = @{
@@ -158,11 +177,9 @@ typedef uint16_t (*DNSRecordNumberFunction)(char const *, uint16_t *);
 }
 
 - (NSData *)_encodeString:(NSString *)string function:(DNSRecordNumberFunction)function {
-	char const *stringBytes = [string UTF8String];
-	uint16_t stringLength = strlen(stringBytes);
-	
-	int16_t number = htons(function(stringBytes, &stringLength));
-	if (number == 0) {
+	uint16_t number = 0;
+	int32_t numberError = function(string, &number);
+	if (numberError != 0) {
 		return nil;
 	}
 	
@@ -232,7 +249,8 @@ typedef uint16_t (*DNSRecordNumberFunction)(char const *, uint16_t *);
 			return nil;
 		}
 		
-		
+#warning complete me
+		return [NSData data];
 	}
 	else if ([type caseInsensitiveCompare:@"AAAA"] == NSOrderedSame) {
 		// <http://tools.ietf.org/html/rfc3596#section-2.2>
@@ -255,17 +273,53 @@ typedef uint16_t (*DNSRecordNumberFunction)(char const *, uint16_t *);
 			return nil;
 		}
 		
-		
+#warning complete me
+		return [NSData data];
 	}
-	else {
-		if (errorRef != NULL) {
-			NSDictionary *errorInfo = @{
-				NSLocalizedDescriptionKey : [NSString stringWithFormat:NSLocalizedString(@"Cannot encode data for type \u201c%@\u201d", @"AFNetworkDomainRecord encode data error description"), type],
-			};
-			*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
-		}
-		return nil;
+	else if ([type caseInsensitiveCompare:@"MX"]) {
+#warning complete me
+		return [NSData data];
 	}
+	else if ([type caseInsensitiveCompare:@"NS"]) {
+#warning complete me
+		return [NSData data];
+	}
+	else if ([type caseInsensitiveCompare:@"PTR"]) {
+#warning complete me
+		return [NSData data];
+	}
+	else if ([type caseInsensitiveCompare:@"SOA"]) {
+#warning complete me
+		return [NSData data];
+	}
+	else if ([type caseInsensitiveCompare:@"SRV"]) {
+#warning complete me
+		return [NSData data];
+	}
+	else if ([type caseInsensitiveCompare:@"TXT"]) {
+#warning complete me
+		return [NSData data];
+	}
+	else if ([type caseInsensitiveCompare:@"CNAME"]) {
+#warning complete me
+		return [NSData data];
+	}
+	else if ([type caseInsensitiveCompare:@"NAPTR"]) {
+#warning complete me
+		return [NSData data];
+	}
+	else if ([type caseInsensitiveCompare:@"SPF"]) {
+#warning complete me
+		return [NSData data];
+	}
+	
+	if (errorRef != NULL) {
+		NSDictionary *errorInfo = @{
+			NSLocalizedDescriptionKey : [NSString stringWithFormat:NSLocalizedString(@"Cannot encode data for type \u201c%@\u201d", @"AFNetworkDomainRecord encode data error description"), type],
+		};
+		*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
+	}
+	return nil;
 }
 
 @end
