@@ -8,6 +8,7 @@
 
 #import "AFNetworkDomainRecord.h"
 
+#import <objc/message.h>
 #import <dns_util.h>
 #import "CoreNetworking/CoreNetworking.h"
 
@@ -209,108 +210,12 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 
 - (NSData *)_encodedRdata:(NSError **)errorRef {
 	NSString *type = self.recordType;
-	NSArray *fields = self.fields;
 	
-	NSError * (^invalidFieldsError)(NSUInteger) = ^ NSError * (NSUInteger expectedCount) {
-		NSDictionary *errorInfo = @{
-			NSLocalizedDescriptionKey : [NSString stringWithFormat:NSLocalizedString(@"Cannot encode data fields given for type \u201c%@\u201d, expected %lu fields", @"AFNetworkDomainRecord encode fields error description"), type, expectedCount],
-		};
-		return [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
-	};
-	
-	NSString * (^onlyField)(void) = ^ NSString * (void) {
-		if (fields == nil || fields.count != 1) {
-			if (errorRef != NULL) {
-				*errorRef = invalidFieldsError(1);
-			}
-			return nil;
-		}
-		return [fields lastObject];
-	};
-	
-	if ([type caseInsensitiveCompare:@"A"] == NSOrderedSame) {
-		// <http://tools.ietf.org/html/rfc1035#section-3.4.1>
-		
-		NSString *presentation = onlyField();
-		if (presentation == nil) {
-			return nil;
-		}
-		
-		NSError *addressError = nil;
-		NSData *address = AFNetworkSocketPresentationToAddress(presentation, &addressError);
-		if (address == nil) {
-			if (errorRef != NULL) {
-				NSDictionary *errorInfo = @{
-					NSLocalizedDescriptionKey : [NSString stringWithFormat:NSLocalizedString(@"Cannot encode IPv4 address for string \u201c%@\u201d", @"AFNetworkDomainRecord encode IPv4 address error description"), presentation],
-					NSUnderlyingErrorKey : addressError,
-				};
-				*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
-			}
-			return nil;
-		}
-		
-#warning complete me
-		return [NSData data];
-	}
-	else if ([type caseInsensitiveCompare:@"AAAA"] == NSOrderedSame) {
-		// <http://tools.ietf.org/html/rfc3596#section-2.2>
-		
-		NSString *presentation = onlyField();
-		if (presentation == nil) {
-			return nil;
-		}
-		
-		NSError *addressError = nil;
-		NSData *address = AFNetworkSocketPresentationToAddress(presentation, &addressError);
-		if (address == nil) {
-			if (errorRef != NULL) {
-				NSDictionary *errorInfo = @{
-					NSLocalizedDescriptionKey : [NSString stringWithFormat:NSLocalizedString(@"Cannot encode IPv4 address for string \u201c%@\u201d", @"AFNetworkDomainRecord encode IPv4 address error description"), presentation],
-					NSUnderlyingErrorKey : addressError,
-				};
-				*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
-			}
-			return nil;
-		}
-		
-#warning complete me
-		return [NSData data];
-	}
-	else if ([type caseInsensitiveCompare:@"MX"]) {
-#warning complete me
-		return [NSData data];
-	}
-	else if ([type caseInsensitiveCompare:@"NS"]) {
-#warning complete me
-		return [NSData data];
-	}
-	else if ([type caseInsensitiveCompare:@"PTR"]) {
-#warning complete me
-		return [NSData data];
-	}
-	else if ([type caseInsensitiveCompare:@"SOA"]) {
-#warning complete me
-		return [NSData data];
-	}
-	else if ([type caseInsensitiveCompare:@"SRV"]) {
-#warning complete me
-		return [NSData data];
-	}
-	else if ([type caseInsensitiveCompare:@"TXT"]) {
-#warning complete me
-		return [NSData data];
-	}
-	else if ([type caseInsensitiveCompare:@"CNAME"]) {
-#warning complete me
-		return [NSData data];
-	}
-	else if ([type caseInsensitiveCompare:@"NAPTR"]) {
-#warning complete me
-		return [NSData data];
-	}
-	else if ([type caseInsensitiveCompare:@"SPF"]) {
-#warning complete me
-		return [NSData data];
+	NSString *encodeSelectorString = [NSString stringWithFormat:@"_encode%@:", [type uppercaseString]];
+	SEL encodeSelector = NSSelectorFromString(encodeSelectorString);
+	if ([self respondsToSelector:encodeSelector]) {
+		NSData *encoded = ((NSData * (*)(id, SEL, NSError **))objc_msgSend)(self, encodeSelector, errorRef);
+		return encoded;
 	}
 	
 	if (errorRef != NULL) {
@@ -320,6 +225,150 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 		*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
 	}
 	return nil;
+}
+
+- (NSString *)_onlyField:(NSError **)errorRef
+{
+	NSArray *fields = self.fields;
+	
+	if (fields == nil || fields.count != 1) {
+		return [self _invalidFields:1 error:errorRef];
+	}
+	
+	return [fields lastObject];
+}
+
+- (NSString *)_invalidFields:(NSUInteger)expectedCount error:(NSError **)errorRef
+{
+	if (errorRef != NULL) {
+		NSDictionary *errorInfo = @{
+			NSLocalizedDescriptionKey : [NSString stringWithFormat:NSLocalizedString(@"Cannot encode data fields given for type \u201c%@\u201d, expected %lu fields", @"AFNetworkDomainRecord encode fields error description"), self.recordType, expectedCount],
+		};
+		*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
+	}
+	return nil;
+}
+
+- (NSData *)_encodeA:(NSError **)errorRef
+{
+	// <http://tools.ietf.org/html/rfc1035#section-3.4.1>
+	
+	NSString *presentation = [self _onlyField:errorRef];
+	if (presentation == nil) {
+		return nil;
+	}
+	
+	NSError *addressError = nil;
+	NSData *address = AFNetworkSocketPresentationToAddress(presentation, &addressError);
+	if (address == nil) {
+		return [self _cannotEncodeIpv4:presentation error:errorRef];
+	}
+	
+#warning complete me
+	return [NSData data];
+}
+
+- (NSData *)_cannotEncodeIpv4:(NSString *)presentation error:(NSError **)errorRef
+{
+	return [self __cannotEncodeIPv:@"IPv4" presentation:presentation error:errorRef];
+}
+
+- (NSData *)_encodeAAAA:(NSError **)errorRef
+{
+	// <http://tools.ietf.org/html/rfc3596#section-2.2>
+	
+	NSString *presentation = [self _onlyField:errorRef];
+	if (presentation == nil) {
+		return nil;
+	}
+	
+	NSError *addressError = nil;
+	NSData *address = AFNetworkSocketPresentationToAddress(presentation, &addressError);
+	if (address == nil) {
+		return [self _cannotEncodeIpv6:presentation error:errorRef];
+	}
+	
+	CFRetain(address);
+	struct sockaddr_storage *const addressBytes = (struct sockaddr_storage *const)[address bytes];
+	
+	if (addressBytes->ss_family != AF_INET6) {
+		CFRelease(address);
+		
+		return [self _cannotEncodeIpv6:presentation error:errorRef];
+	}
+	
+#warning complete me
+	return [NSData data];
+}
+
+- (NSData *)_cannotEncodeIpv6:(NSString *)presentation error:(NSError **)errorRef
+{
+	return [self __cannotEncodeIPv:@"IPv6" presentation:presentation error:errorRef];
+}
+
+- (NSData *)__cannotEncodeIPv:(NSString *)ipv presentation:(NSString *)presentation error:(NSError **)errorRef
+{
+	if (errorRef != NULL) {
+		NSDictionary *errorInfo = @{
+			NSLocalizedDescriptionKey : [NSString stringWithFormat:NSLocalizedString(@"Cannot encode %@ address for string \u201c%@\u201d", @"AFNetworkDomainRecord encode IPv6 address error description"), ipv, presentation],
+		};
+		*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
+	}
+	return nil;
+}
+
+- (NSData *)_encodeMX:(NSError **)errorRef
+{
+#warning complete me
+	return [NSData data];
+}
+
+- (NSData *)_encodeNS:(NSError **)errorRef
+{
+#warning complete me
+	return [NSData data];
+}
+
+- (NSData *)_encodePTR:(NSError **)errorRef
+{
+#warning complete me
+	return [NSData data];
+}
+
+- (NSData *)_encodeSOA:(NSError **)errorRef
+{
+#warning complete me
+	return [NSData data];
+}
+
+- (NSData *)_encodeSRV:(NSError **)errorRef
+{
+#warning complete me
+	return [NSData data];
+}
+
+- (NSData *)_encodeTXT:(NSError **)errorRef
+{
+#warning complete me
+	return [NSData data];
+}
+
+- (NSData *)_encodeCNAME:(NSError **)errorRef
+{
+#warning complete me
+	return [NSData data];
+}
+
+- (NSData *)_encodeNAPTR:(NSError **)errorRef
+{
+#warning complete me
+	return [NSData data];
+}
+
+- (NSData *)_encodeSPF:(NSError **)errorRef
+{
+#warning complete me
+	return [NSData data];
 }
 
 @end
