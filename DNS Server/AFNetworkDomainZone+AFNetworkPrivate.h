@@ -8,6 +8,14 @@
 
 #import "AFNetworkDomainZone.h"
 
+extern NSString *const AFNetworkDomainZoneInternalErrorDomain;
+
+typedef NS_ENUM(NSInteger, AFNetworkDomainZoneInternalErrorCode) {
+	AFNetworkDomainZoneInternalErrorCodeUnknown = 0,
+	
+	AFNetworkDomainZoneInternalErrorCodeNotMatch = -100,
+};
+
 @interface AFNetworkDomainZone ()
 @property (retain, nonatomic) NSSet *records;
 @end

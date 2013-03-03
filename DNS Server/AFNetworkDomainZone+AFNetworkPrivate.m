@@ -8,6 +8,8 @@
 
 #import "AFNetworkDomainZone+AFNetworkPrivate.h"
 
+NSString *const AFNetworkDomainZoneInternalErrorDomain = @"com.thirty-three.corenetworking.domain-zone.internal";
+
 @implementation AFNetworkDomainZone (AFNetworkPrivate)
 
 @end
