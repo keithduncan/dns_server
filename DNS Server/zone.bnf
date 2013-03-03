@@ -43,7 +43,9 @@ line		= ( directive | record | blank ) LWS [ comment ] eol
 eol			= newline | eof
 
 directive	= "$" ( origin | ttl )
+
 origin		= "ORIGIN" 1*WS fqdn
+
 ttl			= "TTL" 1*WS ttl-param
 ttl-param	= ( ttl-value | 1*( ttl-value ttl-unit ) )
 ttl-value	= 1*DIGIT
