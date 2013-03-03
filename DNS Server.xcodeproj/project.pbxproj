@@ -31,6 +31,9 @@
 		5367A7011694980A002534FF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5367A7001694980A002534FF /* main.m */; };
 		5367A7181694A651002534FF /* AFNetworkDomainServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 5367A7171694A651002534FF /* AFNetworkDomainServer.m */; };
 		5367A71D1694A75C002534FF /* AFNetworkDomainZone+RecordParsing.m in Sources */ = {isa = PBXBuildFile; fileRef = 5367A71C1694A75C002534FF /* AFNetworkDomainZone+RecordParsing.m */; };
+		53A0610E16DAC21C00D9F251 /* db.blank.com in Resources */ = {isa = PBXBuildFile; fileRef = 53A0610D16DAC21C00D9F251 /* db.blank.com */; };
+		53AAA03316D18A2000EE4836 /* CoreNetworking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 531DFD4C16B43CF900D6EE07 /* CoreNetworking.framework */; };
+		53AAA03416D18A2E00EE4836 /* libresolv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 53211015169A018800D26765 /* libresolv.dylib */; };
 		53AD518E16A210D600C6646F /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53AD518D16A210D600C6646F /* SenTestingKit.framework */; };
 		53AD519A16A210D600C6646F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 53AD519816A210D600C6646F /* InfoPlist.strings */; };
 		53AD51A416A210E900C6646F /* AFNetworkDomainZone_TimeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 53AD51A316A210E900C6646F /* AFNetworkDomainZone_TimeTests.m */; };
@@ -60,6 +63,13 @@
 			remoteInfo = "CoreNetworking Touch";
 		};
 		531DFD5416B43D1400D6EE07 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 531DFD4216B43CF900D6EE07 /* CoreNetworking.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 5370E0700F5B0571008F5991;
+			remoteInfo = CoreNetworking;
+		};
+		53AAA02F16D18A1C00EE4836 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 531DFD4216B43CF900D6EE07 /* CoreNetworking.xcodeproj */;
 			proxyType = 1;
@@ -113,6 +123,7 @@
 		5367A71B1694A75C002534FF /* AFNetworkDomainZone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkDomainZone.h; sourceTree = "<group>"; };
 		5367A71C1694A75C002534FF /* AFNetworkDomainZone+RecordParsing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AFNetworkDomainZone+RecordParsing.m"; sourceTree = "<group>"; };
 		538DEA79169B8DAF00AA0663 /* db.example.local */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = db.example.local; sourceTree = "<group>"; };
+		53A0610D16DAC21C00D9F251 /* db.blank.com */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = db.blank.com; sourceTree = "<group>"; };
 		53A709B816B48F4B009B1E4C /* zone.bnf */ = {isa = PBXFileReference; lastKnownFileType = text; path = zone.bnf; sourceTree = "<group>"; };
 		53AD518C16A210D600C6646F /* DNS Server Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "DNS Server Tests.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		53AD518D16A210D600C6646F /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
@@ -141,7 +152,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				53AAA03316D18A2000EE4836 /* CoreNetworking.framework in Frameworks */,
 				53AD518E16A210D600C6646F /* SenTestingKit.framework in Frameworks */,
+				53AAA03416D18A2E00EE4836 /* libresolv.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -151,6 +164,7 @@
 		531AEB1E16BF1C4900F2B943 /* Externals */ = {
 			isa = PBXGroup;
 			children = (
+				531DFD4216B43CF900D6EE07 /* CoreNetworking.xcodeproj */,
 				531AEB2016BF1C6E00F2B943 /* Example Zone Files */,
 			);
 			name = Externals;
@@ -201,7 +215,6 @@
 			isa = PBXGroup;
 			children = (
 				53211015169A018800D26765 /* libresolv.dylib */,
-				531DFD4216B43CF900D6EE07 /* CoreNetworking.xcodeproj */,
 				53AD518D16A210D600C6646F /* SenTestingKit.framework */,
 				53AD519116A210D600C6646F /* Other Frameworks */,
 			);
@@ -227,6 +240,7 @@
 				53A709B816B48F4B009B1E4C /* zone.bnf */,
 				53F8FB7B16B49DAD00241FD3 /* Parser Notes.md */,
 				538DEA79169B8DAF00AA0663 /* db.example.local */,
+				53A0610D16DAC21C00D9F251 /* db.blank.com */,
 				5367A7191694A6E2002534FF /* db.example.com */,
 				531AEB1416BDD33500F2B943 /* db.test.example.com */,
 				5367A6F5169497AA002534FF /* Supporting Files */,
@@ -312,6 +326,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				53AAA03016D18A1C00EE4836 /* PBXTargetDependency */,
 			);
 			name = "DNS Server Tests";
 			productName = "DNS Server Tests";
@@ -396,6 +411,7 @@
 				531AEB2616BF1C8300F2B943 /* example2.com.zone in Resources */,
 				531AEB2716BF1C8300F2B943 /* example3.com.zone in Resources */,
 				531AEB2816BF1C8300F2B943 /* zonefile.example in Resources */,
+				53A0610E16DAC21C00D9F251 /* db.blank.com in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -454,6 +470,11 @@
 			isa = PBXTargetDependency;
 			name = CoreNetworking;
 			targetProxy = 531DFD5416B43D1400D6EE07 /* PBXContainerItemProxy */;
+		};
+		53AAA03016D18A1C00EE4836 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CoreNetworking;
+			targetProxy = 53AAA02F16D18A1C00EE4836 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

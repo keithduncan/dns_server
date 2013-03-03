@@ -21,6 +21,11 @@ do {\
 	STAssertTrue(read, ([NSString stringWithFormat:@"should be able to read file %@", fileName]));\
 } while (0)
 
+- (void)testBlankCom
+{
+	TestFileNamed(@"db.blank.com");
+}
+
 - (void)testTestExampleCom
 {
 	TestFileNamed(@"db.test.example.com");
