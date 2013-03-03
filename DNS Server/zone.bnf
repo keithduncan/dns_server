@@ -37,9 +37,10 @@
 ;      equivalent to "*1(foo bar)".
 ;   
 
-zone		= line *( newline line )
+zone		= *line
 
-line		= ( directive | record | blank ) LWS [ comment ]
+line		= ( directive | record | blank ) LWS [ comment ] eol
+eol			= newline | eof
 
 directive	= "$" ( origin | ttl )
 origin		= "ORIGIN" 1*WS fqdn
