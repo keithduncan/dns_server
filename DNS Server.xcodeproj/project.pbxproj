@@ -20,6 +20,7 @@
 		531DFD5716B43D1900D6EE07 /* CoreNetworking.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 531DFD4C16B43CF900D6EE07 /* CoreNetworking.framework */; };
 		532110101699FEC700D26765 /* AFNetworkDomainRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 5321100F1699FEC700D26765 /* AFNetworkDomainRecord.m */; };
 		53211016169A018800D26765 /* libresolv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 53211015169A018800D26765 /* libresolv.dylib */; };
+		534377D816E391BC00AEF196 /* db.example.local in Resources */ = {isa = PBXBuildFile; fileRef = 538DEA79169B8DAF00AA0663 /* db.example.local */; };
 		534862CF16D1172300A0F4BA /* AFNetworkDomainZone.m in Sources */ = {isa = PBXBuildFile; fileRef = 534862CE16D1172300A0F4BA /* AFNetworkDomainZone.m */; };
 		534862D016D1172800A0F4BA /* AFNetworkDomainZone.m in Sources */ = {isa = PBXBuildFile; fileRef = 534862CE16D1172300A0F4BA /* AFNetworkDomainZone.m */; };
 		534862D416D1185A00A0F4BA /* AFNetworkDomainZone+AFNetworkPrivate.m in Sources */ = {isa = PBXBuildFile; fileRef = 534862D316D1185A00A0F4BA /* AFNetworkDomainZone+AFNetworkPrivate.m */; };
@@ -395,6 +396,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				534377D816E391BC00AEF196 /* db.example.local in Resources */,
 				5367A6F9169497AA002534FF /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

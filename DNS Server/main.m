@@ -76,7 +76,7 @@ void server_main(void) {
 	AFNetworkDomainZone *zone = [[AFNetworkDomainZone alloc] init];
 	
 	NSError *readZoneError = nil;
-	BOOL readZone = [zone readFromURL:[NSURL fileURLWithPath:@"/Users/keith/Projects/Source/DNS Server/DNS Server/db.example.local"] options:nil error:&readZoneError];
+	BOOL readZone = [zone readFromURL:[[NSBundle mainBundle] URLForResource:@"db.example" withExtension:@"local"] options:nil error:&readZoneError];
 	NSCParameterAssert(readZone);
 	
 	[domainServer addZone:zone];
