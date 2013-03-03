@@ -75,7 +75,8 @@ struct _DNSFlagMap {
 	{ .flag = DNSFlag_Rcode, .mask = 15, .shift = 0, },
 };
 
-static struct _DNSFlagMap const *_DNSFlagMapForFlag(enum DNSFlag flag) {
+static struct _DNSFlagMap const *_DNSFlagMapForFlag(enum DNSFlag flag)
+{
 	struct _DNSFlagMap const *mapRef = NULL;
 	for (size_t idx = 0; idx < sizeof(flagsMap)/sizeof(*flagsMap); idx++) {
 		if (flagsMap[idx].flag != flag) {
@@ -88,7 +89,8 @@ static struct _DNSFlagMap const *_DNSFlagMapForFlag(enum DNSFlag flag) {
 	return mapRef;
 }
 
-static int DNSFlagsGet(uint16_t flags, enum DNSFlag flag) {
+static int DNSFlagsGet(uint16_t flags, enum DNSFlag flag)
+{
 	struct _DNSFlagMap const *mapRef = _DNSFlagMapForFlag(flag);
 	NSCParameterAssert(mapRef != NULL);
 	
@@ -96,7 +98,8 @@ static int DNSFlagsGet(uint16_t flags, enum DNSFlag flag) {
 	return (flags & (mapRef->mask << shift)) >> shift;
 }
 
-static void DNSFlagsSet(uint16_t *flagsRef, enum DNSFlag flag, int value) {
+static void DNSFlagsSet(uint16_t *flagsRef, enum DNSFlag flag, int value)
+{
 	struct _DNSFlagMap const *mapRef = _DNSFlagMapForFlag(flag);
 	NSCParameterAssert(mapRef != NULL);
 	
@@ -105,18 +108,21 @@ static void DNSFlagsSet(uint16_t *flagsRef, enum DNSFlag flag, int value) {
 	*flagsRef = (*flagsRef | (value << mapRef->shift));
 }
 
-typedef NS_ENUM(int, DNSQueryResponse) {
+typedef NS_ENUM(int, DNSQueryResponse)
+{
 	DNSQueryResponse_Query = 0,
 	DNSQueryResponse_Response = 1,
 };
 
-typedef NS_ENUM(int, DNSOpcode) {
+typedef NS_ENUM(int, DNSOpcode)
+{
 	DNSOpcode_Standard = 0,
 	DNSOpcode_Inverse = 1,
 	DNSOpcode_Status = 2,
 };
 
-typedef NS_ENUM(int, DNSRcode) {
+typedef NS_ENUM(int, DNSRcode)
+{
 	DNSRcode_OK = 0,
 	DNSRcode_FormatError = 1,
 	DNSRcode_ServerFailure = 2,
@@ -125,7 +131,8 @@ typedef NS_ENUM(int, DNSRcode) {
 	DNSRcode_Refused = 5,
 };
 
-static BOOL SafeGetBytes(NSData *data, uint8_t *bytes, NSRange range) {
+static BOOL SafeGetBytes(NSData *data, uint8_t *bytes, NSRange range)
+{
 	NSRange intersection = NSIntersectionRange(NSMakeRange(0, [data length]), range);
 	if (!NSEqualRanges(intersection, range)) {
 		return NO;
@@ -135,22 +142,26 @@ static BOOL SafeGetBytes(NSData *data, uint8_t *bytes, NSRange range) {
 	return YES;
 }
 
-static BOOL LengthByteIsLength(uint8_t length) {
+static BOOL LengthByteIsLength(uint8_t length)
+{
 	return (length & /* 0b11000000 */ 192) == 0;
 }
 
-static BOOL LengthByteIsPointer(uint8_t length) {
+static BOOL LengthByteIsPointer(uint8_t length)
+{
 	return (length & /* 0b11000000 */ 192) == 192;
 }
 
-typedef NS_ENUM(NSUInteger, DNSLengthType) {
+typedef NS_ENUM(NSUInteger, DNSLengthType)
+{
 	DNSLengthType_Invalid,
 	DNSLengthType_Root,
 	DNSLengthType_Length,
 	DNSLengthType_Pointer,
 };
 
-static DNSLengthType LengthByteGetType(uint8_t length) {
+static DNSLengthType LengthByteGetType(uint8_t length)
+{
 	if (LengthByteIsLength(length)) {
 		if (length == 0) {
 			return DNSLengthType_Root;
@@ -167,7 +178,8 @@ static DNSLengthType LengthByteGetType(uint8_t length) {
 	}
 }
 
-static NSString *ParseNameFromMessage(NSData *message, /* inout */ size_t *cursorRef) {
+static NSString *ParseNameFromMessage(NSData *message, /* inout */ size_t *cursorRef)
+{
 	NSMutableArray *accumulation = [NSMutableArray array];
 	
 	size_t startCursor = *cursorRef;
@@ -240,11 +252,13 @@ Return:
 	return [accumulation componentsJoinedByString:@"."];
 }
 
-static NSUInteger DNSQuestionSizeFunction(void const *item) {
+static NSUInteger DNSQuestionSizeFunction(void const *item)
+{
 	return sizeof(dns_question_t);
 }
 
-static void *DNSQuestionAcquireFunction(const void *src, NSUInteger (*size)(const void *item), BOOL shouldCopy) {
+static void *DNSQuestionAcquireFunction(const void *src, NSUInteger (*size)(const void *item), BOOL shouldCopy)
+{
 	NSCParameterAssert(size(src) == DNSQuestionSizeFunction(src));
 	NSCParameterAssert(shouldCopy);
 	
@@ -257,7 +271,8 @@ static void *DNSQuestionAcquireFunction(const void *src, NSUInteger (*size)(cons
 	return newQuestion;
 }
 
-static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(const void *item)) {
+static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(const void *item))
+{
 	dns_question_t *question = (dns_question_t *)item;
 	free(question->name);
 	free(question);
@@ -411,7 +426,7 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 #warning needs to respect the 512 byte limit for unicast DNS and the destination interface MTU for multicast DNS responses (and set the truncation bit)
 	
 	AFNetworkTransport *transport = [[[AFNetworkTransport alloc] initWithLowerLayer:(id)destination] autorelease];
-	transport.delegate = (id)self;
+	[self configureLayer:transport];
 	
 	NSData *responseData = [NSData dataWithBytes:response length:length];
 	[transport performWrite:responseData withTimeout:-1 context:NULL];
