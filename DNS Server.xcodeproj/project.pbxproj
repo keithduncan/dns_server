@@ -21,6 +21,7 @@
 		532110101699FEC700D26765 /* AFNetworkDomainRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 5321100F1699FEC700D26765 /* AFNetworkDomainRecord.m */; };
 		53211016169A018800D26765 /* libresolv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 53211015169A018800D26765 /* libresolv.dylib */; };
 		534377D816E391BC00AEF196 /* db.example.local in Resources */ = {isa = PBXBuildFile; fileRef = 538DEA79169B8DAF00AA0663 /* db.example.local */; };
+		53464C4A16ECC4B7000DE473 /* AFNetworkMulticastDomainServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 53464C4916ECC4B6000DE473 /* AFNetworkMulticastDomainServer.m */; };
 		534862CF16D1172300A0F4BA /* AFNetworkDomainZone.m in Sources */ = {isa = PBXBuildFile; fileRef = 534862CE16D1172300A0F4BA /* AFNetworkDomainZone.m */; };
 		534862D016D1172800A0F4BA /* AFNetworkDomainZone.m in Sources */ = {isa = PBXBuildFile; fileRef = 534862CE16D1172300A0F4BA /* AFNetworkDomainZone.m */; };
 		534862D416D1185A00A0F4BA /* AFNetworkDomainZone+AFNetworkPrivate.m in Sources */ = {isa = PBXBuildFile; fileRef = 534862D316D1185A00A0F4BA /* AFNetworkDomainZone+AFNetworkPrivate.m */; };
@@ -105,6 +106,8 @@
 		5321100E1699FEC700D26765 /* AFNetworkDomainRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkDomainRecord.h; sourceTree = "<group>"; };
 		5321100F1699FEC700D26765 /* AFNetworkDomainRecord.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkDomainRecord.m; sourceTree = "<group>"; };
 		53211015169A018800D26765 /* libresolv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libresolv.dylib; path = usr/lib/libresolv.dylib; sourceTree = SDKROOT; };
+		53464C4816ECC4B6000DE473 /* AFNetworkMulticastDomainServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkMulticastDomainServer.h; sourceTree = "<group>"; };
+		53464C4916ECC4B6000DE473 /* AFNetworkMulticastDomainServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkMulticastDomainServer.m; sourceTree = "<group>"; };
 		534862CE16D1172300A0F4BA /* AFNetworkDomainZone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkDomainZone.m; sourceTree = "<group>"; };
 		534862D116D1179700A0F4BA /* AFNetworkDomainZone+RecordParsing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AFNetworkDomainZone+RecordParsing.h"; sourceTree = "<group>"; };
 		534862D216D1185A00A0F4BA /* AFNetworkDomainZone+AFNetworkPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AFNetworkDomainZone+AFNetworkPrivate.h"; sourceTree = "<group>"; };
@@ -228,6 +231,8 @@
 				5367A7001694980A002534FF /* main.m */,
 				5367A7161694A651002534FF /* AFNetworkDomainServer.h */,
 				5367A7171694A651002534FF /* AFNetworkDomainServer.m */,
+				53464C4816ECC4B6000DE473 /* AFNetworkMulticastDomainServer.h */,
+				53464C4916ECC4B6000DE473 /* AFNetworkMulticastDomainServer.m */,
 				5367A71B1694A75C002534FF /* AFNetworkDomainZone.h */,
 				534862CE16D1172300A0F4BA /* AFNetworkDomainZone.m */,
 				534862D216D1185A00A0F4BA /* AFNetworkDomainZone+AFNetworkPrivate.h */,
@@ -447,6 +452,7 @@
 				534862CF16D1172300A0F4BA /* AFNetworkDomainZone.m in Sources */,
 				534862D416D1185A00A0F4BA /* AFNetworkDomainZone+AFNetworkPrivate.m in Sources */,
 				534862D816D119EC00A0F4BA /* AFNetworkDomainZone+RecordMatching.m in Sources */,
+				53464C4A16ECC4B7000DE473 /* AFNetworkMulticastDomainServer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
