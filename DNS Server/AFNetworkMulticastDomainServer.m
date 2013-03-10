@@ -18,10 +18,10 @@
 		Internet Layer + Options
 	 */
 	
-	NSMutableSet *addresses = [NSMutableSet setWithObjects:
-							   AFNetworkSocketPresentationToAddress(@"224.0.0.251", NULL),
-							   AFNetworkSocketPresentationToAddress(@"ff02::fb", NULL),
-							   nil];
+	NSArray *addresses = @[
+		AFNetworkSocketPresentationToAddress(@"224.0.0.251", NULL),
+		AFNetworkSocketPresentationToAddress(@"ff02::fb", NULL),
+	];
 	
 	/*
 		Note
