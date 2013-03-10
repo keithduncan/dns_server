@@ -304,7 +304,7 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 		DNSFlagsSet(&responseHeader.flags, DNSFlag_QueryResponse, 1);
 		DNSFlagsSet(&responseHeader.flags, DNSFlag_Rcode, DNSRcode_NotImplemented);
 		
-		[self _sendResponse:(uint8_t const *)&responseHeader length:sizeof(responseHeader) to:sender];
+		[self _sendResponse:[NSData dataWithBytes:&responseHeader length:sizeof(responseHeader)] from:socket to:sender];
 		return;
 	}
 	
@@ -316,7 +316,7 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 		DNSFlagsSet(&responseHeader.flags, DNSFlag_QueryResponse, 1);
 		DNSFlagsSet(&responseHeader.flags, DNSFlag_Rcode, DNSRcode_Refused);
 		
-		[self _sendResponse:(uint8_t const *)&responseHeader length:sizeof(responseHeader) to:sender];
+		[self _sendResponse:[NSData dataWithBytes:(uint8_t const *)&responseHeader length:sizeof(responseHeader)] from:socket to:sender];
 		return;
 	}
 	
@@ -416,24 +416,53 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 		[response appendData:currentRecordData];
 	}
 	
-	[self _sendResponse:(uint8_t const *)[response bytes] length:[response length] to:sender];
+	[self _sendResponse:response from:socket to:sender];
 }
 
-- (void)_sendResponse:(uint8_t const *)response length:(size_t)length to:(AFNetworkSocket *)destination
+- (void)_sendResponse:(NSData *)response from:(AFNetworkSocket *)receiver to:(AFNetworkSocket *)destination
 {
-#warning needs to branch based on the transport type and prepend a message length for TCP transports
+#warning needs to branch based on the transport type and prepend a 16-bit (network byte order) message length for TCP transports
 	
 #warning needs to respect the 512 byte limit for unicast DNS and the destination interface MTU for multicast DNS responses (and set the truncation bit)
 	
-	AFNetworkTransport *transport = [[[AFNetworkTransport alloc] initWithLowerLayer:(id)destination] autorelease];
-	[self configureLayer:transport];
+	NSData *localAddressData = [receiver localAddress];
 	
-	NSData *responseData = [NSData dataWithBytes:response length:length];
-	[transport performWrite:responseData withTimeout:-1 context:NULL];
+	CFRetain(localAddressData);
+	struct sockaddr_storage const *localAddress = (struct sockaddr_storage const *)[localAddressData bytes];
 	
-	[transport performWrite:[[[AFNetworkPacketClose alloc] init] autorelease] withTimeout:-1 context:NULL];
+	CFSocketNativeHandle newSocketNative = socket(localAddress->ss_family, SOCK_DGRAM, IPPROTO_UDP);
+	if (newSocketNative == -1) {
+		CFRelease(localAddressData);
+		return;
+	}
 	
-	[transport open];
+	int reuseAddress = 1;
+	__unused int reuseAddressError = setsockopt(newSocketNative, SOL_SOCKET, SO_REUSEADDR, &reuseAddress, sizeof(reuseAddress));
+	if (reuseAddressError != 0) {
+		CFRelease(localAddressData);
+		
+		close(newSocketNative);
+		return;
+	}
+	
+	int bindError = bind(newSocketNative, (struct sockaddr const *)localAddress, localAddress->ss_len);
+	if (bindError != 0) {
+		CFRelease(localAddressData);
+		
+		close(newSocketNative);
+		return;
+	}
+	
+	CFRetain(response);
+	
+	ssize_t sent = sendto(newSocketNative, [response bytes], [response length], /* int flags */ 0, localAddress, localAddress->ss_len);
+	
+	CFRelease(localAddressData);
+	CFRelease(response);
+
+	if (sent == -1) {
+		return;
+	}
 }
 
 @end
