@@ -258,14 +258,31 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 		return nil;
 	}
 	
-	NSError *addressError = nil;
-	NSData *address = AFNetworkSocketPresentationToAddress(presentation, &addressError);
-	if (address == nil) {
+	NSError *socketAddressDataError = nil;
+	NSData *socketAddressData = AFNetworkSocketPresentationToAddress(presentation, &socketAddressDataError);
+	if (socketAddressData == nil) {
 		return [self _cannotEncodeIpv4:presentation error:errorRef];
 	}
 	
-#warning complete me
-	return [NSData data];
+	if ([socketAddressData length] != sizeof(struct sockaddr_in)) {
+		return [self _cannotEncodeIpv4:presentation error:errorRef];
+	}
+	
+	CFRetain(socketAddressData);
+	struct sockaddr_storage const *socketAddress = (struct sockaddr_storage const *)[socketAddressData bytes];
+	
+	if (socketAddress->ss_family != AF_INET) {
+		CFRelease(socketAddressData);
+		
+		return [self _cannotEncodeIpv4:presentation error:errorRef];
+	}
+	
+	struct sockaddr_in const *socketAddressV4 = (struct sockaddr_in const *)socketAddress;
+	struct in_addr internetAddress = socketAddressV4->sin_addr;
+	
+	CFRelease(socketAddressData);
+	
+	return [NSData dataWithBytes:&internetAddress length:sizeof(internetAddress)];
 }
 
 - (NSData *)_cannotEncodeIpv4:(NSString *)presentation error:(NSError **)errorRef
@@ -282,23 +299,34 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 		return nil;
 	}
 	
-	NSError *addressError = nil;
-	NSData *address = AFNetworkSocketPresentationToAddress(presentation, &addressError);
-	if (address == nil) {
+	NSError *socketAddressDataError = nil;
+	NSData *socketAddressData = AFNetworkSocketPresentationToAddress(presentation, &socketAddressDataError);
+	if (socketAddressData == nil) {
 		return [self _cannotEncodeIpv6:presentation error:errorRef];
 	}
 	
-	CFRetain(address);
-	struct sockaddr_storage *const addressBytes = (struct sockaddr_storage *const)[address bytes];
+	if ([socketAddressData length] != sizeof(struct sockaddr_in6)) {
+		return [self _cannotEncodeIpv6:presentation error:errorRef];
+	}
 	
-	if (addressBytes->ss_family != AF_INET6) {
-		CFRelease(address);
+	CFRetain(socketAddressData);
+	struct sockaddr_storage const *socketAddress = (struct sockaddr_storage const *)[socketAddressData bytes];
+	
+	if (socketAddress->ss_family != AF_INET6) {
+		CFRelease(socketAddressData);
 		
 		return [self _cannotEncodeIpv6:presentation error:errorRef];
 	}
 	
-#warning complete me
-	return [NSData data];
+	struct sockaddr_in6 const *socketAddressV6 = (struct sockaddr_in6 const *)socketAddress;
+	struct in6_addr internetAddress = socketAddressV6->sin6_addr;
+	
+	CFRelease(socketAddressData);
+	
+#define BYTES internetAddress.__u6_addr.__u6_addr8
+	NSUInteger length = (sizeof(BYTES) / sizeof(*BYTES));
+	return [NSData dataWithBytes:&BYTES length:length];
+#undef BYTES
 }
 
 - (NSData *)_cannotEncodeIpv6:(NSString *)presentation error:(NSError **)errorRef
