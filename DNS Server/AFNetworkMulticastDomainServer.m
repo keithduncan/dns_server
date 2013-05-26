@@ -40,6 +40,33 @@
 #warning this relies on mDNSResponder joining the multicast group, we should join it too so not to rely on that
 	
 	/*
+		sa_family == AF_INET
+		
+		// We want to receive destination addresses
+        err = setsockopt(skt, IPPROTO_IP, IP_RECVDSTADDR, &on, sizeof(on));
+        if (err < 0) { errstr = "setsockopt - IP_RECVDSTADDR"; goto fail; }
+
+        // We want to receive interface identifiers
+        err = setsockopt(skt, IPPROTO_IP, IP_RECVIF, &on, sizeof(on));
+        if (err < 0) { errstr = "setsockopt - IP_RECVIF"; goto fail; }
+		
+		
+		sa_family == AF_INET6
+		
+		// We want to receive destination addresses and receive interface identifiers
+        err = setsockopt(skt, IPPROTO_IPV6, IPV6_RECVPKTINFO, &on, sizeof(on));
+        if (err < 0) { errstr = "setsockopt - IPV6_RECVPKTINFO"; goto fail; }
+		
+		use `recvmsg(s, &msg, 0);` to read data + metadata
+	 
+	 
+		common
+		
+		int reuseAddress = 1;
+		__unused int reuseAddressError = setsockopt(socketNative, SOL_SOCKET, SO_REUSEADDR, &reuseAddress, sizeof(reuseAddress));
+	 */
+	
+	/*
 		Transport Layer + Options
 	 */
 	
