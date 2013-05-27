@@ -8,6 +8,9 @@
 
 #import "AFNetworkMulticastDomainServer.h"
 
+#define __APPLE_USE_RFC_3542
+#import <netinet/in.h>
+
 #import "CoreNetworking/CoreNetworking.h"
 
 @implementation AFNetworkMulticastDomainServer
@@ -39,58 +42,42 @@
 	 */
 #warning this relies on mDNSResponder joining the multicast group, we should join it too so not to rely on that
 	
-	/*
-		sa_family == AF_INET
-		
-		// We want to receive destination addresses
-        err = setsockopt(skt, IPPROTO_IP, IP_RECVDSTADDR, &on, sizeof(on));
-        if (err < 0) { errstr = "setsockopt - IP_RECVDSTADDR"; goto fail; }
-
-        // We want to receive interface identifiers
-        err = setsockopt(skt, IPPROTO_IP, IP_RECVIF, &on, sizeof(on));
-        if (err < 0) { errstr = "setsockopt - IP_RECVIF"; goto fail; }
-		
-		
-		sa_family == AF_INET6
-		
-		// We want to receive destination addresses and receive interface identifiers
-        err = setsockopt(skt, IPPROTO_IPV6, IPV6_RECVPKTINFO, &on, sizeof(on));
-        if (err < 0) { errstr = "setsockopt - IPV6_RECVPKTINFO"; goto fail; }
-		
-		use `recvmsg(s, &msg, 0);` to read data + metadata
-	 
-	 
-		common
-		
-		int reuseAddress = 1;
-		__unused int reuseAddressError = setsockopt(socketNative, SOL_SOCKET, SO_REUSEADDR, &reuseAddress, sizeof(reuseAddress));
-	 */
-	
-	/*
-		Transport Layer + Options
-	 */
-	
-	/*
-		Note
-		
-		needs to set SO_REUSEADDR on the socket for the bind to succeed when mDNSResponder is already bound to the port
-	 */
 	uint16_t port = 5353;
-#warning this relies on the debug-only options set in AFNetworkSocket for reuse address and reuse port, these need to be configurable for use in release configuration too for binding these addresses to work in the presence of mDNSResponder
 	
-	NSMutableSet *newAddresses = [NSMutableSet set];
+	NSMutableSet *newAddresses = [NSMutableSet setWithCapacity:[addresses count]];
 	for (NSData *currentAddress in addresses) {
 		NSMutableData *newAddress = [[currentAddress mutableCopy] autorelease];
 		af_sockaddr_in_write_port((struct sockaddr_storage *)[newAddress bytes], port);
 		[newAddresses addObject:newAddress];
 	}
 	
-	return [self openInternetSocketsWithSocketSignature:AFNetworkSocketSignatureInternetUDP socketAddresses:newAddresses errorHandler:^ BOOL (NSData *address, NSError *error) {
-		if (errorRef != NULL) {
-			*errorRef = error;
+	for (NSData *currentAddress in newAddresses) {
+		NSMutableSet *options = [NSMutableSet set];
+		
+		int reuseAddress = 1;
+		AFNetworkSocketOption *reuseAddressOption = [AFNetworkSocketOption optionWithLevel:SOL_SOCKET option:SO_REUSEADDR value:[NSData dataWithBytes:&reuseAddress length:sizeof(reuseAddress)]];
+		[options addObject:reuseAddressOption];
+		
+		sa_family_t protocolFamily = ((struct sockaddr_storage const *)[currentAddress bytes])->ss_family;
+		if (protocolFamily == PF_INET) {
+			int on = 1;
+			AFNetworkSocketOption *receiveAddress = [AFNetworkSocketOption optionWithLevel:IPPROTO_IP option:IP_RECVDSTADDR value:[NSData dataWithBytes:&on length:sizeof(on)]];
+			AFNetworkSocketOption *receiveInterface = [AFNetworkSocketOption optionWithLevel:IPPROTO_IP option:IP_RECVIF value:[NSData dataWithBytes:&on length:sizeof(on)]];
+			[options addObjectsFromArray:@[ receiveAddress, receiveInterface ]];
 		}
-		return NO;
-	}];
+		else if (protocolFamily == PF_INET6) {
+			int on = 1;
+			AFNetworkSocketOption *receivePacketInfo = [AFNetworkSocketOption optionWithLevel:IPPROTO_IPV6 option:IPV6_RECVPKTINFO value:[NSData dataWithBytes:&on length:sizeof(on)]];
+			[options addObject:receivePacketInfo];
+		}
+		
+		BOOL open = [self openSocketWithSignature:AFNetworkSocketSignatureInternetUDP address:currentAddress options:options error:errorRef];
+		if (!open) {
+			return NO;
+		}
+	}
+	
+	return YES;
 }
 
 @end
