@@ -67,12 +67,12 @@ struct _DNSFlagMap {
 	int mask;
 	int shift;
 } const flagsMap[] = {
-	{ .flag = DNSFlag_QueryResponse, .mask = 1, .shift = 16, },
+	{ .flag = DNSFlag_QueryResponse, .mask = 1, .shift = 15, },
 	{ .flag = DNSFlag_Opcode, .mask = 15, .shift = 11, },
-	{ .flag = DNSFlag_AA, .mask = 1, .shift = 8, },
-	{ .flag = DNSFlag_TC, .mask = 1, .shift = 7, },
-	{ .flag = DNSFlag_RD, .mask = 1, .shift = 6, },
-	{ .flag = DNSFlag_RA, .mask = 1, .shift = 5, },
+	{ .flag = DNSFlag_AA, .mask = 1, .shift = 10, },
+	{ .flag = DNSFlag_TC, .mask = 1, .shift = 9, },
+	{ .flag = DNSFlag_RD, .mask = 1, .shift = 8, },
+	{ .flag = DNSFlag_RA, .mask = 1, .shift = 7, },
 	{ .flag = DNSFlag_Z, .mask = 7, .shift = 4, },
 	{ .flag = DNSFlag_Rcode, .mask = 15, .shift = 0, },
 };
