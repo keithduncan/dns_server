@@ -8,6 +8,8 @@
 
 #import "AFNetworkDomainServer.h"
 
+#define __APPLE_USE_RFC_3542
+#import <netinet/in.h>
 #import <dns_util.h>
 
 #import "AFNetworkDomainZone.h"
@@ -430,39 +432,49 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 	NSData *localAddressData = [receiver localAddress];
 	
 	CFRetain(localAddressData);
+	af_scoped_block_t cleanupLocalAddressData = ^ {
+		CFRelease(localAddressData);
+	};
+
 	struct sockaddr_storage const *localAddress = (struct sockaddr_storage const *)[localAddressData bytes];
 	
 	CFSocketNativeHandle newSocketNative = socket(localAddress->ss_family, SOCK_DGRAM, IPPROTO_UDP);
 	if (newSocketNative == -1) {
-		CFRelease(localAddressData);
 		return;
 	}
+	af_scoped_block_t cleanupSocketNative = ^ {
+		close(newSocketNative);
+	};
 	
 	int reuseAddress = 1;
 	__unused int reuseAddressError = setsockopt(newSocketNative, SOL_SOCKET, SO_REUSEADDR, &reuseAddress, sizeof(reuseAddress));
 	if (reuseAddressError != 0) {
-		CFRelease(localAddressData);
-		
-		close(newSocketNative);
 		return;
+	}
+
+	AFNetworkSocketOption *info = [[[datagram metadata] objectsPassingTest:^ BOOL (AFNetworkSocketOption *obj, BOOL *stop) {
+		return ([obj level] == IPPROTO_IPV4 && [obj option] == IP_PKTINFO) || ([obj level] == IPPROTO_IPV6 && [obj option] == IPV6_PKTINFO);
+	}] anyObject];
+	if (info != nil) {
+		int infoError = setsockopt(newSocketNative, [info level], [info option], [[info value] bytes], (socklen_t)[[info value] length]);
+		if (infoError != 0) {
+			return;
+		}
 	}
 	
 	int bindError = bind(newSocketNative, (struct sockaddr const *)localAddress, localAddress->ss_len);
 	if (bindError != 0) {
-		CFRelease(localAddressData);
-		
-		close(newSocketNative);
 		return;
 	}
 	
 	CFRetain(response);
 	
 	ssize_t sent = sendto(newSocketNative, [response bytes], [response length], /* int flags */ 0, (const struct sockaddr *)localAddress, localAddress->ss_len);
-	
-	CFRelease(localAddressData);
+
 	CFRelease(response);
 
 	if (sent == -1) {
+		__unused int error = errno;
 		return;
 	}
 }
