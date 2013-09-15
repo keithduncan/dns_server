@@ -38,7 +38,7 @@
 		consult the mDNSResponder code to see what mechanism it uses to monitor interfaces, probably the SystemConfiguration framework
 		
 		can we open a wildcard IPv4/IPv6 socket address and join the group using that, this would avoid tracking interface changes as we avoided tracking interface changes in AFNetworkServer
-		though we still need to track address family availablity changes which we don't current handle in AFNetworkServer :(
+		though we still need to track address family availability changes which we don't current handle in AFNetworkServer :(
 	 */
 #warning this relies on mDNSResponder joining the multicast group, we should join it too so not to rely on that
 	
