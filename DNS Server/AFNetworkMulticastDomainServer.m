@@ -67,7 +67,7 @@
 		}
 		else if (protocolFamily == PF_INET6) {
 			int on = 1;
-			AFNetworkSocketOption *receivePacketInfo = [AFNetworkSocketOption optionWithLevel:IPPROTO_IPV6 option:IPV6_RECVPKTINFO value:[NSData dataWithBytes:&on length:sizeof(on)]];
+			AFNetworkSocketOption *receivePacketInfo = [AFNetworkSocketOption optionWithLevel:IPPROTO_IPV6 option:IPV6_PKTINFO value:[NSData dataWithBytes:&on length:sizeof(on)]];
 			[options addObject:receivePacketInfo];
 		}
 		
