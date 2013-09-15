@@ -399,6 +399,10 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 			[answerRecords unionSet:[currentZone recordsForFullyQualifiedDomainName:nameString recordClass:classString recordType:typeString]];
 		}
 	}
+
+	if (answerRecords.count == 0) {
+		return;
+	}
 	
 	dns_header_t responseHeader = {
 		.xid = requestHeader.xid,
