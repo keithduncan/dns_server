@@ -457,7 +457,7 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 	
 	CFRetain(response);
 	
-	ssize_t sent = sendto(newSocketNative, [response bytes], [response length], /* int flags */ 0, localAddress, localAddress->ss_len);
+	ssize_t sent = sendto(newSocketNative, [response bytes], [response length], /* int flags */ 0, (const struct sockaddr *)localAddress, localAddress->ss_len);
 	
 	CFRelease(localAddressData);
 	CFRelease(response);
