@@ -457,7 +457,7 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 	}
 
 	AFNetworkSocketOption *info = [[[datagram metadata] objectsPassingTest:^ BOOL (AFNetworkSocketOption *obj, BOOL *stop) {
-		return ([obj level] == IPPROTO_IPV4 && [obj option] == IP_PKTINFO) || ([obj level] == IPPROTO_IPV6 && [obj option] == IPV6_PKTINFO);
+		return ([obj level] == IPPROTO_IP && [obj option] == IP_PKTINFO) || ([obj level] == IPPROTO_IPV6 && [obj option] == IPV6_PKTINFO);
 	}] anyObject];
 	if (info != nil) {
 		int infoError = setsockopt(newSocketNative, [info level], [info option], [[info value] bytes], (socklen_t)[[info value] length]);
