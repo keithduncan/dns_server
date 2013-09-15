@@ -61,18 +61,18 @@
 		sa_family_t protocolFamily = ((struct sockaddr_storage const *)[currentAddress bytes])->ss_family;
 		if (protocolFamily == PF_INET) {
 			int on = 1;
-			AFNetworkSocketOption *receiveAddress = [AFNetworkSocketOption optionWithLevel:IPPROTO_IP option:IP_RECVDSTADDR value:[NSData dataWithBytes:&on length:sizeof(on)]];
-			AFNetworkSocketOption *receiveInterface = [AFNetworkSocketOption optionWithLevel:IPPROTO_IP option:IP_RECVIF value:[NSData dataWithBytes:&on length:sizeof(on)]];
-			[options addObjectsFromArray:@[ receiveAddress, receiveInterface ]];
+			AFNetworkSocketOption *receivePacketInfo = [AFNetworkSocketOption optionWithLevel:IPPROTO_IP option:IP_RECVPKTINFO value:[NSData dataWithBytes:&on length:sizeof(on)]];
+			[options addObject:receivePacketInfo];
 		}
 		else if (protocolFamily == PF_INET6) {
 			int on = 1;
-			AFNetworkSocketOption *receivePacketInfo = [AFNetworkSocketOption optionWithLevel:IPPROTO_IPV6 option:IPV6_PKTINFO value:[NSData dataWithBytes:&on length:sizeof(on)]];
+			AFNetworkSocketOption *receivePacketInfo = [AFNetworkSocketOption optionWithLevel:IPPROTO_IPV6 option:IPV6_RECVPKTINFO value:[NSData dataWithBytes:&on length:sizeof(on)]];
 			[options addObject:receivePacketInfo];
 		}
 		
 		AFNetworkSocket *socket = [self openSocketWithSignature:AFNetworkSocketSignatureInternetUDP address:currentAddress options:options error:errorRef];
 		if (socket == nil) {
+#warning could fail to open IPv6 socket, the server open shouldn't fail
 			return NO;
 		}
 	}
