@@ -71,8 +71,8 @@
 			[options addObject:receivePacketInfo];
 		}
 		
-		BOOL open = [self openSocketWithSignature:AFNetworkSocketSignatureInternetUDP address:currentAddress options:options error:errorRef];
-		if (!open) {
+		AFNetworkSocket *socket = [self openSocketWithSignature:AFNetworkSocketSignatureInternetUDP address:currentAddress options:options error:errorRef];
+		if (socket == nil) {
 			return NO;
 		}
 	}
