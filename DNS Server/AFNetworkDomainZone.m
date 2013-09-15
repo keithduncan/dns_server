@@ -55,7 +55,7 @@ NSString *const AFNetworkDomainZoneErrorDomain = @"com.thirty-three.corenetworki
 			NSString *encodingName = (NSString *)CFStringConvertEncodingToIANACharSetName(CFStringConvertNSStringEncodingToEncoding(stringEncoding));
 			
 			NSDictionary *errorInfo = @{
-				NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Couldn\u2019t read the contents of the zone file as %@ data", encodingName],
+				NSLocalizedDescriptionKey : [NSString stringWithFormat:NSLocalizedString(@"Couldn\u2019t read the contents of the zone file as %@ data", @"AFNetworkDomainZone file not string error description"), encodingName],
 			};
 			*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
 		}
