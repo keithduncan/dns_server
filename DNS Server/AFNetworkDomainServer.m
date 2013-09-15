@@ -305,7 +305,7 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 			.xid = requestHeader.xid,
 		};
 		
-		DNSFlagsSet(&responseHeader.flags, DNSFlag_QueryResponse, 1);
+		DNSFlagsSet(&responseHeader.flags, DNSFlag_QueryResponse, DNSQueryResponse_Response);
 		DNSFlagsSet(&responseHeader.flags, DNSFlag_Rcode, DNSRcode_NotImplemented);
 		
 		[self _sendResponse:[NSData dataWithBytes:&responseHeader length:sizeof(responseHeader)] from:socket forRequest:datagram];
@@ -317,7 +317,7 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 			.xid = requestHeader.xid,
 		};
 		
-		DNSFlagsSet(&responseHeader.flags, DNSFlag_QueryResponse, 1);
+		DNSFlagsSet(&responseHeader.flags, DNSFlag_QueryResponse, DNSQueryResponse_Response);
 		DNSFlagsSet(&responseHeader.flags, DNSFlag_Rcode, DNSRcode_Refused);
 		
 		[self _sendResponse:[NSData dataWithBytes:(uint8_t const *)&responseHeader length:sizeof(responseHeader)] from:socket forRequest:datagram];
@@ -405,7 +405,7 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 		.ancount = htons(answerRecords.count),
 	};
 	
-	DNSFlagsSet(&responseHeader.flags, DNSFlag_QueryResponse, 1);
+	DNSFlagsSet(&responseHeader.flags, DNSFlag_QueryResponse, DNSQueryResponse_Response);
 	DNSFlagsSet(&responseHeader.flags, DNSFlag_Rcode, DNSRcode_OK);
 	
 	NSMutableData *response = [NSMutableData data];
