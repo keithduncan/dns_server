@@ -459,18 +459,27 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 	AFNetworkSocketOption *info = [[[datagram metadata] objectsPassingTest:^ BOOL (AFNetworkSocketOption *obj, BOOL *stop) {
 		return ([obj level] == IPPROTO_IP && [obj option] == IP_PKTINFO) || ([obj level] == IPPROTO_IPV6 && [obj option] == IPV6_PKTINFO);
 	}] anyObject];
-	if (info != nil) {
-		int infoError = setsockopt(newSocketNative, [info level], [info option], [[info value] bytes], (socklen_t)[[info value] length]);
-		if (infoError != 0) {
+	BOOL multicast = ((localAddress->ss_family == AF_INET && IN_MULTICAST(((struct sockaddr_in *)localAddress)->sin_addr.s_addr)) ||
+					  (localAddress->ss_family == AF_INET6 && IN6_IS_ADDR_MULTICAST(&((struct sockaddr_in6 *)localAddress)->sin6_addr)));
+	if (info != nil && multicast) {
+		int setMulticastInterfaceError = 0;
+		if (localAddress->ss_family == AF_INET) {
+			struct in_pktinfo *packetInfo = (struct in_pktinfo *)[[info value] bytes];
+			setMulticastInterfaceError = setsockopt(newSocketNative, IPPROTO_IP, IP_MULTICAST_IFINDEX, &packetInfo->ipi_ifindex, sizeof(packetInfo->ipi_ifindex));
+		}
+		else if (localAddress->ss_family == AF_INET6) {
+			struct in6_pktinfo *packetInfo = (struct in6_pktinfo *)[[info value] bytes];
+			setMulticastInterfaceError = setsockopt(newSocketNative, IPPROTO_IPV6, IPV6_MULTICAST_IF, &packetInfo->ipi6_ifindex, sizeof(packetInfo->ipi6_ifindex));
+		}
+		else {
+			@throw [NSException exceptionWithName:NSInvalidArgumentException reason:[NSString stringWithFormat:@"unsupported family %lu", (unsigned long)localAddress->ss_family] userInfo:nil];
+		}
+		if (setMulticastInterfaceError != 0) {
+			__unused int error = errno;
 			return;
 		}
 	}
-	
-	int bindError = bind(newSocketNative, (struct sockaddr const *)localAddress, localAddress->ss_len);
-	if (bindError != 0) {
-		return;
-	}
-	
+
 	CFRetain(response);
 	
 	ssize_t sent = sendto(newSocketNative, [response bytes], [response length], /* int flags */ 0, (const struct sockaddr *)localAddress, localAddress->ss_len);
