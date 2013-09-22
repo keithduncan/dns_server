@@ -6,14 +6,14 @@
 //  Copyright (c) 2013 Keith Duncan. All rights reserved.
 //
 
-#import "AFNetworkMulticastDomainServer.h"
+#import "AFNetworkDomainMulticastServer.h"
 
 #define __APPLE_USE_RFC_3542
 #import <netinet/in.h>
 
 #import "CoreNetworking/CoreNetworking.h"
 
-@implementation AFNetworkMulticastDomainServer
+@implementation AFNetworkDomainMulticastServer
 
 - (BOOL)openInternetSockets:(NSError **)errorRef
 {

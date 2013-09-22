@@ -11,7 +11,7 @@
 #import "CoreNetworking/CoreNetworking.h"
 
 #import "AFNetworkDomainZoneLoader.h"
-#import "AFNetworkMulticastDomainServer.h"
+#import "AFNetworkDomainMulticastServer.h"
 
 #import "NSError+AFNetworkDomainAdditions.h"
 
@@ -42,7 +42,7 @@ static void log_error(NSError *error)
 
 static AFNetworkDomainServer *start_domain_server(AFNetworkSchedule *schedule, NSSet *zones)
 {
-	AFNetworkMulticastDomainServer *server = [AFNetworkMulticastDomainServer server];
+	AFNetworkDomainMulticastServer *server = [AFNetworkDomainMulticastServer server];
 	server.schedule = schedule;
 	server.zones = zones;
 	

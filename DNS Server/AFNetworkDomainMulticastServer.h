@@ -8,7 +8,7 @@
 
 #import "AFNetworkDomainServer.h"
 
-@interface AFNetworkMulticastDomainServer : AFNetworkDomainServer
+@interface AFNetworkDomainMulticastServer : AFNetworkDomainServer
 
 /*!
 	\brief
