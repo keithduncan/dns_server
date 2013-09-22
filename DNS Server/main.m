@@ -35,7 +35,7 @@ static void log_error(NSError *error)
 		[logDictionary addEntriesFromDictionary:[error afnetworkdomain_recursiveJsonRepresentation]];
 	}
 	
-	NSData *logData = [NSJSONSerialization dataWithJSONObject:logDictionary options:NSJSONWritingPrettyPrinted error:NULL];
+	NSData *logData = [NSJSONSerialization dataWithJSONObject:@{ @"error" : logDictionary } options:NSJSONWritingPrettyPrinted error:NULL];
 	
 	fprintf(stderr, "%.*s\n", (int)[logData length], [logData bytes]);
 }
