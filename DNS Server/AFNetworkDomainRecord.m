@@ -115,9 +115,8 @@
 			}
 			return nil;
 		}
-		
-		uint8_t length = htons(labelLength);
-		[encodedName appendBytes:&length length:1];
+
+		[encodedName appendBytes:&labelLength length:1];
 		
 		[encodedName appendData:currentLabelData];
 	}
@@ -183,7 +182,9 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 	if (numberError != 0) {
 		return nil;
 	}
-	
+
+	number = htons(number);
+
 	return [NSData dataWithBytes:&number length:sizeof(number)];
 }
 

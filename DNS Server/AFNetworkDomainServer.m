@@ -95,9 +95,8 @@ static int DNSFlagsGet(uint16_t flags, enum DNSFlag flag)
 {
 	struct _DNSFlagMap const *mapRef = _DNSFlagMapForFlag(flag);
 	NSCParameterAssert(mapRef != NULL);
-	
-	int shift = mapRef->shift;
-	return (flags & (mapRef->mask << shift)) >> shift;
+
+	return (ntohs(flags) >> mapRef->shift) & mapRef->mask;
 }
 
 static void DNSFlagsSet(uint16_t *flagsRef, enum DNSFlag flag, int value)
@@ -107,7 +106,7 @@ static void DNSFlagsSet(uint16_t *flagsRef, enum DNSFlag flag, int value)
 	
 	NSCParameterAssert((mapRef->mask & value) == value);
 	
-	*flagsRef = (*flagsRef | (value << mapRef->shift));
+	*flagsRef = htons(ntohs(*flagsRef) | (value << mapRef->shift));
 }
 
 typedef NS_ENUM(int, DNSQueryResponse)
