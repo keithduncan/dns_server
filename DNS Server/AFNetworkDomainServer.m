@@ -411,6 +411,7 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 	};
 	
 	DNSFlagsSet(&responseHeader.flags, DNSFlag_QueryResponse, DNSQueryResponse_Response);
+	DNSFlagsSet(&responseHeader.flags, DNSFlag_AuthoritativeAnswer, DNSAuthoritativeAnswer_Authoritative);
 	DNSFlagsSet(&responseHeader.flags, DNSFlag_Rcode, DNSRcode_OK);
 	
 	NSMutableData *response = [NSMutableData data];
