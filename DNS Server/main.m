@@ -40,15 +40,16 @@ static void log_error(NSError *error)
 	fprintf(stderr, "%.*s\n", (int)[logData length], [logData bytes]);
 }
 
-static AFNetworkDomainServer *start_domain_server(AFNetworkSchedule *schedule, NSSet *zones)
+static AFNetworkDomainServer *start_domain_server(AFNetworkSchedule *schedule, NSSet *zones, NSError **errorRef)
 {
 	AFNetworkDomainMulticastServer *server = [AFNetworkDomainMulticastServer server];
 	server.schedule = schedule;
 	server.zones = zones;
 	
-	NSError *openSocketsError = nil;
-	BOOL openSockets = [server openInternetSockets:&openSocketsError];
-	NSCParameterAssert(openSockets);
+	BOOL openSockets = [server openInternetSockets:errorRef];
+	if (!openSockets) {
+		return nil;
+	}
 	
 	return server;
 }
@@ -66,7 +67,12 @@ static AFNetworkDomainServer *server_main(AFNetworkSchedule *schedule)
 		}
 	}
 	
-	AFNetworkDomainServer *server = start_domain_server(schedule, zones);
+	NSError *serverError = nil;
+	AFNetworkDomainServer *server = start_domain_server(schedule, zones, &serverError);
+	if (server == nil) {
+		log_error(serverError);
+		exit(0); // Fatal error
+	}
 	
 	[zones release];
 	
