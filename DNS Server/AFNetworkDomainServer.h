@@ -12,6 +12,6 @@
 
 @interface AFNetworkDomainServer : AFNetworkServer
 
-- (void)addZone:(AFNetworkDomainZone *)zone;
+@property (strong, atomic) NSSet *zones;
 
 @end

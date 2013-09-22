@@ -16,7 +16,6 @@
 #import "AFNetworkDomainRecord.h"
 
 @interface AFNetworkDomainServer () <AFNetworkSocketHostDelegate>
-@property (retain, nonatomic) NSMutableSet *zones;
 @end
 
 @implementation AFNetworkDomainServer
@@ -38,11 +37,6 @@
 	[_zones release];
 	
 	[super dealloc];
-}
-
-- (void)addZone:(AFNetworkDomainZone *)zone
-{
-	[self.zones addObject:zone];
 }
 
 /*
@@ -376,6 +370,8 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 	
 	NSMutableSet *answerRecords = [NSMutableSet set];
 	
+	NSSet *zones = self.zones;
+	
 	for (NSUInteger idx = 0; idx < questions.count; idx++) {
 		dns_question_t *currentQuestion = [questions pointerAtIndex:idx];
 		
@@ -394,7 +390,7 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 		char const *nameStringBytes = currentQuestion->name;
 		NSString *nameString = [NSString stringWithUTF8String:nameStringBytes];
 		
-		for (AFNetworkDomainZone *currentZone in self.zones) {
+		for (AFNetworkDomainZone *currentZone in zones) {
 			[answerRecords unionSet:[currentZone recordsForFullyQualifiedDomainName:nameString recordClass:classString recordType:typeString]];
 		}
 	}
