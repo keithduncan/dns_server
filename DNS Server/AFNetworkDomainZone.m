@@ -32,6 +32,27 @@ NSString *const AFNetworkDomainZoneErrorDomain = @"com.thirty-three.corenetworki
 
 - (BOOL)readFromURL:(NSURL *)URL options:(NSDictionary *)options error:(NSError **)errorRef
 {
+	NSError *readError = nil;
+	BOOL read = [self _readFromURL:URL options:options error:&readError];
+	if (!read) {
+		if (errorRef != NULL) {
+			if ([readError userInfo][NSURLErrorKey] == nil) {
+				NSMutableDictionary *newErrorInfo = [NSMutableDictionary dictionaryWithDictionary:[readError userInfo]];
+				newErrorInfo[NSURLErrorKey] = URL;
+				readError = [NSError errorWithDomain:[readError domain] code:[readError code] userInfo:newErrorInfo];
+			}
+			
+			*errorRef = readError;
+		}
+		
+		return NO;
+	}
+	
+	return YES;
+}
+
+- (BOOL)_readFromURL:(NSURL *)URL options:(NSDictionary *)options error:(NSError **)errorRef
+{
 	NSString *lastPathComponent = [URL lastPathComponent];
 	if ([lastPathComponent hasPrefix:@"db."]) {
 		NSString *defaultOrigin = [lastPathComponent substringFromIndex:3];
