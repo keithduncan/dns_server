@@ -22,7 +22,7 @@
 		if (errorRef != NULL) {
 			NSDictionary *errorInfo = @{
 				NSLocalizedDescriptionKey : NSLocalizedStringFromTableInBundle(@"Couldn\u2019t load initial zone file configuration", nil, [NSBundle bundleWithIdentifier:AFNetworkDomainServerBundleIdentifier], @"AFNetworkDomainZoneLoader, no zone file environment variable, error description"),
-				NSLocalizedRecoverySuggestionErrorKey : [NSString stringWithFormat:NSLocalizedStringFromTableInBundle(@"Set the %@ environment variable to set the initial zone set", nil, [NSBundle bundleWithIdentifier:AFNetworkDomainServerBundleIdentifier], @"AFNetworkDomainZoneLoader, no zone file environment variable, error recovery suggestion"), zoneFileConfigurationKey],
+				NSLocalizedRecoverySuggestionErrorKey : [NSString stringWithFormat:NSLocalizedStringFromTableInBundle(@"Set the %@ environment variable to configure the initial zone set", nil, [NSBundle bundleWithIdentifier:AFNetworkDomainServerBundleIdentifier], @"AFNetworkDomainZoneLoader, no zone file environment variable, error recovery suggestion"), zoneFileConfigurationKey],
 			};
 			*errorRef = [NSError errorWithDomain:AFNetworkDomainServerBundleIdentifier code:0 userInfo:errorInfo];
 		}
