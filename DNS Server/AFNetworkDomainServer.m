@@ -48,11 +48,11 @@
 enum DNSFlag {
 	DNSFlag_QueryResponse,
 	DNSFlag_Opcode,
-	DNSFlag_AA,
-	DNSFlag_TC,
-	DNSFlag_RD,
-	DNSFlag_RA,
-	DNSFlag_Z,
+	DNSFlag_AuthoritativeAnswer,
+	DNSFlag_Truncated,
+	DNSFlag_RecursionDesired,
+	DNSFlag_RecursionAvailable,
+	DNSFlag_Zero,
 	DNSFlag_Rcode,
 };
 
@@ -63,11 +63,11 @@ struct _DNSFlagMap {
 } const flagsMap[] = {
 	{ .flag = DNSFlag_QueryResponse, .mask = 1, .shift = 15, },
 	{ .flag = DNSFlag_Opcode, .mask = 15, .shift = 11, },
-	{ .flag = DNSFlag_AA, .mask = 1, .shift = 10, },
-	{ .flag = DNSFlag_TC, .mask = 1, .shift = 9, },
-	{ .flag = DNSFlag_RD, .mask = 1, .shift = 8, },
-	{ .flag = DNSFlag_RA, .mask = 1, .shift = 7, },
-	{ .flag = DNSFlag_Z, .mask = 7, .shift = 4, },
+	{ .flag = DNSFlag_AuthoritativeAnswer, .mask = 1, .shift = 10, },
+	{ .flag = DNSFlag_Truncated, .mask = 1, .shift = 9, },
+	{ .flag = DNSFlag_RecursionDesired, .mask = 1, .shift = 8, },
+	{ .flag = DNSFlag_RecursionAvailable, .mask = 1, .shift = 7, },
+	{ .flag = DNSFlag_Zero, .mask = 7, .shift = 4, },
 	{ .flag = DNSFlag_Rcode, .mask = 15, .shift = 0, },
 };
 
@@ -103,20 +103,26 @@ static void DNSFlagsSet(uint16_t *flagsRef, enum DNSFlag flag, int value)
 	*flagsRef = htons(ntohs(*flagsRef) | (value << mapRef->shift));
 }
 
-typedef NS_ENUM(int, DNSQueryResponse)
+enum DNSQueryResponse : int
 {
 	DNSQueryResponse_Query = 0,
 	DNSQueryResponse_Response = 1,
 };
 
-typedef NS_ENUM(int, DNSOpcode)
+enum DNSAuthoritativeAnswer : int
+{
+	DNSAuthoritativeAnswer_NotAuthoritative = 0,
+	DNSAuthoritativeAnswer_Authoritative = 1,
+};
+
+enum DNSOpcode : int
 {
 	DNSOpcode_Standard = 0,
 	DNSOpcode_Inverse = 1,
 	DNSOpcode_Status = 2,
 };
 
-typedef NS_ENUM(int, DNSRcode)
+enum DNSRcode : int
 {
 	DNSRcode_OK = 0,
 	DNSRcode_FormatError = 1,
@@ -305,7 +311,7 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 		return;
 	}
 	
-	if (DNSFlagsGet(flags, DNSFlag_RD) != 0) {
+	if (DNSFlagsGet(flags, DNSFlag_RecursionDesired) != 0) {
 		dns_header_t responseHeader = {
 			.xid = requestHeader.xid,
 		};
@@ -317,7 +323,7 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 		return;
 	}
 	
-	if (DNSFlagsGet(flags, DNSFlag_Z) != 0) {
+	if (DNSFlagsGet(flags, DNSFlag_Zero) != 0) {
 		return;
 	}
 	
