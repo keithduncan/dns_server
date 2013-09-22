@@ -40,6 +40,9 @@
 		53AD519A16A210D600C6646F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 53AD519816A210D600C6646F /* InfoPlist.strings */; };
 		53AD51A416A210E900C6646F /* AFNetworkDomainZone_TimeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 53AD51A316A210E900C6646F /* AFNetworkDomainZone_TimeTests.m */; };
 		53AD51A516A210F900C6646F /* AFNetworkDomainZone+RecordParsing.m in Sources */ = {isa = PBXBuildFile; fileRef = 5367A71C1694A75C002534FF /* AFNetworkDomainZone+RecordParsing.m */; };
+		53F24D5317EF2BDB00F45B21 /* DNS Server-Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = 53F24D5217EF2BDB00F45B21 /* DNS Server-Constants.m */; };
+		53F24D5617EF323F00F45B21 /* AFNetworkDomainZoneLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 53F24D5517EF323F00F45B21 /* AFNetworkDomainZoneLoader.m */; };
+		53F24D5917EF331E00F45B21 /* NSError+AFNetworkDomainAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 53F24D5817EF331E00F45B21 /* NSError+AFNetworkDomainAdditions.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -141,6 +144,12 @@
 		53AD519E16A210D600C6646F /* DNS Server Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DNS Server Tests-Prefix.pch"; sourceTree = "<group>"; };
 		53AD51A216A210E900C6646F /* AFNetworkDomainZone_TimeTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkDomainZone_TimeTests.h; sourceTree = "<group>"; };
 		53AD51A316A210E900C6646F /* AFNetworkDomainZone_TimeTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkDomainZone_TimeTests.m; sourceTree = "<group>"; };
+		53F24D5117EF2BDB00F45B21 /* DNS Server-Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "DNS Server-Constants.h"; sourceTree = "<group>"; };
+		53F24D5217EF2BDB00F45B21 /* DNS Server-Constants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "DNS Server-Constants.m"; sourceTree = "<group>"; };
+		53F24D5417EF323F00F45B21 /* AFNetworkDomainZoneLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkDomainZoneLoader.h; sourceTree = "<group>"; };
+		53F24D5517EF323F00F45B21 /* AFNetworkDomainZoneLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkDomainZoneLoader.m; sourceTree = "<group>"; };
+		53F24D5717EF331E00F45B21 /* NSError+AFNetworkDomainAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+AFNetworkDomainAdditions.h"; sourceTree = "<group>"; };
+		53F24D5817EF331E00F45B21 /* NSError+AFNetworkDomainAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+AFNetworkDomainAdditions.m"; sourceTree = "<group>"; };
 		53F8FB7B16B49DAD00241FD3 /* Parser Notes.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Parser Notes.md"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -233,6 +242,8 @@
 				5367A7001694980A002534FF /* main.m */,
 				5367A7161694A651002534FF /* AFNetworkDomainServer.h */,
 				5367A7171694A651002534FF /* AFNetworkDomainServer.m */,
+				53F24D5417EF323F00F45B21 /* AFNetworkDomainZoneLoader.h */,
+				53F24D5517EF323F00F45B21 /* AFNetworkDomainZoneLoader.m */,
 				53464C4816ECC4B6000DE473 /* AFNetworkMulticastDomainServer.h */,
 				53464C4916ECC4B6000DE473 /* AFNetworkMulticastDomainServer.m */,
 				5367A71B1694A75C002534FF /* AFNetworkDomainZone.h */,
@@ -250,6 +261,10 @@
 				5367A6F5169497AA002534FF /* Supporting Files */,
 				5387A3C017E650EE00832C78 /* NSData+AFNetworkAdditions.h */,
 				5387A3C117E650EE00832C78 /* NSData+AFNetworkAdditions.m */,
+				53F24D5117EF2BDB00F45B21 /* DNS Server-Constants.h */,
+				53F24D5217EF2BDB00F45B21 /* DNS Server-Constants.m */,
+				53F24D5717EF331E00F45B21 /* NSError+AFNetworkDomainAdditions.h */,
+				53F24D5817EF331E00F45B21 /* NSError+AFNetworkDomainAdditions.m */,
 			);
 			path = "DNS Server";
 			sourceTree = "<group>";
@@ -451,8 +466,11 @@
 				5367A7011694980A002534FF /* main.m in Sources */,
 				5367A7181694A651002534FF /* AFNetworkDomainServer.m in Sources */,
 				5367A71D1694A75C002534FF /* AFNetworkDomainZone+RecordParsing.m in Sources */,
+				53F24D5917EF331E00F45B21 /* NSError+AFNetworkDomainAdditions.m in Sources */,
 				532110101699FEC700D26765 /* AFNetworkDomainRecord.m in Sources */,
+				53F24D5617EF323F00F45B21 /* AFNetworkDomainZoneLoader.m in Sources */,
 				534862CF16D1172300A0F4BA /* AFNetworkDomainZone.m in Sources */,
+				53F24D5317EF2BDB00F45B21 /* DNS Server-Constants.m in Sources */,
 				534862D416D1185A00A0F4BA /* AFNetworkDomainZone+AFNetworkPrivate.m in Sources */,
 				534862D816D119EC00A0F4BA /* AFNetworkDomainZone+RecordMatching.m in Sources */,
 				5387A3C217E650EE00832C78 /* NSData+AFNetworkAdditions.m in Sources */,
