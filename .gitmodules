@@ -1,6 +1,6 @@
 [submodule "Externals/ExampleZoneFiles"]
 	path = Externals/ExampleZoneFiles
-	url = git://github.com/craigw/dns-zonefile.git
+	url = https://github.com/craigw/dns-zonefile.git
 [submodule "Externals/CoreNetworking"]
 	path = Externals/CoreNetworking
-	url = git@github.com:keithduncan/CoreNetworking.git
+	url = https://github.com/keithduncan/CoreNetworking.git
