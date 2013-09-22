@@ -10,13 +10,41 @@
 
 #import "CoreNetworking/CoreNetworking.h"
 
+#import "AFNetworkDomainZoneLoader.h"
 #import "AFNetworkMulticastDomainServer.h"
-#import "AFNetworkDomainZone.h"
 
-static AFNetworkDomainServer *StartDomainServer(AFNetworkSchedule *schedule)
+#import "NSError+AFNetworkDomainAdditions.h"
+
+#import "DNS Server-Constants.h"
+
+/*!
+	\brief
+	Log in JSON because it's human and machine readable
+ */
+static void log_error(NSError *error)
+{
+	NSMutableDictionary *logDictionary = [NSMutableDictionary dictionary];
+	
+	NSString *failingPath = [[error userInfo][NSURLErrorKey] path];
+	if (failingPath != nil) {
+		logDictionary[@"description"] = NSLocalizedStringFromTableInBundle(@"Couldn\u2019t read zone file", nil, [NSBundle bundleWithIdentifier:AFNetworkDomainServerBundleIdentifier], @"main, log specific path failure, error description"),
+		logDictionary[@"path"] = failingPath;
+		logDictionary[@"underlying"] = [error afnetworkdomain_recursiveJsonRepresentation];
+	}
+	else {
+		[logDictionary addEntriesFromDictionary:[error afnetworkdomain_recursiveJsonRepresentation]];
+	}
+	
+	NSData *logData = [NSJSONSerialization dataWithJSONObject:logDictionary options:NSJSONWritingPrettyPrinted error:NULL];
+	
+	fprintf(stderr, "%.*s\n", (int)[logData length], [logData bytes]);
+}
+
+static AFNetworkDomainServer *start_domain_server(AFNetworkSchedule *schedule, NSSet *zones)
 {
 	AFNetworkMulticastDomainServer *server = [AFNetworkMulticastDomainServer server];
 	server.schedule = schedule;
+	server.zones = zones;
 	
 	NSError *openSocketsError = nil;
 	BOOL openSockets = [server openInternetSockets:&openSocketsError];
@@ -25,25 +53,34 @@ static AFNetworkDomainServer *StartDomainServer(AFNetworkSchedule *schedule)
 	return server;
 }
 
-static void server_main(AFNetworkSchedule *schedule)
+static AFNetworkDomainServer *server_main(AFNetworkSchedule *schedule)
 {
-	AFNetworkDomainServer *domainServer = [StartDomainServer(schedule) retain];
+	NSSet *zones = nil;
 	
-	AFNetworkDomainZone *zone = [[AFNetworkDomainZone alloc] init];
+	@autoreleasepool {
+		NSError *loadZonesError = nil;
+		zones = [[AFNetworkDomainZoneLoader loadZones:&loadZonesError] retain];
+		
+		if (zones == nil) {
+			log_error(loadZonesError);
+		}
+	}
 	
-	NSError *readZoneError = nil;
-	BOOL readZone = [zone readFromURL:[[NSBundle mainBundle] URLForResource:@"db.example" withExtension:@"local"] options:nil error:&readZoneError];
-	NSCParameterAssert(readZone);
+	AFNetworkDomainServer *server = start_domain_server(schedule, zones);
 	
-	[domainServer addZone:zone];
+	[zones release];
+	
+	return server;
 }
+
+static AFNetworkDomainServer *domain_server = nil;
 
 static void runloop_main(void)
 {
 	AFNetworkSchedule *newSchedule = [[[AFNetworkSchedule alloc] init] autorelease];
 	[newSchedule scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
 	
-	server_main(newSchedule);
+	domain_server = [server_main(newSchedule) retain];
 	
 	[[NSRunLoop currentRunLoop] run];
 }
