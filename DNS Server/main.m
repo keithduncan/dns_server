@@ -42,7 +42,7 @@ static void log_error(NSError *error)
 
 static AFNetworkDomainServer *start_domain_server(AFNetworkSchedule *schedule, NSSet *zones, NSError **errorRef)
 {
-	AFNetworkDomainMulticastServer *server = [AFNetworkDomainMulticastServer server];
+	AFNetworkDomainServer *server = [AFNetworkDomainMulticastServer server];
 	server.schedule = schedule;
 	server.zones = zones;
 	
