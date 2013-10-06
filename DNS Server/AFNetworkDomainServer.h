@@ -12,6 +12,8 @@
 
 @interface AFNetworkDomainServer : AFNetworkServer
 
+- (BOOL)openInternetSockets:(NSError **)errorRef;
+
 @property (strong, atomic) NSSet *zones;
 
 @end

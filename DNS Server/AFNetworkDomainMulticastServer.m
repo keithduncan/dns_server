@@ -77,7 +77,7 @@
 		}
 	}
 	
-	return YES;
+	return [super openInternetSockets:errorRef];
 }
 
 @end
