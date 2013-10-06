@@ -476,42 +476,46 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 		close(newSocketNative);
 	};
 	
-	int reuseAddress = 1;
-	__unused int reuseAddressError = setsockopt(newSocketNative, SOL_SOCKET, SO_REUSEADDR, &reuseAddress, sizeof(reuseAddress));
-	if (reuseAddressError != 0) {
-		return;
-	}
-
-	AFNetworkSocketOption *info = [[[datagram metadata] objectsPassingTest:^ BOOL (AFNetworkSocketOption *obj, BOOL *stop) {
-		return ([obj level] == IPPROTO_IP && [obj option] == IP_PKTINFO) || ([obj level] == IPPROTO_IPV6 && [obj option] == IPV6_PKTINFO);
-	}] anyObject];
-	BOOL multicast = ((localAddress->ss_family == AF_INET && IN_MULTICAST(((struct sockaddr_in *)localAddress)->sin_addr.s_addr)) ||
-					  (localAddress->ss_family == AF_INET6 && IN6_IS_ADDR_MULTICAST(&((struct sockaddr_in6 *)localAddress)->sin6_addr)));
-	if (info != nil && multicast) {
-		int setMulticastInterfaceError = 0;
-		if (localAddress->ss_family == AF_INET) {
-			struct in_pktinfo *packetInfo = (struct in_pktinfo *)[[info value] bytes];
-			setMulticastInterfaceError = setsockopt(newSocketNative, IPPROTO_IP, IP_MULTICAST_IFINDEX, &packetInfo->ipi_ifindex, sizeof(packetInfo->ipi_ifindex));
+	if (af_sockaddr_is_multicast(receiverAddress)) {
+		NSError *setOutboundError = nil;
+		BOOL setOutbound = [self _setOutboundInterface:newSocketNative forReceiver:receiverAddress datagram:query error:&setOutboundError];
+		if (!setOutbound) {
+			return;
 		}
-		else if (localAddress->ss_family == AF_INET6) {
-			struct in6_pktinfo *packetInfo = (struct in6_pktinfo *)[[info value] bytes];
-			setMulticastInterfaceError = setsockopt(newSocketNative, IPPROTO_IPV6, IPV6_MULTICAST_IF, &packetInfo->ipi6_ifindex, sizeof(packetInfo->ipi6_ifindex));
+		
+		NSError *setTTLError = nil;
+		BOOL setTTL = [self _setTTL:newSocketNative forReceiver:receiverAddress error:&setTTLError];
+		if (!setTTL) {
+			return;
 		}
-		else {
-			@throw [NSException exceptionWithName:NSInvalidArgumentException reason:[NSString stringWithFormat:@"unsupported family %lu", (unsigned long)localAddress->ss_family] userInfo:nil];
-		}
-		if (setMulticastInterfaceError != 0) {
-			__unused int error = errno;
+		
+		int reuseAddress = 1;
+		int reuseAddressError = setsockopt(newSocketNative, SOL_SOCKET, SO_REUSEADDR, &reuseAddress, sizeof(reuseAddress));
+		if (reuseAddressError != 0) {
 			return;
 		}
 	}
-
-	CFRetain(response);
+	else {
+		int reusePort = 1;
+		int reusePortError = setsockopt(newSocketNative, SOL_SOCKET, SO_REUSEPORT, &reusePort, sizeof(reusePort));
+		if (reusePortError != 0) {
+			return;
+		}
+		
+		int bindError = af_bind(newSocketNative, receiverAddress);
+		if (bindError != 0) {
+			return;
+		}
+	}
 	
-	ssize_t sent = sendto(newSocketNative, [response bytes], [response length], /* int flags */ 0, (const struct sockaddr *)localAddress, localAddress->ss_len);
-
-	CFRelease(response);
-
+	CFRetain(response);
+	af_scoped_block_t cleanupResponse = ^ {
+		CFRelease(response);
+	};
+	
+	struct sockaddr_storage const *destination = (af_sockaddr_is_multicast(receiverAddress)) ? receiverAddress : senderAddress;
+	ssize_t sent = sendto(newSocketNative, [response bytes], [response length], /* int flags */ 0, (struct sockaddr const *)destination, destination->ss_len);
+	
 	if (sent == -1) {
 		__unused int error = errno;
 		return;
