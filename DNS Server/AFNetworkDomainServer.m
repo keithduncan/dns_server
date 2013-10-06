@@ -327,7 +327,7 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 		DNSFlagsSet(&responseHeader.flags, DNSFlag_QueryResponse, DNSQueryResponse_Response);
 		DNSFlagsSet(&responseHeader.flags, DNSFlag_Rcode, DNSRcode_NotImplemented);
 		
-		[self _socket:receiver didReceiveQuery:datagram shouldSendResponse:[NSData dataWithBytes:&responseHeader length:sizeof(responseHeader)]];
+		[self _socket:receiver didReceiveQuery:datagram shouldSendResponse:[NSData dataWithBytes:&responseHeader length:sizeof(responseHeader)] preferUnicast:NO];
 		return;
 	}
 	
@@ -339,7 +339,7 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 		DNSFlagsSet(&responseHeader.flags, DNSFlag_QueryResponse, DNSQueryResponse_Response);
 		DNSFlagsSet(&responseHeader.flags, DNSFlag_Rcode, DNSRcode_Refused);
 		
-		[self _socket:receiver didReceiveQuery:datagram shouldSendResponse:[NSData dataWithBytes:&responseHeader length:sizeof(responseHeader)]];
+		[self _socket:receiver didReceiveQuery:datagram shouldSendResponse:[NSData dataWithBytes:&responseHeader length:sizeof(responseHeader)] preferUnicast:NO];
 		return;
 	}
 	
@@ -398,10 +398,24 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 	
 	NSSet *zones = self.zones;
 	
+	BOOL preferUnicast = NO;
+	
 	for (NSUInteger idx = 0; idx < questions.count; idx++) {
 		dns_question_t *currentQuestion = [questions pointerAtIndex:idx];
 		
-		char const *classStringBytes = dns_class_string(ntohs(currentQuestion->dnsclass));
+		uint16_t class = ntohs(currentQuestion->dnsclass);
+		
+		/*
+			mDNS extension
+			
+			if the top bit is set of the class, a unicast response is preferred
+		 */
+		if (class >> 15 == 1) {
+			class = class & ~(1 << 15);
+			preferUnicast |= YES;
+		}
+		
+		char const *classStringBytes = dns_class_string(class);
 		if (classStringBytes == NULL) {
 			continue;
 		}
@@ -446,10 +460,10 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 		[response appendData:currentRecordData];
 	}
 	
-	[self _socket:receiver didReceiveQuery:datagram shouldSendResponse:response];
+	[self _socket:receiver didReceiveQuery:datagram shouldSendResponse:response preferUnicast:preferUnicast];
 }
 
-- (void)_socket:(AFNetworkSocket *)receiver didReceiveQuery:(AFNetworkDatagram *)query shouldSendResponse:(NSData *)response
+- (void)_socket:(AFNetworkSocket *)receiver didReceiveQuery:(AFNetworkDatagram *)query shouldSendResponse:(NSData *)response preferUnicast:(BOOL)preferUnicast
 {
 #warning needs to branch based on the transport type and prepend a 16-bit (network byte order) message length for TCP transports
 	
@@ -513,8 +527,8 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 		CFRelease(response);
 	};
 	
-	struct sockaddr_storage const *destination = (af_sockaddr_is_multicast(receiverAddress)) ? receiverAddress : senderAddress;
-	ssize_t sent = sendto(newSocketNative, [response bytes], [response length], /* int flags */ 0, (struct sockaddr const *)destination, destination->ss_len);
+	struct sockaddr_storage const *destination = (af_sockaddr_is_multicast(receiverAddress) && !preferUnicast) ? receiverAddress : senderAddress;
+	ssize_t sent = sendto(newSocketNative, response.bytes, response.length, /* int flags */ 0, (struct sockaddr const *)destination, destination->ss_len);
 	
 	if (sent == -1) {
 		__unused int error = errno;
