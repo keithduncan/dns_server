@@ -518,4 +518,38 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 	}
 }
 
+- (BOOL)_setOutboundInterface:(int)socket forReceiver:(struct sockaddr_storage const *)receiverAddress datagram:(AFNetworkDatagram *)datagram error:(NSError **)errorRef {
+	if (!af_sockaddr_is_multicast(receiverAddress)) {
+		return YES;
+	}
+	
+	AFNetworkSocketOption *info = [[[datagram metadata] objectsPassingTest:^ BOOL (AFNetworkSocketOption *obj, BOOL *stop) {
+		return ([obj level] == IPPROTO_IP && [obj option] == IP_PKTINFO) || ([obj level] == IPPROTO_IPV6 && [obj option] == IPV6_PKTINFO);
+	}] anyObject];
+	if (info == nil) {
+		return YES;
+	}
+
+	int setMulticastInterfaceError = 0;
+	if (receiverAddress->ss_family == AF_INET) {
+		struct in_pktinfo *packetInfo = (struct in_pktinfo *)[[info value] bytes];
+		setMulticastInterfaceError = setsockopt(socket, IPPROTO_IP, IP_MULTICAST_IFINDEX, &packetInfo->ipi_ifindex, sizeof(packetInfo->ipi_ifindex));
+	}
+	else if (receiverAddress->ss_family == AF_INET6) {
+		struct in6_pktinfo *packetInfo = (struct in6_pktinfo *)[[info value] bytes];
+		setMulticastInterfaceError = setsockopt(socket, IPPROTO_IPV6, IPV6_MULTICAST_IF, &packetInfo->ipi6_ifindex, sizeof(packetInfo->ipi6_ifindex));
+	}
+	else {
+		@throw [NSException exceptionWithName:NSInvalidArgumentException reason:[NSString stringWithFormat:@"unsupported family %lu", (unsigned long)receiverAddress->ss_family] userInfo:nil];
+	}
+	if (setMulticastInterfaceError != 0) {
+		if (errorRef != NULL) {
+			*errorRef = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
+		}
+		return NO;
+	}
+
+	return YES;
+}
+
 @end
