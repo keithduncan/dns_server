@@ -1,7 +1,6 @@
 									; zone file for example.local. for use with a multicast DNS server
-$ORIGIN example.local.				;
+$ORIGIN test.local.					;
 $TTL 1h								; default TTL of 1 hour
 
-@		IN		A		127.0.0.1	;
-				AAAA	::1			;
-				AAAA	fe80::1		;
+@		IN		A		127.0.0.1
+				AAAA	::1

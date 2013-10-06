@@ -10,7 +10,7 @@
 		531AEB1916BDD38000F2B943 /* AFNetworkDomainZone_ZoneTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 531AEB1816BDD38000F2B943 /* AFNetworkDomainZone_ZoneTests.m */; };
 		531AEB1A16BDD3A300F2B943 /* db.example.com in Resources */ = {isa = PBXBuildFile; fileRef = 5367A7191694A6E2002534FF /* db.example.com */; };
 		531AEB1B16BDD3A700F2B943 /* db.test.example.com in Resources */ = {isa = PBXBuildFile; fileRef = 531AEB1416BDD33500F2B943 /* db.test.example.com */; };
-		531AEB1C16BDD3AB00F2B943 /* db.example.local in Resources */ = {isa = PBXBuildFile; fileRef = 538DEA79169B8DAF00AA0663 /* db.example.local */; };
+		531AEB1C16BDD3AB00F2B943 /* db.test.local in Resources */ = {isa = PBXBuildFile; fileRef = 538DEA79169B8DAF00AA0663 /* db.test.local */; };
 		531AEB1D16BEFDC200F2B943 /* AFNetworkDomainRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 5321100F1699FEC700D26765 /* AFNetworkDomainRecord.m */; };
 		531AEB2516BF1C8300F2B943 /* example.com.zone in Resources */ = {isa = PBXBuildFile; fileRef = 531AEB2116BF1C8300F2B943 /* example.com.zone */; };
 		531AEB2616BF1C8300F2B943 /* example2.com.zone in Resources */ = {isa = PBXBuildFile; fileRef = 531AEB2216BF1C8300F2B943 /* example2.com.zone */; };
@@ -131,7 +131,7 @@
 		5367A71C1694A75C002534FF /* AFNetworkDomainZone+RecordParsing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "AFNetworkDomainZone+RecordParsing.m"; sourceTree = "<group>"; };
 		5387A3C017E650EE00832C78 /* NSData+AFNetworkAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+AFNetworkAdditions.h"; sourceTree = "<group>"; };
 		5387A3C117E650EE00832C78 /* NSData+AFNetworkAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+AFNetworkAdditions.m"; sourceTree = "<group>"; };
-		538DEA79169B8DAF00AA0663 /* db.example.local */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = db.example.local; path = "../DNS Server/db.example.local"; sourceTree = "<group>"; };
+		538DEA79169B8DAF00AA0663 /* db.test.local */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = db.test.local; path = "../DNS Server/db.test.local"; sourceTree = "<group>"; };
 		53A0610D16DAC21C00D9F251 /* db.blank.com */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = db.blank.com; path = "../DNS Server/db.blank.com"; sourceTree = "<group>"; };
 		53A709B816B48F4B009B1E4C /* zone.bnf */ = {isa = PBXFileReference; lastKnownFileType = text; path = zone.bnf; sourceTree = "<group>"; };
 		53AD518C16A210D600C6646F /* DNS Server Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "DNS Server Tests.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -298,7 +298,7 @@
 				534EE82816C6B4BF00264AC8 /* AFNetworkDomainZone_RecordTests.m */,
 				53AD51A216A210E900C6646F /* AFNetworkDomainZone_TimeTests.h */,
 				53AD51A316A210E900C6646F /* AFNetworkDomainZone_TimeTests.m */,
-				538DEA79169B8DAF00AA0663 /* db.example.local */,
+				538DEA79169B8DAF00AA0663 /* db.test.local */,
 				53A0610D16DAC21C00D9F251 /* db.blank.com */,
 				5367A7191694A6E2002534FF /* db.example.com */,
 				531AEB1416BDD33500F2B943 /* db.test.example.com */,
@@ -431,7 +431,7 @@
 				53AD519A16A210D600C6646F /* InfoPlist.strings in Resources */,
 				531AEB1A16BDD3A300F2B943 /* db.example.com in Resources */,
 				531AEB1B16BDD3A700F2B943 /* db.test.example.com in Resources */,
-				531AEB1C16BDD3AB00F2B943 /* db.example.local in Resources */,
+				531AEB1C16BDD3AB00F2B943 /* db.test.local in Resources */,
 				531AEB2516BF1C8300F2B943 /* example.com.zone in Resources */,
 				531AEB2616BF1C8300F2B943 /* example2.com.zone in Resources */,
 				531AEB2716BF1C8300F2B943 /* example3.com.zone in Resources */,
