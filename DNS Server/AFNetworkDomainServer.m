@@ -299,7 +299,7 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 	free(question);
 }
 
-- (void)networkLayer:(AFNetworkSocket *)socket didReceiveDatagram:(AFNetworkDatagram *)datagram
+- (void)networkLayer:(AFNetworkSocket *)receiver didReceiveDatagram:(AFNetworkDatagram *)datagram
 {
 	NSData *message = datagram.data;
 	
@@ -327,7 +327,7 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 		DNSFlagsSet(&responseHeader.flags, DNSFlag_QueryResponse, DNSQueryResponse_Response);
 		DNSFlagsSet(&responseHeader.flags, DNSFlag_Rcode, DNSRcode_NotImplemented);
 		
-		[self _sendResponse:[NSData dataWithBytes:&responseHeader length:sizeof(responseHeader)] from:socket forRequest:datagram];
+		[self _socket:receiver didReceiveQuery:datagram shouldSendResponse:[NSData dataWithBytes:&responseHeader length:sizeof(responseHeader)]];
 		return;
 	}
 	
@@ -339,7 +339,7 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 		DNSFlagsSet(&responseHeader.flags, DNSFlag_QueryResponse, DNSQueryResponse_Response);
 		DNSFlagsSet(&responseHeader.flags, DNSFlag_Rcode, DNSRcode_Refused);
 		
-		[self _sendResponse:[NSData dataWithBytes:(uint8_t const *)&responseHeader length:sizeof(responseHeader)] from:socket forRequest:datagram];
+		[self _socket:receiver didReceiveQuery:datagram shouldSendResponse:[NSData dataWithBytes:&responseHeader length:sizeof(responseHeader)]];
 		return;
 	}
 	
@@ -446,10 +446,10 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 		[response appendData:currentRecordData];
 	}
 	
-	[self _sendResponse:response from:socket forRequest:datagram];
+	[self _socket:receiver didReceiveQuery:datagram shouldSendResponse:response];
 }
 
-- (void)_sendResponse:(NSData *)response from:(AFNetworkSocket *)receiver forRequest:(AFNetworkDatagram *)datagram
+- (void)_socket:(AFNetworkSocket *)receiver didReceiveQuery:(AFNetworkDatagram *)query shouldSendResponse:(NSData *)response
 {
 #warning needs to branch based on the transport type and prepend a 16-bit (network byte order) message length for TCP transports
 	
