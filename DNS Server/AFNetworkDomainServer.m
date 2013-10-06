@@ -552,4 +552,27 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 	return YES;
 }
 
+- (BOOL)_setTTL:(int)socket forReceiver:(struct sockaddr_storage const *)receiverAddress error:(NSError **)errorRef {
+	int ttl = 255;
+	
+	int setTTLError = nil;
+	if (receiverAddress->ss_family == AF_INET) {
+		setTTLError = setsockopt(socket, IPPROTO_IP, IP_MULTICAST_TTL, &ttl, sizeof(ttl));
+	}
+	else if (receiverAddress->ss_family == AF_INET6) {
+		setTTLError = setsockopt(socket, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &ttl, sizeof(ttl));
+	}
+	else {
+		@throw [NSException exceptionWithName:NSInvalidArgumentException reason:[NSString stringWithFormat:@"unsupported family %lu", (unsigned long)receiverAddress->ss_family] userInfo:nil];
+	}
+	if (setTTLError != 0) {
+		if (errorRef != NULL) {
+			*errorRef = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
+		}
+		return NO;
+	}
+
+	return YES;
+}
+
 @end
