@@ -454,17 +454,21 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 #warning needs to branch based on the transport type and prepend a 16-bit (network byte order) message length for TCP transports
 	
 #warning needs to respect the 512 byte limit for unicast DNS and the destination interface MTU for multicast DNS responses (and set the truncation bit)
-	
-	NSData *localAddressData = [receiver localAddress];
-	
-	CFRetain(localAddressData);
-	af_scoped_block_t cleanupLocalAddressData = ^ {
-		CFRelease(localAddressData);
+	NSData *receiverAddressData = receiver.localAddress;
+	CFRetain(receiverAddressData);
+	af_scoped_block_t cleanupReceiverAddressData = ^ {
+		CFRelease(receiverAddressData);
 	};
-
-	struct sockaddr_storage const *localAddress = (struct sockaddr_storage const *)[localAddressData bytes];
+	struct sockaddr_storage const *receiverAddress = (struct sockaddr_storage const *)receiverAddressData.bytes;
 	
-	CFSocketNativeHandle newSocketNative = socket(localAddress->ss_family, SOCK_DGRAM, IPPROTO_UDP);
+	NSData *senderAddressData = query.senderAddress;
+	CFRetain(senderAddressData);
+	af_scoped_block_t cleanupSenderAddressData = ^ {
+		CFRelease(senderAddressData);
+	};
+	struct sockaddr_storage const *senderAddress = (struct sockaddr_storage const *)senderAddressData.bytes;
+	
+	CFSocketNativeHandle newSocketNative = socket(receiverAddress->ss_family, SOCK_DGRAM, IPPROTO_UDP);
 	if (newSocketNative == -1) {
 		return;
 	}
