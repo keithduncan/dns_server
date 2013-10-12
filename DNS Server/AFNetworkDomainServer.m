@@ -39,26 +39,6 @@
 	[super dealloc];
 }
 
-- (BOOL)openInternetSockets:(NSError **)errorRef
-{
-	NSMutableData *socketAddressData = [NSMutableData dataWithData:AFNetworkSocketPresentationToAddress(@"127.0.0.1", NULL)];
-	struct sockaddr_storage *socketAddress = (struct sockaddr_storage *)[socketAddressData bytes];
-	af_sockaddr_in_write_port(socketAddress, 5656);
-	
-	int recvPktInfo = 1;
-	AFNetworkSocketOption *recvPktInfoOption = [AFNetworkSocketOption optionWithLevel:IPPROTO_IP option:IP_RECVPKTINFO value:[NSData dataWithBytes:&recvPktInfo length:sizeof(recvPktInfo)]];
-	
-	int reusePort = 1;
-	AFNetworkSocketOption *reuseAddrOption = [AFNetworkSocketOption optionWithLevel:SOL_SOCKET option:SO_REUSEPORT value:[NSData dataWithBytes:&reusePort length:sizeof(reusePort)]];
-	
-	BOOL open = [self openSocketWithSignature:AFNetworkSocketSignatureInternetUDP address:socketAddressData options:[NSSet setWithObjects:recvPktInfoOption, reuseAddrOption, nil] error:errorRef];
-	if (!open) {
-		return NO;
-	}
-	
-	return YES;
-}
-
 /*
 	Note
 	
