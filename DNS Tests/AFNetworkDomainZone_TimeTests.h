@@ -6,8 +6,8 @@
 //  Copyright (c) 2013 Keith Duncan. All rights reserved.
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 
-@interface AFNetworkDomainZone_TimeTests : SenTestCase
+@interface AFNetworkDomainZone_TimeTests : XCTestCase
 
 @end

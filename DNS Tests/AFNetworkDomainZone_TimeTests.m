@@ -17,8 +17,8 @@
 	return [[[[AFNetworkDomainZone alloc] init] autorelease] _scanTimeValue:[NSScanner scannerWithString:timeValue]];
 }
 
-#define TestInvalidFormat(var) STAssertEquals([self _testString:(var)], (NSTimeInterval)-1, @"invalid format should return -1")
-#define TestValidFormat(var, val) STAssertEquals([self _testString:(var)], (NSTimeInterval)val, ([NSString stringWithFormat:@"valid format should return %f", val]))
+#define TestInvalidFormat(var) XCTAssertEqual([self _testString:(var)], (NSTimeInterval)-1, @"invalid format should return -1")
+#define TestValidFormat(var, val) XCTAssertEqual([self _testString:(var)], (NSTimeInterval)val, @"valid format should return %f", val)
 
 - (void)testInvalidTimeFormat1
 {

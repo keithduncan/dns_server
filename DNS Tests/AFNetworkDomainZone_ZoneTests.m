@@ -15,10 +15,10 @@
 #define TestFileNamed(fileName) \
 do {\
 	AFNetworkDomainZone *zone = [[[AFNetworkDomainZone alloc] init] autorelease];\
-	NSURL *fileLocation = [[[NSBundle bundleWithIdentifier:@"com.keith-duncan.dns-server.tests"] resourceURL] URLByAppendingPathComponent:fileName];\
+	NSURL *fileLocation = [[[NSBundle bundleWithIdentifier:@"com.keith-duncan.domain.tests"] resourceURL] URLByAppendingPathComponent:fileName];\
 	NSError *readError = nil;\
 	BOOL read = [zone readFromURL:fileLocation options:nil error:&readError];\
-	STAssertTrue(read, ([NSString stringWithFormat:@"should be able to read file %@", fileName]));\
+	XCTAssertTrue(read, @"should be able to read file %@", fileName);\
 } while (0)
 
 - (void)testBlankCom

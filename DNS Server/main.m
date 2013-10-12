@@ -9,11 +9,9 @@
 #import <Foundation/Foundation.h>
 
 #import "CoreNetworking/CoreNetworking.h"
+#import "DNS/AFNetworkDomain.h"
 
 #import "AFNetworkDomainZoneLoader.h"
-#import "AFNetworkDomainMulticastServer.h"
-
-#import "NSError+AFNetworkDomainAdditions.h"
 
 #import "DNS Server-Constants.h"
 
@@ -40,9 +38,9 @@ static void log_error(NSError *error)
 	fprintf(stderr, "%.*s\n", (int)[logData length], [logData bytes]);
 }
 
-static AFNetworkDomainServer *start_domain_server(AFNetworkSchedule *schedule, NSSet *zones, NSError **errorRef)
+static AFNetworkDomainMulticastServer *start_domain_server(AFNetworkSchedule *schedule, NSSet *zones, NSError **errorRef)
 {
-	AFNetworkDomainServer *server = [AFNetworkDomainMulticastServer server];
+	AFNetworkDomainMulticastServer *server = [AFNetworkDomainMulticastServer server];
 	server.schedule = schedule;
 	server.zones = zones;
 	
@@ -54,7 +52,7 @@ static AFNetworkDomainServer *start_domain_server(AFNetworkSchedule *schedule, N
 	return server;
 }
 
-static AFNetworkDomainServer *server_main(AFNetworkSchedule *schedule)
+static AFNetworkDomainMulticastServer *server_main(AFNetworkSchedule *schedule)
 {
 	NSSet *zones = nil;
 	
@@ -68,7 +66,7 @@ static AFNetworkDomainServer *server_main(AFNetworkSchedule *schedule)
 	}
 	
 	NSError *serverError = nil;
-	AFNetworkDomainServer *server = start_domain_server(schedule, zones, &serverError);
+	AFNetworkDomainMulticastServer *server = start_domain_server(schedule, zones, &serverError);
 	if (server == nil) {
 		log_error(serverError);
 		exit(0); // Fatal error
@@ -79,7 +77,7 @@ static AFNetworkDomainServer *server_main(AFNetworkSchedule *schedule)
 	return server;
 }
 
-static AFNetworkDomainServer *domain_server = nil;
+static AFNetworkDomainMulticastServer *domain_server = nil;
 
 static void runloop_main(void)
 {

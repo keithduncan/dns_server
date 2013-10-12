@@ -6,7 +6,9 @@
 //  Copyright (c) 2013 Keith Duncan. All rights reserved.
 //
 
-#import <CoreNetworking/CoreNetworking.h>
+#import <Foundation/Foundation.h>
+
+#import "CoreNetworking/CoreNetworking.h"
 
 @class AFNetworkDomainZone;
 

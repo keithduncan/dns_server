@@ -18,7 +18,7 @@ do {\
 AFNetworkDomainZone *zone = [[[AFNetworkDomainZone alloc] init] autorelease];\
 \
 BOOL read = [zone _readFromString:str error:NULL];\
-STAssertTrue(read, desc);\
+XCTAssertTrue(read, desc);\
 } while (0)\
 
 - (void)testNAPTRRecord
