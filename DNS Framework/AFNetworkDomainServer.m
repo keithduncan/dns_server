@@ -45,7 +45,7 @@
 	implemented on the basis of <http://tools.ietf.org/html/rfc1035>
  */
 
-enum DNSFlag {
+typedef enum {
 	DNSFlag_QueryResponse,
 	DNSFlag_Opcode,
 	DNSFlag_AuthoritativeAnswer,
@@ -54,10 +54,10 @@ enum DNSFlag {
 	DNSFlag_RecursionAvailable,
 	DNSFlag_Zero,
 	DNSFlag_Rcode,
-};
+} DNSFlag;
 
-struct _DNSFlagMap {
-	enum DNSFlag flag;
+static struct _DNSFlagMap {
+	DNSFlag flag;
 	int mask;
 	int shift;
 } const flagsMap[] = {
@@ -71,7 +71,7 @@ struct _DNSFlagMap {
 	{ .flag = DNSFlag_Rcode, .mask = 15, .shift = 0, },
 };
 
-static struct _DNSFlagMap const *_DNSFlagMapForFlag(enum DNSFlag flag)
+static struct _DNSFlagMap const *_DNSFlagMapForFlag(DNSFlag flag)
 {
 	struct _DNSFlagMap const *mapRef = NULL;
 	for (size_t idx = 0; idx < sizeof(flagsMap)/sizeof(*flagsMap); idx++) {
@@ -85,7 +85,7 @@ static struct _DNSFlagMap const *_DNSFlagMapForFlag(enum DNSFlag flag)
 	return mapRef;
 }
 
-static int DNSFlagsGet(uint16_t flags, enum DNSFlag flag)
+static int DNSFlagsGet(uint16_t flags, DNSFlag flag)
 {
 	struct _DNSFlagMap const *mapRef = _DNSFlagMapForFlag(flag);
 	NSCParameterAssert(mapRef != NULL);
@@ -93,7 +93,7 @@ static int DNSFlagsGet(uint16_t flags, enum DNSFlag flag)
 	return (ntohs(flags) >> mapRef->shift) & mapRef->mask;
 }
 
-static void DNSFlagsSet(uint16_t *flagsRef, enum DNSFlag flag, int value)
+static void DNSFlagsSet(uint16_t *flagsRef, DNSFlag flag, int value)
 {
 	struct _DNSFlagMap const *mapRef = _DNSFlagMapForFlag(flag);
 	NSCParameterAssert(mapRef != NULL);
