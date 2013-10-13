@@ -215,4 +215,22 @@
 	XCTAssertEqualObjects(@(MX->name), @"mail.example.com", @"should decode an exchange of mail.example.com");
 }
 
+- (void)testNSRecord
+{
+	NSString *records = @"example.com. IN NS ns.example.com.";
+	[self _readString:records encode:YES description:@"should read NS record"];
+
+	XCTAssertEqualObjects(self.parsedRecord.fullyQualifiedDomainName, @"example.com.", @"should have an FQDN of example.com.");
+	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
+	XCTAssertEqualObjects(self.parsedRecord.recordType, @"NS", @"should be NS type");
+
+	if (self.decodedRecord == NULL) return;
+
+	dns_domain_name_record_t *NS = self.decodedRecord->data.NS;
+	XCTAssert(NS, @"should have a non NULL NS data");
+	if (NS == NULL) return;
+
+	XCTAssertEqualObjects(@(NS->name), @"ns.example.com", @"should decode an nsdname of ns.example.com.");
+}
+
 @end

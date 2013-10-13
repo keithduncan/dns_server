@@ -475,8 +475,7 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 
 - (NSData *)_encodeNS:(NSError **)errorRef
 {
-#warning complete me
-	return [NSData data];
+	return [self _encodeDomainNameFieldAtIndex:0 name:@"nsdname" error:errorRef];
 }
 
 - (NSData *)_encodePTR:(NSError **)errorRef
