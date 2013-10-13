@@ -239,18 +239,31 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 	return nil;
 }
 
+#pragma mark - Field Parsers
+
 - (NSString *)_onlyField:(NSError **)errorRef
 {
-	NSArray *fields = self.fields;
-	
-	if (fields == nil || fields.count != 1) {
-		return [self _invalidFields:1 error:errorRef];
+	NSArray *fields = [self _expectFields:1 error:errorRef];
+	if (fields == nil) {
+		return nil;
 	}
 	
 	return [fields lastObject];
 }
 
-- (NSString *)_invalidFields:(NSUInteger)expectedCount error:(NSError **)errorRef
+- (NSArray *)_expectFields:(NSUInteger)count error:(NSError **)errorRef
+{
+	NSArray *fields = self.fields;
+
+	if (fields == nil || fields.count != count) {
+		[self _invalidFields:count error:errorRef];
+		return nil;
+	}
+
+	return fields;
+}
+
+- (void)_invalidFields:(NSUInteger)expectedCount error:(NSError **)errorRef
 {
 	if (errorRef != NULL) {
 		NSDictionary *errorInfo = @{
@@ -258,7 +271,6 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 		};
 		*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
 	}
-	return nil;
 }
 
 - (NSData *)_encodeA:(NSError **)errorRef
