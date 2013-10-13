@@ -20,6 +20,8 @@
 
 @interface AFNetworkDomainZone_RecordTests ()
 @property (strong, nonatomic) AFNetworkDomainZone *zone;
+@property (strong, nonatomic) AFNetworkDomainRecord *parsedRecord;
+@property (assign, nonatomic) dns_resource_record_t *decodedRecord;
 @end
 
 @implementation AFNetworkDomainZone_RecordTests
@@ -36,45 +38,45 @@
 	[super tearDown];
 
 	self.zone = nil;
+
+	self.parsedRecord = nil;
+
+	if (self.decodedRecord != NULL) {
+		dns_free_resource_record(self.decodedRecord);
+		self.decodedRecord = NULL;
+	}
 }
-
-#define AssertReadString(str, desc) \
-do {\
-BOOL read = [self.zone _readFromString:str error:NULL];\
-XCTAssertTrue(read, desc);\
-} while (0)
-
-#define AssertEncodeRecords(desc) \
-do {\
-AFNetworkDomainRecord *record = [self.zone.records anyObject];\
-BOOL encode = ([record encodeRecord:NULL] != nil);\
-XCTAssertTrue(encode, desc);\
-} while (0)
 
 #define DATA(var) [NSData dataWithBytes:&var length:sizeof(var)]
 
-- (void)testARecord
+- (void)_readString:(NSString *)string
 {
-	NSString *records =
-	@"example.com. IN A 127.0.0.1";
-	AssertReadString(records, @"cannot read A record");
+	BOOL read = [self.zone _readFromString:string error:NULL];
+	XCTAssertTrue(read, @"should parse record from string");
+	if (!read) return;
 
 	AFNetworkDomainRecord *record = [self.zone.records anyObject];
-	XCTAssertEqualObjects(record.recordClass, @"IN", @"should be INternet class");
-	XCTAssertEqualObjects(record.recordType, @"A", @"should be Address type");
+	self.parsedRecord = record;
 
 	NSError *encodeError = nil;
 	NSData *encode = [record encodeRecord:&encodeError];
-	XCTAssertNotNil(encode, @"should encode IN A record for transport");
+	XCTAssertNotNil(encode, @"should encode the record for transport");
 
-	dns_resource_record_t *encodedRecord = dns_parse_resource_record((char const *)[encode bytes], (uint32_t)[encode length]);
-	af_scoped_block_t  cleanupAddress = ^ {
-		if (encodedRecord != NULL) dns_free_resource_record(encodedRecord);
-	};
-	XCTAssert(encodedRecord, @"should parse the encoded record");
+	dns_resource_record_t *decodedRecord = dns_parse_resource_record((char const *)[encode bytes], (uint32_t)[encode length]);
+	XCTAssert(decodedRecord, @"should parse the encoded record");
+	self.decodedRecord = decodedRecord;
+}
+
+- (void)testARecord
+{
+	NSString *records = @"example.com. IN A 127.0.0.1";
+	[self _readString:records];
+
+	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
+	XCTAssertEqualObjects(self.parsedRecord.recordType, @"A", @"should be Address type");
 
 	in_addr_t address = htonl(INADDR_LOOPBACK);
-	XCTAssertEqualObjects(DATA(address), DATA(encodedRecord->data.A->addr), @"should encode 127.0.0.1 to the network order value of INADDR_LOOPBACK");
+	XCTAssertEqualObjects(DATA(address), DATA(self.decodedRecord->data.A->addr), @"should encode 127.0.0.1 to the network order value of INADDR_LOOPBACK");
 }
 
 - (void)testAAAARecord
