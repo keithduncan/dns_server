@@ -956,19 +956,6 @@ static NSArray *scanRdata(NSScanner *scanner)
 	
 	AFNetworkDomainRecord *newRecord = [[[AFNetworkDomainRecord alloc] initWithFullyQualifiedDomainName:recordName ttl:recordTtl recordClass:recordClass recordType:recordType fields:recordFields] autorelease];
 	
-	NSError *encodeError = nil;
-	NSData *encode = [newRecord encodeRecord:&encodeError];
-	if (encode == nil) {
-		if (errorRef != NULL) {
-			NSDictionary *errorInfo = @{
-				NSLocalizedDescriptionKey : NSLocalizedString(@"Cannot encode record data for answers", @"AFNetworkDomainZone ResourceParsing record data encode error description"),
-				NSUnderlyingErrorKey : encodeError,
-			};
-			*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
-		}
-		return NO;
-	}
-	
 	[records addObject:newRecord];
 	return YES;
 }

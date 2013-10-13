@@ -49,7 +49,7 @@
 
 #define DATA(var) [NSData dataWithBytes:&var length:sizeof(var)]
 
-- (void)_readString:(NSString *)string description:(NSString *)description
+- (void)_readString:(NSString *)string encode:(BOOL)encode description:(NSString *)description
 {
 	BOOL read = [self.zone _readFromString:string error:NULL];
 	XCTAssertTrue(read, @"should parse record from string, %@", description);
@@ -60,11 +60,13 @@
 	AFNetworkDomainRecord *record = [self.zone.records anyObject];
 	self.parsedRecord = record;
 
-	NSError *encodeError = nil;
-	NSData *encode = [record encodeRecord:&encodeError];
-	XCTAssertNotNil(encode, @"should encode the record for transport");
+	if (!encode) return;
 
-	dns_resource_record_t *decodedRecord = dns_parse_resource_record((char const *)[encode bytes], (uint32_t)[encode length]);
+	NSError *encodedError = nil;
+	NSData *encoded = [record encodeRecord:&encodedError];
+	XCTAssertNotNil(encoded, @"should encode the record for transport");
+
+	dns_resource_record_t *decodedRecord = dns_parse_resource_record((char const *)[encoded bytes], (uint32_t)[encoded length]);
 	XCTAssert(decodedRecord, @"should parse the encoded record");
 	self.decodedRecord = decodedRecord;
 }
@@ -72,7 +74,7 @@
 - (void)testARecord
 {
 	NSString *records = @"example.com. IN A 127.0.0.1";
-	[self _readString:records description:nil];
+	[self _readString:records encode:YES description:nil];
 
 	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
 	XCTAssertEqualObjects(self.parsedRecord.recordType, @"A", @"should be Address type");
@@ -84,7 +86,7 @@
 - (void)testAAAARecord
 {
 	NSString *records = @"example.com. IN AAAA ::1";
-	[self _readString:records description:nil];
+	[self _readString:records encode:YES description:nil];
 
 	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
 	XCTAssertEqualObjects(self.parsedRecord.recordType, @"AAAA", @"should be AAAAddress type");
@@ -100,7 +102,7 @@
 	@"$TTL 1h\n"
 	@"sip       IN  NAPTR 100 10 \"U\" \"E2U+sip\" \"!^.*$!sip:cs@example.com!i\" .   ; NAPTR record\n"
 	@"sip2          NAPTR 100 10 \"\" \"\" \"/urn:cid:.+@([^\\.]+\\.)(.*)$/\\2/i\" .  ; another one";
-	[self _readString:records description:@"cannot read NAPTR record containing inner-data excluded characters"];
+	[self _readString:records encode:NO description:@"cannot read NAPTR record containing inner-data excluded characters"];
 
 	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
 	XCTAssertEqualObjects(self.parsedRecord.recordType, @"NAPTR", @"should be NAPTR type");
@@ -112,7 +114,7 @@
 	@"$ORIGIN example.com.\n"
 	@"$TTL 1h\n"
 	@"_xmpp-server._tcp IN SRV 5 0 5269 xmpp-server.l.google.com.  ; SRV record";
-	[self _readString:records description:@"cannot read SRV record with underscore prefixed labels"];
+	[self _readString:records encode:YES description:@"cannot read SRV record with underscore prefixed labels"];
 
 	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
 	XCTAssertEqualObjects(self.parsedRecord.recordType, @"SRV", @"should be SRV type");
@@ -124,7 +126,7 @@
 	@"$ORIGIN example.com.\n"
 	@"$TTL 1h\n"
 	@"txt        IN TXT \"key=value;key2=value2\" \"key4=\\\"value4\\\"\" ; TXT record";
-	[self _readString:records description:@"cannot read TXT record containing inner-data excluded characters"];
+	[self _readString:records encode:YES description:@"cannot read TXT record containing inner-data excluded characters"];
 
 	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
 	XCTAssertEqualObjects(self.parsedRecord.recordType, @"TXT", @"should be TXT type");
@@ -136,7 +138,7 @@
 	@"$ORIGIN example.com.\n"
 	@"$TTL 1h\n"
 	@"@          IN SPF   \"v=spf1 a a:other.domain.com ~all\"";
-	[self _readString:records description:@"cannot read SPF record"];
+	[self _readString:records encode:YES description:@"cannot read SPF record"];
 
 	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
 	XCTAssertEqualObjects(self.parsedRecord.recordType, @"SPF", @"should be SPF type");

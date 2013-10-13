@@ -388,12 +388,6 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 	return [NSData data];
 }
 
-- (NSData *)_encodeNAPTR:(NSError **)errorRef
-{
-#warning complete me
-	return [NSData data];
-}
-
 - (NSData *)_encodeSPF:(NSError **)errorRef
 {
 #warning complete me
