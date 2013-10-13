@@ -352,17 +352,6 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 		}
 		currentCursor = NSMaxRange(currentQuestionTypeRange);
 		
-		/*
-			Note
-			
-			need to disambiguate QU (question unicast) from QM (question multicast)
-			
-			<https://tools.ietf.org/html/draft-cheshire-dnsext-multicastdns-15#section-5.4>
-			
-			without building multicast specific support into the generic domain server
-		 */
-#warning if the top bit of the class (in network order) is set this is a QU (question unicast), rather than a QM (question multicast), class IN (Internet) therefore has the class 0x8001
-		
 		NSRange currentQuestionClassRange = NSMakeRange(currentCursor, 2);
 		if (!SafeGetBytes(message, (uint8_t *)&currentQuestion.dnsclass, currentQuestionClassRange)) {
 			return;
