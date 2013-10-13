@@ -649,8 +649,7 @@ typedef enum {
 
 - (NSData *)_encodeSPF:(NSError **)errorRef
 {
-#warning complete me
-	return [NSData data];
+	return [self _encodeTXT:errorRef];
 }
 
 @end

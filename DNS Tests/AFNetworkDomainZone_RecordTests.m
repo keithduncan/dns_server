@@ -167,15 +167,24 @@
 
 - (void)testSPFRecord
 {
-	NSString *records =
-	@"$ORIGIN example.com.\n"
-	@"$TTL 1h\n"
-	@"@          IN SPF   \"v=spf1 a a:other.domain.com ~all\"";
+	NSString *records = @"example.com. IN SPF \"v=spf1 a a:other.domain.com ~all\"";
 	[self _readString:records encode:YES description:@"should read SPF record"];
 
 	XCTAssertEqualObjects(self.parsedRecord.fullyQualifiedDomainName, @"example.com.", @"should have an FQDN of example.com.");
 	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
 	XCTAssertEqualObjects(self.parsedRecord.recordType, @"SPF", @"should be SPF type");
+
+	if (self.decodedRecord == NULL) return;
+
+	dns_raw_resource_record_t *SPF = self.decodedRecord->data.DNSNULL;
+	XCTAssert(SPF, @"should have a non NULL DNSNULL data");
+	if (SPF == NULL) return;
+
+	NSData *data = [NSData dataWithBytes:SPF->data length:SPF->length];
+	XCTAssert([data length] == 33, @"should decode non zero length data");
+	uint8_t stringLength = ((uint8_t *)[data bytes])[0];
+	XCTAssert(stringLength == 32, @"should decode the leading length byte");
+	XCTAssertEqualObjects([[NSString alloc] initWithBytes:[data bytes] + 1 length:stringLength encoding:NSASCIIStringEncoding], @"v=spf1 a a:other.domain.com ~all", @"should decode the SPF rule");
 }
 
 - (void)testCNAMERecord
