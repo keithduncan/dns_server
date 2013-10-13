@@ -46,7 +46,8 @@
 	return self;
 }
 
-- (void)dealloc {
+- (void)dealloc
+{
 	[_fullyQualifiedDomainName release];
 	
 	[_recordClass copy];
@@ -59,7 +60,8 @@
 
 #pragma mark - Record Generic Encoders
 
-- (NSData *)encodeRecord:(NSError **)errorRef {
+- (NSData *)encodeRecord:(NSError **)errorRef
+{
 	// <http://tools.ietf.org/html/rfc1035#section-4.1.3>
 	
 	NSMutableData *encodedRecord = [NSMutableData data];
@@ -93,7 +95,8 @@
 	return encodedRecord;
 }
 
-- (NSData *)_encodedFullyQualifiedDomainName:(NSError **)errorRef {
+- (NSData *)_encodedFullyQualifiedDomainName:(NSError **)errorRef
+{
 	NSMutableData *encodedName = [NSMutableData data];
 	for (NSString *currentLabel in [self.fullyQualifiedDomainName componentsSeparatedByString:@"."]) {
 		NSData *currentLabelData = [currentLabel dataUsingEncoding:NSASCIIStringEncoding];
@@ -141,7 +144,8 @@ static int32_t DNSRecordTypeFunction(NSString *type, uint16_t *numberRef)
 	return dns_type_number([type UTF8String], numberRef);
 }
 
-- (NSData *)_encodeType:(NSError **)errorRef {
+- (NSData *)_encodeType:(NSError **)errorRef
+{
 	NSString *recordType = [self recordType];
 	NSData *encodedType = [self _encodeString:recordType function:(DNSRecordNumberFunction)DNSRecordTypeFunction];
 	if (encodedType == nil) {
@@ -162,7 +166,8 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 	return dns_class_number([class UTF8String], numberRef);
 }
 
-- (NSData *)_encodeClass:(NSError **)errorRef {
+- (NSData *)_encodeClass:(NSError **)errorRef
+{
 	NSString *recordClass = [self recordClass];
 	NSData *encodedClass = [self _encodeString:recordClass function:(DNSRecordNumberFunction)DNSRecordClassFunction];
 	if (encodedClass == nil) {
@@ -178,7 +183,8 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 	return encodedClass;
 }
 
-- (NSData *)_encodeString:(NSString *)string function:(DNSRecordNumberFunction)function {
+- (NSData *)_encodeString:(NSString *)string function:(DNSRecordNumberFunction)function
+{
 	uint16_t number = 0;
 	int32_t numberError = function(string, &number);
 	if (numberError != 0) {
@@ -190,12 +196,14 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 	return [NSData dataWithBytes:&number length:sizeof(number)];
 }
 
-- (NSData *)_encodeTtl {
+- (NSData *)_encodeTtl
+{
 	uint32_t integerTtl = htonl((uint32_t)self.ttl);
 	return [NSData dataWithBytes:&integerTtl length:sizeof(integerTtl)];
 }
 
-- (NSData *)_encodeFields:(NSError **)errorRef {
+- (NSData *)_encodeFields:(NSError **)errorRef
+{
 	NSData *encodedRdata = [self _encodedRdata:errorRef];
 	if (encodedRdata == nil) {
 		return nil;
@@ -222,7 +230,8 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 	return encodedFields;
 }
 
-- (NSData *)_encodedRdata:(NSError **)errorRef {
+- (NSData *)_encodedRdata:(NSError **)errorRef
+{
 	NSString *type = self.recordType;
 	
 	NSString *encodeSelectorString = [NSString stringWithFormat:@"_encode%@:", [type uppercaseString]];
