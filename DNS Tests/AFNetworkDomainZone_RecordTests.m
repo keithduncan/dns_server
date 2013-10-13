@@ -233,4 +233,22 @@
 	XCTAssertEqualObjects(@(NS->name), @"ns.example.com", @"should decode an nsdname of ns.example.com.");
 }
 
+- (void)testPTRRecord
+{
+	NSString *records = @"example.com. IN PTR other.example.com.";
+	[self _readString:records encode:YES description:@"should read PTR record"];
+
+	XCTAssertEqualObjects(self.parsedRecord.fullyQualifiedDomainName, @"example.com.", @"should have an FQDN of example.com.");
+	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
+	XCTAssertEqualObjects(self.parsedRecord.recordType, @"PTR", @"should be PTR type");
+
+	if (self.decodedRecord == NULL) return;
+
+	dns_domain_name_record_t *PTR = self.decodedRecord->data.PTR;
+	XCTAssert(PTR, @"should have a non NULL PTR data");
+	if (PTR == NULL) return;
+
+	XCTAssertEqualObjects(@(PTR->name), @"other.example.com", @"should decode an nsdname of other.example.com.");
+}
+
 @end
