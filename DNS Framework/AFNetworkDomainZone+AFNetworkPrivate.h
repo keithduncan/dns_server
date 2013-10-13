@@ -10,11 +10,11 @@
 
 extern NSString *const AFNetworkDomainZoneInternalErrorDomain;
 
-typedef NS_ENUM(NSInteger, AFNetworkDomainZoneInternalErrorCode) {
+typedef enum : NSInteger {
 	AFNetworkDomainZoneInternalErrorCodeUnknown = 0,
 	
 	AFNetworkDomainZoneInternalErrorCodeNotMatch = -100,
-};
+} AFNetworkDomainZoneInternalErrorCode;
 
 @interface AFNetworkDomainZone ()
 @property (retain, nonatomic) NSSet *records;

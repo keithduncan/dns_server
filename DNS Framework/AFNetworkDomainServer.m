@@ -153,13 +153,13 @@ static BOOL LengthByteIsPointer(uint8_t length)
 	return (length & /* 0b11000000 */ 192) == 192;
 }
 
-typedef NS_ENUM(NSUInteger, DNSLengthType)
+typedef enum : NSUInteger
 {
 	DNSLengthType_Invalid,
 	DNSLengthType_Root,
 	DNSLengthType_Length,
 	DNSLengthType_Pointer,
-};
+} DNSLengthType;
 
 static DNSLengthType LengthByteGetType(uint8_t length)
 {

@@ -12,9 +12,9 @@
 
 extern NSString *const AFNetworkDomainZoneErrorDomain;
 
-typedef NS_ENUM(NSInteger, AFNetworkDomainZoneErrorCode) {
+typedef enum : NSInteger {
 	AFNetworkDomainZoneErrorCodeUnknown = 0,
-};
+} AFNetworkDomainZoneErrorCode;
 
 @interface AFNetworkDomainZone : NSObject
 
