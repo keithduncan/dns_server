@@ -160,6 +160,7 @@
 		534F6BFA180AC1F70086C4CB /* db.example.com */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = db.example.com; path = "DNS Tests/db.example.com"; sourceTree = SOURCE_ROOT; };
 		534F6BFB180AC1F70086C4CB /* db.example.local */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = db.example.local; path = "DNS Tests/db.example.local"; sourceTree = SOURCE_ROOT; };
 		534F6BFC180AC1F70086C4CB /* db.test.example.com */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = db.test.example.com; path = "DNS Tests/db.test.example.com"; sourceTree = SOURCE_ROOT; };
+		534F6C02180AC58F0086C4CB /* README.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
 		535B48E1180ABDEB00E6B1EA /* AFNetworkDomain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkDomain.h; sourceTree = "<group>"; };
 		535B48E2180ABDEB00E6B1EA /* AFNetworkDomainMulticastServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkDomainMulticastServer.h; sourceTree = "<group>"; };
 		535B48E3180ABDEB00E6B1EA /* AFNetworkDomainMulticastServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkDomainMulticastServer.m; sourceTree = "<group>"; };
@@ -322,6 +323,7 @@
 		5367A6E4169497AA002534FF = {
 			isa = PBXGroup;
 			children = (
+				534F6C02180AC58F0086C4CB /* README.md */,
 				5367A6F4169497AA002534FF /* Multicast DNS Server */,
 				533297EA1809C8B6006C46D8 /* DNS Framework */,
 				53AD519516A210D600C6646F /* DNS Tests */,
