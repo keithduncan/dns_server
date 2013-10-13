@@ -481,8 +481,38 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 
 - (NSData *)_encodeSRV:(NSError **)errorRef
 {
-#warning complete me
-	return [NSData data];
+	// _Service._Proto.Name TTL Class SRV [ Priority Weight Port Target ]
+
+	NSData *priority = [self _encodeIntegerFieldAtIndex:0 name:@"priority" error:errorRef];
+	if (priority == nil) {
+		return nil;
+	}
+
+	NSData *weight = [self _encodeIntegerFieldAtIndex:1 name:@"weight" error:errorRef];
+	if (weight == nil) {
+		return nil;
+	}
+
+	NSData *port = [self _encodeIntegerFieldAtIndex:2 name:@"port" error:errorRef];
+	if (port == nil) {
+		return nil;
+	}
+
+	// I can't find a canonical IETF document defining the RDATA format of the
+	// target field, assume it is encoded as a domain name similar to other
+	// record types
+
+	NSData *target = [self _encodeDomainNameFieldAtIndex:3 name:@"target" error:errorRef];
+	if (target == nil) {
+		return nil;
+	}
+
+	NSMutableData *srv = [NSMutableData data];
+	[srv appendData:priority];
+	[srv appendData:weight];
+	[srv appendData:port];
+	[srv appendData:target];
+	return srv;
 }
 
 - (NSData *)_encodeTXT:(NSError **)errorRef
