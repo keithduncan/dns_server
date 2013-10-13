@@ -316,7 +316,12 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 	return fields[idx];
 }
 
-- (NSData *)_encodeIntegerFieldAtIndex:(NSUInteger)fieldIdx name:(NSString *)name error:(NSError **)errorRef
+typedef enum {
+	AFNetworkDomainRecordFieldType_16, // 16bit
+	AFNetworkDomainRecordFieldType_32, // 32bit
+} AFNetworkDomainRecordFieldType;
+
+- (NSData *)_encodeIntegerFieldAtIndex:(NSUInteger)fieldIdx name:(NSString *)name type:(AFNetworkDomainRecordFieldType)type error:(NSError **)errorRef
 {
 	NSString *field = [self _fieldAtIndex:fieldIdx name:name error:errorRef];
 	if (field == nil) {
@@ -337,14 +342,46 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 		return nil;
 	}
 
-	NSUInteger maximumValue = UINT16_MAX;
+	NSData *data = nil;
+	NSUInteger maximumValue = 0;
+	switch (type) {
+		case AFNetworkDomainRecordFieldType_16:
+		{
+			maximumValue = UINT16_MAX;
+
+			uint16_t dataValue = (uint16_t)value;
+			data = [NSData dataWithBytes:&dataValue length:sizeof(dataValue)];
+			break;
+		}
+		case AFNetworkDomainRecordFieldType_32:
+		{
+			maximumValue = UINT32_MAX;
+
+			uint32_t dataValue = (uint32_t)value;
+			data = [NSData dataWithBytes:&dataValue length:sizeof(dataValue)];
+			break;
+		}
+	}
+
 	if (value > maximumValue) {
 		[self _invalidField:name recoverySuggestion:[NSString stringWithFormat:NSLocalizedString(@"Field value \u201c%@\u201d is too large, it must be smaller than %lu.", @"AFNetworkDomainRecord encode record field value too large error recovery suggestion"), field, (unsigned long)maximumValue] error:errorRef];
 		return nil;
 	}
 
-	uint16_t dataValue = (uint16_t)htons(value);
-	return [NSData dataWithBytes:&dataValue length:sizeof(dataValue)];
+	// Network byte order is Bit Endian
+#if defined(__LITTLE_ENDIAN__)
+	do {
+		NSMutableData *reverseData = [NSMutableData dataWithLength:[data length]];
+		uint8_t *destinationBytes = [reverseData mutableBytes];
+		uint8_t const *sourceBytes = [data bytes];
+		for (NSUInteger idx = 0; idx < [data length]; idx++) {
+			destinationBytes[[data length] - 1 - idx] = sourceBytes[idx];
+		}
+		data = reverseData;
+	} while (0);
+#endif /* defined(__LITTLE_ENDIAN__) */
+
+	return data;
 }
 
 - (NSData *)_encodeDomainNameFieldAtIndex:(NSUInteger)fieldIdx name:(NSString *)name error:(NSError **)errorRef
@@ -457,7 +494,7 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 
 - (NSData *)_encodeMX:(NSError **)errorRef
 {
-	NSData *preference = [self _encodeIntegerFieldAtIndex:0 name:@"preference" error:errorRef];
+	NSData *preference = [self _encodeIntegerFieldAtIndex:0 name:@"preference" type:AFNetworkDomainRecordFieldType_16 error:errorRef];
 	if (preference == nil) {
 		return nil;
 	}
@@ -493,17 +530,17 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 {
 	// _Service._Proto.Name TTL Class SRV [ Priority Weight Port Target ]
 
-	NSData *priority = [self _encodeIntegerFieldAtIndex:0 name:@"priority" error:errorRef];
+	NSData *priority = [self _encodeIntegerFieldAtIndex:0 name:@"priority" type:AFNetworkDomainRecordFieldType_16 error:errorRef];
 	if (priority == nil) {
 		return nil;
 	}
 
-	NSData *weight = [self _encodeIntegerFieldAtIndex:1 name:@"weight" error:errorRef];
+	NSData *weight = [self _encodeIntegerFieldAtIndex:1 name:@"weight" type:AFNetworkDomainRecordFieldType_16 error:errorRef];
 	if (weight == nil) {
 		return nil;
 	}
 
-	NSData *port = [self _encodeIntegerFieldAtIndex:2 name:@"port" error:errorRef];
+	NSData *port = [self _encodeIntegerFieldAtIndex:2 name:@"port" type:AFNetworkDomainRecordFieldType_16 error:errorRef];
 	if (port == nil) {
 		return nil;
 	}
