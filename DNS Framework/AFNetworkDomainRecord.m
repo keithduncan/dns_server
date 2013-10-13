@@ -194,18 +194,29 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 }
 
 - (NSData *)_encodeFields:(NSError **)errorRef {
-	NSMutableData *encodedFields = [NSMutableData data];
-	
 	NSData *encodedRdata = [self _encodedRdata:errorRef];
 	if (encodedRdata == nil) {
 		return nil;
 	}
-	
-	uint16_t rdlength = htons((uint16_t)[encodedRdata length]);
+
+	NSUInteger length = [encodedRdata length];
+
+	NSUInteger maximumLength = UINT16_MAX;
+	if (length > maximumLength) {
+		if (errorRef != NULL) {
+			NSDictionary *errorInfo = @{
+				NSLocalizedDescriptionKey : NSLocalizedString(@"Encoded data for record is too long", @"AFNetworkDomainRecord encode fields error description"),
+				NSLocalizedRecoverySuggestionErrorKey : [NSString stringWithFormat:NSLocalizedString(@"Fields must encode to less than %lu bytes", @"AFNetworkDomainRecord encode fields error recovery suggestion"), (unsigned long)maximumLength],
+			};
+			*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
+		}
+		return nil;
+	}
+
+	NSMutableData *encodedFields = [NSMutableData data];
+	uint16_t rdlength = htons((uint16_t)length);
 	[encodedFields appendBytes:&rdlength length:sizeof(rdlength)];
-	
 	[encodedFields appendData:encodedRdata];
-	
 	return encodedFields;
 }
 
