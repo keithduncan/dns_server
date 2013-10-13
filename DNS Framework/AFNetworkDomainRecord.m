@@ -57,6 +57,8 @@
 	[super dealloc];
 }
 
+#pragma mark - Record Generic Encoders
+
 - (NSData *)encodeRecord:(NSError **)errorRef {
 	// <http://tools.ietf.org/html/rfc1035#section-4.1.3>
 	
@@ -272,6 +274,9 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 		*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
 	}
 }
+
+
+#pragma mark - Record Specific Encoders
 
 - (NSData *)_encodeA:(NSError **)errorRef
 {
