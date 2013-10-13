@@ -49,11 +49,13 @@
 
 #define DATA(var) [NSData dataWithBytes:&var length:sizeof(var)]
 
-- (void)_readString:(NSString *)string
+- (void)_readString:(NSString *)string description:(NSString *)description
 {
 	BOOL read = [self.zone _readFromString:string error:NULL];
-	XCTAssertTrue(read, @"should parse record from string");
-	if (!read) return;
+	XCTAssertTrue(read, @"should parse record from string, %@", description);
+	if (!read) {
+		return;
+	}
 
 	AFNetworkDomainRecord *record = [self.zone.records anyObject];
 	self.parsedRecord = record;
@@ -70,7 +72,7 @@
 - (void)testARecord
 {
 	NSString *records = @"example.com. IN A 127.0.0.1";
-	[self _readString:records];
+	[self _readString:records description:nil];
 
 	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
 	XCTAssertEqualObjects(self.parsedRecord.recordType, @"A", @"should be Address type");
@@ -81,9 +83,14 @@
 
 - (void)testAAAARecord
 {
-	NSString *records =
-	@"example.com. IN AAAA ::1";
-	AssertReadString(records, @"cannot read AAAA record");
+	NSString *records = @"example.com. IN AAAA ::1";
+	[self _readString:records description:nil];
+
+	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
+	XCTAssertEqualObjects(self.parsedRecord.recordType, @"AAAA", @"should be AAAAddress type");
+
+	struct in6_addr address = IN6ADDR_LOOPBACK_INIT;
+	XCTAssertEqualObjects(DATA(address), DATA(self.decodedRecord->data.AAAA->addr), @"should encode ::1 to the value of IN6ADDR_LOOPBACK_INIT");
 }
 
 - (void)testNAPTRRecord
