@@ -457,8 +457,20 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 
 - (NSData *)_encodeMX:(NSError **)errorRef
 {
-#warning complete me
-	return [NSData data];
+	NSData *preference = [self _encodeIntegerFieldAtIndex:0 name:@"preference" error:errorRef];
+	if (preference == nil) {
+		return nil;
+	}
+
+	NSData *exchange = [self _encodeDomainNameFieldAtIndex:1 name:@"exchange" error:errorRef];
+	if (exchange == nil) {
+		return nil;
+	}
+
+	NSMutableData *rdata = [NSMutableData data];
+	[rdata appendData:preference];
+	[rdata appendData:exchange];
+	return rdata;
 }
 
 - (NSData *)_encodeNS:(NSError **)errorRef

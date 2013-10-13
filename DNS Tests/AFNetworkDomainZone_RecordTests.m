@@ -196,4 +196,23 @@
 	XCTAssertEqualObjects(@(CNAME->name), @"www.example.com", @"should decode a target of www.example.com.");
 }
 
+- (void)testMXRecord
+{
+	NSString *records = @"example.com. IN MX 10 mail.example.com.";
+	[self _readString:records encode:YES description:@"should read MX record"];
+
+	XCTAssertEqualObjects(self.parsedRecord.fullyQualifiedDomainName, @"example.com.", @"should have an FQDN of example.com.");
+	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
+	XCTAssertEqualObjects(self.parsedRecord.recordType, @"MX", @"should be MX type");
+
+	if (self.decodedRecord == NULL) return;
+
+	dns_MX_record_t *MX = self.decodedRecord->data.MX;
+	XCTAssert(MX, @"should have a non NULL MX data");
+	if (MX == NULL) return;
+
+	XCTAssertEqual(MX->preference, (uint16_t)10, @"should decode a preference of 10");
+	XCTAssertEqualObjects(@(MX->name), @"mail.example.com", @"should decode an exchange of mail.example.com");
+}
+
 @end
