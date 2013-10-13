@@ -8,18 +8,59 @@
 
 #import "AFNetworkDomainZone_RecordTests.h"
 
-#import "AFNetworkDomainZone.h"
+#import "DNS/AFNetworkDomainZone.h"
+#import "DNS/AFNetworkDomainRecord.h"
+
+#import "AFNetworkDomainZone+AFNetworkPrivate.h"
 #import "AFNetworkDomainZone+RecordParsing.h"
+
+@interface AFNetworkDomainZone_RecordTests ()
+@property (strong, nonatomic) AFNetworkDomainZone *zone;
+@end
 
 @implementation AFNetworkDomainZone_RecordTests
 
+- (void)setUp
+{
+	[super setUp];
+
+	self.zone = [[[AFNetworkDomainZone alloc] init] autorelease];
+}
+
+- (void)tearDown
+{
+	[super tearDown];
+
+	self.zone = nil;
+}
+
 #define AssertReadString(str, desc) \
 do {\
-AFNetworkDomainZone *zone = [[[AFNetworkDomainZone alloc] init] autorelease];\
-\
-BOOL read = [zone _readFromString:str error:NULL];\
+BOOL read = [self.zone _readFromString:str error:NULL];\
 XCTAssertTrue(read, desc);\
-} while (0)\
+} while (0)
+
+#define AssertEncodeRecords(desc) \
+do {\
+AFNetworkDomainRecord *record = [self.zone.records anyObject];\
+BOOL encode = ([record encodeRecord:NULL] != nil);\
+XCTAssertTrue(encode, desc);\
+} while (0)
+
+- (void)testARecord
+{
+	NSString *records =
+	@"example.com. IN A 127.0.0.1";
+	AssertReadString(records, @"cannot read A record");
+	AssertEncodeRecords(@"cannot encode A record");
+}
+
+- (void)testAAAARecord
+{
+	NSString *records =
+	@"example.com. IN AAAA ::1";
+	AssertReadString(records, @"cannot read AAAA record");
+}
 
 - (void)testNAPTRRecord
 {
