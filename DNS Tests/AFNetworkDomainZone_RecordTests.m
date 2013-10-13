@@ -101,6 +101,9 @@
 	@"sip       IN  NAPTR 100 10 \"U\" \"E2U+sip\" \"!^.*$!sip:cs@example.com!i\" .   ; NAPTR record\n"
 	@"sip2          NAPTR 100 10 \"\" \"\" \"/urn:cid:.+@([^\\.]+\\.)(.*)$/\\2/i\" .  ; another one";
 	[self _readString:records description:@"cannot read NAPTR record containing inner-data excluded characters"];
+
+	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
+	XCTAssertEqualObjects(self.parsedRecord.recordType, @"NAPTR", @"should be NAPTR type");
 }
 
 - (void)testSRVRecord
@@ -110,6 +113,9 @@
 	@"$TTL 1h\n"
 	@"_xmpp-server._tcp IN SRV 5 0 5269 xmpp-server.l.google.com.  ; SRV record";
 	[self _readString:records description:@"cannot read SRV record with underscore prefixed labels"];
+
+	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
+	XCTAssertEqualObjects(self.parsedRecord.recordType, @"SRV", @"should be SRV type");
 }
 
 - (void)testTXTRecord
@@ -119,6 +125,9 @@
 	@"$TTL 1h\n"
 	@"txt        IN TXT \"key=value;key2=value2\" \"key4=\\\"value4\\\"\" ; TXT record";
 	[self _readString:records description:@"cannot read TXT record containing inner-data excluded characters"];
+
+	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
+	XCTAssertEqualObjects(self.parsedRecord.recordType, @"TXT", @"should be TXT type");
 }
 
 - (void)testSPFRecord
@@ -128,6 +137,9 @@
 	@"$TTL 1h\n"
 	@"@          IN SPF   \"v=spf1 a a:other.domain.com ~all\"";
 	[self _readString:records description:@"cannot read SPF record"];
+
+	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
+	XCTAssertEqualObjects(self.parsedRecord.recordType, @"SPF", @"should be SPF type");
 }
 
 @end
