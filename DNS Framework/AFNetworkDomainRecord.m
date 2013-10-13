@@ -275,6 +275,49 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 	}
 }
 
+- (void)_invalidIntegerField:(NSString *)name recoverySuggestion:(NSString *)recoverySuggestion error:(NSError **)errorRef
+{
+	if (errorRef != NULL) {
+		NSDictionary *errorInfo = @{
+			NSLocalizedDescriptionKey : [NSString stringWithFormat:@"Cannot encode %@ record %@ field", self.recordType, name],
+			NSLocalizedRecoverySuggestionErrorKey : recoverySuggestion,
+		};
+		*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
+	}
+}
+
+- (NSNumber *)_scanIntegerFromFieldAtIndex:(NSUInteger)fieldIdx name:(NSString *)name error:(NSError **)errorRef
+{
+	NSArray *fields = self.fields;
+	if (fields.count < fieldIdx) {
+		[self _invalidIntegerField:name recoverySuggestion:NSLocalizedString(@"No such field is present, add one to the zone file.", @"AFNetworkDomainRecord encode record field error recovery suggestion") error:errorRef];
+		return nil;
+	}
+
+	NSString *field = fields[fieldIdx];
+
+	NSScanner *scanner = [NSScanner scannerWithString:field];
+
+	unsigned long long value = 0;
+	BOOL scan = [scanner scanUnsignedLongLong:&value];
+	if (!scan) {
+		[self _invalidIntegerField:name recoverySuggestion:[NSString stringWithFormat:NSLocalizedString(@"Field value \u201c%@\u201d is not an integer.", @"AFNetworkDomainRecord encode record field value not integer error recovery suggestion"), field] error:errorRef];
+		return nil;
+	}
+
+	if (![scanner isAtEnd]) {
+		[self _invalidIntegerField:name recoverySuggestion:[NSString stringWithFormat:NSLocalizedString(@"Field value \u201c%@\u201d is not completely numeric.", @"AFNetworkDomainRecord encode record field value not fully read error recovery suggestion"), field] error:errorRef];
+		return nil;
+	}
+
+	NSUInteger maximumValue = UINT16_MAX;
+	if (value > maximumValue) {
+		[self _invalidIntegerField:name recoverySuggestion:[NSString stringWithFormat:NSLocalizedString(@"Field value \u201c%@\u201d is too large, it must be smaller than %lu.", @"AFNetworkDomainRecord encode record field value too large error recovery suggestion"), field, (unsigned long)maximumValue] error:errorRef];
+		return nil;
+	}
+	
+	return @(value);
+}
 
 #pragma mark - Record Specific Encoders
 
