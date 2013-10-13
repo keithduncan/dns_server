@@ -59,6 +59,7 @@
 
 	AFNetworkDomainRecord *record = [self.zone.records anyObject];
 	self.parsedRecord = record;
+	XCTAssert(record, @"should parse at least one record from %@", string);
 
 	if (!encode) return;
 
@@ -67,8 +68,8 @@
 	XCTAssertNotNil(encoded, @"should encode the record for transport");
 
 	dns_resource_record_t *decodedRecord = dns_parse_resource_record((char const *)[encoded bytes], (uint32_t)[encoded length]);
-	XCTAssert(decodedRecord, @"should parse the encoded record");
 	self.decodedRecord = decodedRecord;
+	XCTAssert(decodedRecord, @"should decode the encoded record");
 }
 
 - (void)testARecord
@@ -80,8 +81,14 @@
 	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
 	XCTAssertEqualObjects(self.parsedRecord.recordType, @"A", @"should be Address type");
 
+	if (self.decodedRecord == NULL) return;
+
+	dns_address_record_t *IN = self.decodedRecord->data.A;
+	XCTAssert(IN, @"should have a non NULL A data");
+	if (IN == NULL) return;
+
 	in_addr_t address = htonl(INADDR_LOOPBACK);
-	XCTAssertEqualObjects(DATA(address), DATA(self.decodedRecord->data.A->addr), @"should encode 127.0.0.1 to the network order value of INADDR_LOOPBACK");
+	XCTAssertEqualObjects(DATA(address), DATA(IN->addr), @"should encode 127.0.0.1 to the network order value of INADDR_LOOPBACK");
 }
 
 - (void)testAAAARecord
@@ -93,8 +100,14 @@
 	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
 	XCTAssertEqualObjects(self.parsedRecord.recordType, @"AAAA", @"should be AAAAddress type");
 
+	if (self.decodedRecord == NULL) return;
+
+	dns_in6_address_record_t *IN6 = self.decodedRecord->data.AAAA;
+	XCTAssert(IN6, @"should have a non NULL AAAA data");
+	if (IN6 == NULL) return;
+
 	struct in6_addr address = IN6ADDR_LOOPBACK_INIT;
-	XCTAssertEqualObjects(DATA(address), DATA(self.decodedRecord->data.AAAA->addr), @"should encode ::1 to the value of IN6ADDR_LOOPBACK_INIT");
+	XCTAssertEqualObjects(DATA(address), DATA(IN6->addr), @"should encode ::1 to the value of IN6ADDR_LOOPBACK_INIT");
 }
 
 - (void)testNAPTRRecord
@@ -120,7 +133,12 @@
 	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
 	XCTAssertEqualObjects(self.parsedRecord.recordType, @"SRV", @"should be SRV type");
 
+	if (self.decodedRecord == NULL) return;
+
 	dns_SRV_record_t *SRV = self.decodedRecord->data.SRV;
+	XCTAssert(SRV, @"should have a non NULL SRV data");
+	if (SRV == NULL) return;
+
 	XCTAssertEqual(SRV->priority, (uint16_t)5, @"should decode a priority of 5");
 	XCTAssertEqual(SRV->weight, (uint16_t)0, @"should decode a weight of 0");
 	XCTAssertEqual(SRV->port, (uint16_t)5269, @"should decode a port of 5269");
@@ -136,10 +154,15 @@
 	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
 	XCTAssertEqualObjects(self.parsedRecord.recordType, @"TXT", @"should be TXT type");
 
+	if (self.decodedRecord == NULL) return;
+
 	dns_TXT_record_t *TXT = self.decodedRecord->data.TXT;
+	XCTAssert(TXT, @"should have a non NULL TXT data");
+	if (TXT == NULL) return;
+
 	XCTAssertEqual(TXT->string_count, (uint32_t)2, @"should decode 2 strings");
-	XCTAssertEqualObjects(@(TXT->strings[0]), @"key=value;key2=value2", @"should decode the first string");
-	XCTAssertEqualObjects(@(TXT->strings[1]), @"key4=\"value4\"", @"should decode the second string");
+	if (TXT->string_count >= 1) XCTAssertEqualObjects(@(TXT->strings[0]), @"key=value;key2=value2", @"should decode the first string");
+	if (TXT->string_count >= 2) XCTAssertEqualObjects(@(TXT->strings[1]), @"key4=\"value4\"", @"should decode the second string");
 }
 
 - (void)testSPFRecord
