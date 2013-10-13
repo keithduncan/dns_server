@@ -178,4 +178,22 @@
 	XCTAssertEqualObjects(self.parsedRecord.recordType, @"SPF", @"should be SPF type");
 }
 
+- (void)testCNAMERecord
+{
+	NSString *records = @"example.com. IN CNAME www.example.com.";
+	[self _readString:records encode:YES description:@"should read CNAME record"];
+
+	XCTAssertEqualObjects(self.parsedRecord.fullyQualifiedDomainName, @"example.com.", @"should have an FQDN of example.com.");
+	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
+	XCTAssertEqualObjects(self.parsedRecord.recordType, @"CNAME", @"should be CNAME type");
+
+	if (self.decodedRecord == nil) return;
+
+	dns_domain_name_record_t *CNAME = self.decodedRecord->data.CNAME;
+	XCTAssert(CNAME, @"should have a non NULL CNAME data");
+	if (CNAME == NULL) return;
+
+	XCTAssertEqualObjects(@(CNAME->name), @"www.example.com", @"should decode a target of www.example.com.");
+}
+
 @end
