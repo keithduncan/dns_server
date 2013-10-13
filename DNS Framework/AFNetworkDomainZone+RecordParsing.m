@@ -300,7 +300,7 @@ static BOOL scanEol(NSScanner *scanner)
 	while (![zoneScanner isAtEnd]) {
 		BOOL scanLine = [self _scanLine:zoneScanner records:records error:errorRef];
 		if (!scanLine) {
-			break;
+			return nil;
 		}
 	}
 	
