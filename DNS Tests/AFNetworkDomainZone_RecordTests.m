@@ -129,15 +129,17 @@
 
 - (void)testTXTRecord
 {
-	NSString *records =
-	@"$ORIGIN example.com.\n"
-	@"$TTL 1h\n"
-	@"txt        IN TXT \"key=value;key2=value2\" \"key4=\\\"value4\\\"\" ; TXT record";
+	NSString *records = @"txt.example.com. IN TXT \"key=value;key2=value2\" \"key4=\\\"value4\\\"\" ; TXT record";
 	[self _readString:records encode:YES description:@"cannot read TXT record containing inner-data excluded characters"];
 
 	XCTAssertEqualObjects(self.parsedRecord.fullyQualifiedDomainName, @"txt.example.com.", @"should have an FQDN of txt.example.com.");
 	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
 	XCTAssertEqualObjects(self.parsedRecord.recordType, @"TXT", @"should be TXT type");
+
+	dns_TXT_record_t *TXT = self.decodedRecord->data.TXT;
+	XCTAssertEqual(TXT->string_count, (uint32_t)2, @"should decode 2 strings");
+	XCTAssertEqualObjects(@(TXT->strings[0]), @"key=value;key2=value2", @"should decode the first string");
+	XCTAssertEqualObjects(@(TXT->strings[1]), @"key4=\"value4\"", @"should decode the second string");
 }
 
 - (void)testSPFRecord
