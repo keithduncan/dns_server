@@ -97,8 +97,13 @@
 
 - (NSData *)_encodedFullyQualifiedDomainName:(NSError **)errorRef
 {
+	return [self _encodeDomainName:self.fullyQualifiedDomainName error:errorRef];
+}
+
+- (NSData *)_encodeDomainName:(NSString *)domainName error:(NSError **)errorRef
+{
 	NSMutableData *encodedName = [NSMutableData data];
-	for (NSString *currentLabel in [self.fullyQualifiedDomainName componentsSeparatedByString:@"."]) {
+	for (NSString *currentLabel in [domainName componentsSeparatedByString:@"."]) {
 		NSData *currentLabelData = [currentLabel dataUsingEncoding:NSASCIIStringEncoding];
 		if (currentLabelData == nil) {
 			if (errorRef != NULL) {
