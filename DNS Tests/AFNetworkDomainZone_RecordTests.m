@@ -8,8 +8,12 @@
 
 #import "AFNetworkDomainZone_RecordTests.h"
 
-#import "DNS/AFNetworkDomainZone.h"
-#import "DNS/AFNetworkDomainRecord.h"
+#define __APPLE_USE_RFC_3542
+#import <netinet/in.h>
+#import <dns_util.h>
+
+#import "CoreNetworking/CoreNetworking.h"
+#import "DNS/AFNetworkDomain.h"
 
 #import "AFNetworkDomainZone+AFNetworkPrivate.h"
 #import "AFNetworkDomainZone+RecordParsing.h"
@@ -47,12 +51,30 @@ BOOL encode = ([record encodeRecord:NULL] != nil);\
 XCTAssertTrue(encode, desc);\
 } while (0)
 
+#define DATA(var) [NSData dataWithBytes:&var length:sizeof(var)]
+
 - (void)testARecord
 {
 	NSString *records =
 	@"example.com. IN A 127.0.0.1";
 	AssertReadString(records, @"cannot read A record");
-	AssertEncodeRecords(@"cannot encode A record");
+
+	AFNetworkDomainRecord *record = [self.zone.records anyObject];
+	XCTAssertEqualObjects(record.recordClass, @"IN", @"should be INternet class");
+	XCTAssertEqualObjects(record.recordType, @"A", @"should be Address type");
+
+	NSError *encodeError = nil;
+	NSData *encode = [record encodeRecord:&encodeError];
+	XCTAssertNotNil(encode, @"should encode IN A record for transport");
+
+	dns_resource_record_t *encodedRecord = dns_parse_resource_record((char const *)[encode bytes], (uint32_t)[encode length]);
+	af_scoped_block_t  cleanupAddress = ^ {
+		if (encodedRecord != NULL) dns_free_resource_record(encodedRecord);
+	};
+	XCTAssert(encodedRecord, @"should parse the encoded record");
+
+	in_addr_t address = htonl(INADDR_LOOPBACK);
+	XCTAssertEqualObjects(DATA(address), DATA(encodedRecord->data.A->addr), @"should encode 127.0.0.1 to the network order value of INADDR_LOOPBACK");
 }
 
 - (void)testAAAARecord

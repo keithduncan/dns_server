@@ -54,6 +54,7 @@
 		53C803831809C9E7009D0FA8 /* AFNetworkDomainZone_ZoneTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 53C803801809C9E7009D0FA8 /* AFNetworkDomainZone_ZoneTests.m */; };
 		53C8038A1809CA0B009D0FA8 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 53C803881809CA0B009D0FA8 /* InfoPlist.strings */; };
 		53C8038B1809CAC8009D0FA8 /* AFNetworkDomainZoneLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 53F24D5517EF323F00F45B21 /* AFNetworkDomainZoneLoader.m */; };
+		53CCE775180ACD7100D54642 /* libresolv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 53211015169A018800D26765 /* libresolv.dylib */; };
 		53F24D5317EF2BDB00F45B21 /* DNS Server-Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = 53F24D5217EF2BDB00F45B21 /* DNS Server-Constants.m */; };
 /* End PBXBuildFile section */
 
@@ -234,6 +235,7 @@
 				534F6BF4180AC1390086C4CB /* DNS.framework in Frameworks */,
 				53AAA03316D18A2000EE4836 /* CoreNetworking.framework in Frameworks */,
 				534F6BF8180AC1BE0086C4CB /* XCTest.framework in Frameworks */,
+				53CCE775180ACD7100D54642 /* libresolv.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
