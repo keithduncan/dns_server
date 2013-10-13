@@ -347,6 +347,16 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 	return [NSData dataWithBytes:&dataValue length:sizeof(dataValue)];
 }
 
+- (NSData *)_encodeDomainNameFieldAtIndex:(NSUInteger)fieldIdx name:(NSString *)name error:(NSError **)errorRef
+{
+	NSString *field = [self _fieldAtIndex:fieldIdx name:name error:errorRef];
+	if (field == nil) {
+		return nil;
+	}
+
+	return [self _encodeDomainName:field error:errorRef];
+}
+
 #pragma mark - Record Specific Encoders
 
 - (NSData *)_encodeA:(NSError **)errorRef
