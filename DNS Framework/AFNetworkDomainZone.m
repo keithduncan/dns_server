@@ -44,7 +44,6 @@ NSString *const AFNetworkDomainZoneErrorDomain = @"com.thirty-three.corenetworki
 			
 			*errorRef = readError;
 		}
-		
 		return NO;
 	}
 	
@@ -83,12 +82,7 @@ NSString *const AFNetworkDomainZoneErrorDomain = @"com.thirty-three.corenetworki
 		return NO;
 	}
 	
-	BOOL read = [self _readFromString:zoneString error:errorRef];
-	if (!read) {
-		return NO;
-	}
-	
-	return YES;
+	return [self _readFromString:zoneString error:errorRef];
 }
 
 - (NSSet *)recordsForFullyQualifiedDomainName:(NSString *)fullyQualifiedDomainName recordClass:(NSString *)recordClass recordType:(NSString *)recordType
