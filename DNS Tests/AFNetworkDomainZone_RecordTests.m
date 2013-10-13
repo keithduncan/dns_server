@@ -251,4 +251,35 @@
 	XCTAssertEqualObjects(@(PTR->name), @"other.example.com", @"should decode an nsdname of other.example.com.");
 }
 
+- (void)testSOARecord
+{
+	NSString *records =
+	@"example.com. IN SOA example.com. admin.example.com. (\n"
+	@"2000000000 ; serial\n"
+	@"123456 ; refresh\n"
+	@"567890 ; retry\n"
+	@"901234 ; expire\n"
+	@"345678 ; minimum\n"
+	@")";
+	[self _readString:records encode:YES description:@"should read SOA record"];
+
+	XCTAssertEqualObjects(self.parsedRecord.fullyQualifiedDomainName, @"example.com.", @"should have an FQDN of example.com.");
+	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
+	XCTAssertEqualObjects(self.parsedRecord.recordType, @"SOA", @"should be StartOfAuthority type");
+
+	if (self.decodedRecord == nil) return;
+
+	dns_SOA_record_t *SOA = self.decodedRecord->data.SOA;
+	XCTAssert(SOA, @"should have a non NULL SOA data");
+	if (SOA == NULL) return;
+
+	XCTAssertEqualObjects(@(SOA->mname), @"example.com", @"should decode an mname of example.com");
+	XCTAssertEqualObjects(@(SOA->rname), @"admin.example.com", @"should decode an rname of admin.example.com");
+	XCTAssertEqual(SOA->serial, (uint32_t)2000000000, @"should decode a serial of 2000000000");
+	XCTAssertEqual(SOA->refresh, (uint32_t)123456, @"should decode a refresh interval of 123456");
+	XCTAssertEqual(SOA->retry, (uint32_t)567890, @"should decode a retry interval of 567890");
+	XCTAssertEqual(SOA->expire, (uint32_t)901234, @"should decode an expire interval of 901234");
+	XCTAssertEqual(SOA->minimum, (uint32_t)345678, @"should decode a minimum interval of 345678");
+}
+
 @end

@@ -531,8 +531,42 @@ typedef enum {
 
 - (NSData *)_encodeSOA:(NSError **)errorRef
 {
-#warning complete me
-	return [NSData data];
+	NSData *mname = [self _encodeDomainNameFieldAtIndex:0 name:@"mname" error:errorRef];
+	if (mname == nil) {
+		return nil;
+	}
+
+	NSData *rname = [self _encodeDomainNameFieldAtIndex:1 name:@"rname" error:errorRef];
+	if (rname == nil) {
+		return nil;
+	}
+
+	NSData *serial = [self _encodeIntegerFieldAtIndex:2 name:@"serial" type:AFNetworkDomainRecordFieldType_32 error:errorRef];
+	if (serial == nil) {
+		return nil;
+	}
+
+	NSData *refresh = [self _encodeIntegerFieldAtIndex:3 name:@"refresh" type:AFNetworkDomainRecordFieldType_32 error:errorRef];
+	if (refresh == nil) {
+		return nil;
+	}
+
+	NSData *retry = [self _encodeIntegerFieldAtIndex:4 name:@"retry" type:AFNetworkDomainRecordFieldType_32 error:errorRef];
+	if (retry == nil) {
+		return nil;
+	}
+
+	NSData *expire = [self _encodeIntegerFieldAtIndex:5 name:@"expire" type:AFNetworkDomainRecordFieldType_32 error:errorRef];
+	if (expire == nil) {
+		return nil;
+	}
+
+	NSData *minimum = [self _encodeIntegerFieldAtIndex:6 name:@"minimum" type:AFNetworkDomainRecordFieldType_32 error:errorRef];
+	if (minimum == nil) {
+		return nil;
+	}
+
+	return [self _dataWithComponents:@[ mname, rname, serial, refresh, retry, expire, minimum ]];
 }
 
 - (NSData *)_encodeSRV:(NSError **)errorRef
