@@ -64,35 +64,29 @@
 {
 	// <http://tools.ietf.org/html/rfc1035#section-4.1.3>
 	
-	NSMutableData *encodedRecord = [NSMutableData data];
-	
 	NSData *encodedName = [self _encodedFullyQualifiedDomainName:errorRef];
 	if (encodedName == nil) {
 		return nil;
 	}
-	[encodedRecord appendData:encodedName];
 	
 	NSData *encodedType = [self _encodeType:errorRef];
 	if (encodedType == nil) {
 		return nil;
 	}
-	[encodedRecord appendData:encodedType];
 	
 	NSData *encodedClass = [self _encodeClass:errorRef];
 	if (encodedClass == nil) {
 		return nil;
 	}
-	[encodedRecord appendData:encodedClass];
-	
-	[encodedRecord appendData:[self _encodeTtl]];
+
+	NSData *encodedTtl = [self _encodeTtl];
 	
 	NSData *encodedFields = [self _encodeFields:errorRef];
 	if (encodedFields == nil) {
 		return nil;
 	}
-	[encodedRecord appendData:encodedFields];
-	
-	return encodedRecord;
+
+	return [self _dataWithComponents:@[ encodedName, encodedType, encodedClass, encodedTtl, encodedFields ]];
 }
 
 - (NSData *)_encodedFullyQualifiedDomainName:(NSError **)errorRef
