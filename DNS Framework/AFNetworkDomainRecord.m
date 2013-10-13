@@ -120,7 +120,8 @@
 			return nil;
 		}
 
-		[encodedName appendBytes:&labelLength length:1];
+		uint8_t rdataLength = (uint8_t)labelLength;
+		[encodedName appendBytes:&rdataLength length:1];
 		
 		[encodedName appendData:currentLabelData];
 	}
