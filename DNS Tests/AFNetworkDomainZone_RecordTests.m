@@ -110,14 +110,17 @@
 
 - (void)testSRVRecord
 {
-	NSString *records =
-	@"$ORIGIN example.com.\n"
-	@"$TTL 1h\n"
-	@"_xmpp-server._tcp IN SRV 5 0 5269 xmpp-server.l.google.com.  ; SRV record";
+	NSString *records = @"_xmpp-server._tcp.example.com. IN SRV 5 0 5269 xmpp-server.l.google.com.  ; SRV record";
 	[self _readString:records encode:YES description:@"cannot read SRV record with underscore prefixed labels"];
 
 	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
 	XCTAssertEqualObjects(self.parsedRecord.recordType, @"SRV", @"should be SRV type");
+
+	dns_SRV_record_t *SRV = self.decodedRecord->data.SRV;
+	XCTAssertEqual(SRV->priority, (uint16_t)5, @"should decode a priority of 5");
+	XCTAssertEqual(SRV->weight, (uint16_t)0, @"should decode a weight of 0");
+	XCTAssertEqual(SRV->port, (uint16_t)5269, @"should decode a port of 5269");
+	XCTAssertEqualObjects(@(SRV->target), @"xmpp-server.l.google.com", @"should decode a target of xmpp-server.l.google.com.");
 }
 
 - (void)testTXTRecord
