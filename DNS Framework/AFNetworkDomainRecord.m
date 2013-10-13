@@ -394,6 +394,15 @@ typedef enum {
 	return [self _encodeDomainName:field error:errorRef];
 }
 
+- (NSData *)_dataWithComponents:(NSArray *)components
+{
+	NSMutableData *data = [NSMutableData data];
+	for (NSData *currentData in components) {
+		[data appendData:currentData];
+	}
+	return data;
+}
+
 #pragma mark - Record Specific Encoders
 
 - (NSData *)_encodeA:(NSError **)errorRef
@@ -554,12 +563,7 @@ typedef enum {
 		return nil;
 	}
 
-	NSMutableData *srv = [NSMutableData data];
-	[srv appendData:priority];
-	[srv appendData:weight];
-	[srv appendData:port];
-	[srv appendData:target];
-	return srv;
+	return [self _dataWithComponents:@[ priority, weight, port, target ]];
 }
 
 - (NSData *)_encodeTXT:(NSError **)errorRef
