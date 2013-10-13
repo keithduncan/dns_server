@@ -517,8 +517,44 @@ static int32_t DNSRecordClassFunction(NSString *class, uint16_t *numberRef)
 
 - (NSData *)_encodeTXT:(NSError **)errorRef
 {
-#warning complete me
-	return [NSData data];
+	// <http://tools.ietf.org/html/rfc1035#section-3.3.14>
+	// Cool docs bro, ¯\(°_o)/¯
+
+	// Prepend a single length byte, strings are limited to 255 bytes
+
+	NSMutableData *txt = [NSMutableData data];
+
+	for (NSString *currentField in self.fields) {
+		NSData *encoded = [currentField dataUsingEncoding:NSUTF8StringEncoding];
+		if (encoded == nil) {
+			if (errorRef != NULL) {
+				NSDictionary *errorInfo = @{
+					NSLocalizedDescriptionKey : NSLocalizedString(@"Cannot encode TXT record fields", @"AFNetworkDomainRecord encode TXT RDATA error description"),
+					NSLocalizedRecoverySuggestionErrorKey : [NSString stringWithFormat:NSLocalizedString(@"Field \u201c%@\u201d cannot be encoded as UTF-8 data.", @"AFNetworkDomainRecord encode TXT RDATA error recovery suggestion"), currentField],
+				};
+				*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
+			}
+		}
+
+		NSUInteger maximumLength = 255;
+		if ([encoded length] > maximumLength) {
+			if (errorRef != NULL) {
+				NSDictionary *errorInfo = @{
+					NSLocalizedDescriptionKey : NSLocalizedString(@"Cannot encode TXT record fields", @"AFNetworkDomainRecord encode TXT record fields field too long error description"),
+					NSLocalizedRecoverySuggestionErrorKey : [NSString stringWithFormat:NSLocalizedString(@"Field \u201c%@\u201d is longer than %lu bytes when encoded as UTF-8.", @"AFNetworkDomainRecord encode TXT record fields field too long error recovery suggestion"), currentField, maximumLength],
+				};
+				*errorRef = [NSError errorWithDomain:AFNetworkDomainZoneErrorDomain code:AFNetworkDomainZoneErrorCodeUnknown userInfo:errorInfo];
+			}
+			return nil;
+		}
+
+		uint8_t rdataLength = [encoded length];
+		[txt appendBytes:&rdataLength length:1];
+
+		[txt appendData:encoded];
+	}
+
+	return txt;
 }
 
 - (NSData *)_encodeCNAME:(NSError **)errorRef
