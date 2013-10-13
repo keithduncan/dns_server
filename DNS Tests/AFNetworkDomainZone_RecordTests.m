@@ -117,7 +117,7 @@
 	@"$TTL 1h\n"
 	@"sip       IN  NAPTR 100 10 \"U\" \"E2U+sip\" \"!^.*$!sip:cs@example.com!i\" .   ; NAPTR record\n"
 	@"sip2          NAPTR 100 10 \"\" \"\" \"/urn:cid:.+@([^\\.]+\\.)(.*)$/\\2/i\" .  ; another one";
-	[self _readString:records encode:NO description:@"cannot read NAPTR record containing inner-data excluded characters"];
+	[self _readString:records encode:NO description:@"should read NAPTR record containing inner-data excluded characters"];
 
 	XCTAssert([self.parsedRecord.fullyQualifiedDomainName hasSuffix:@"example.com."], @"should be a subdomain of example.com.");
 	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
@@ -127,7 +127,7 @@
 - (void)testSRVRecord
 {
 	NSString *records = @"_xmpp-server._tcp.example.com. IN SRV 5 0 5269 xmpp-server.l.google.com.  ; SRV record";
-	[self _readString:records encode:YES description:@"cannot read SRV record with underscore prefixed labels"];
+	[self _readString:records encode:YES description:@"should read SRV record with underscore prefixed labels"];
 
 	XCTAssertEqualObjects(self.parsedRecord.fullyQualifiedDomainName, @"_xmpp-server._tcp.example.com.", @"should have an FQDN of _xmpp-server._tcp.example.com.");
 	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
@@ -148,7 +148,7 @@
 - (void)testTXTRecord
 {
 	NSString *records = @"txt.example.com. IN TXT \"key=value;key2=value2\" \"key4=\\\"value4\\\"\" ; TXT record";
-	[self _readString:records encode:YES description:@"cannot read TXT record containing inner-data excluded characters"];
+	[self _readString:records encode:YES description:@"should read TXT record containing inner-data excluded characters"];
 
 	XCTAssertEqualObjects(self.parsedRecord.fullyQualifiedDomainName, @"txt.example.com.", @"should have an FQDN of txt.example.com.");
 	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
@@ -171,7 +171,7 @@
 	@"$ORIGIN example.com.\n"
 	@"$TTL 1h\n"
 	@"@          IN SPF   \"v=spf1 a a:other.domain.com ~all\"";
-	[self _readString:records encode:YES description:@"cannot read SPF record"];
+	[self _readString:records encode:YES description:@"should read SPF record"];
 
 	XCTAssertEqualObjects(self.parsedRecord.fullyQualifiedDomainName, @"example.com.", @"should have an FQDN of example.com.");
 	XCTAssertEqualObjects(self.parsedRecord.recordClass, @"IN", @"should be INternet class");
