@@ -433,9 +433,7 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 }
 
 - (void)_socket:(AFNetworkSocket *)receiver didReceiveQuery:(AFNetworkDatagram *)query shouldSendResponse:(NSData *)response preferUnicast:(BOOL)preferUnicast
-{
-#warning needs to branch based on the transport type and prepend a 16-bit (network byte order) message length for TCP transports
-	
+{	
 #warning needs to respect the 512 byte limit for unicast DNS and the destination interface MTU for multicast DNS responses (and set the truncation bit)
 	NSData *receiverAddressData = receiver.localAddress;
 	CFRetain(receiverAddressData);
