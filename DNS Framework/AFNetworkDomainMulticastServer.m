@@ -55,22 +55,22 @@
 		NSMutableSet *options = [NSMutableSet set];
 		
 		int reuseAddress = 1;
-		AFNetworkSocketOption *reuseAddressOption = [AFNetworkSocketOption optionWithLevel:SOL_SOCKET option:SO_REUSEADDR value:[NSData dataWithBytes:&reuseAddress length:sizeof(reuseAddress)]];
+		AFNetworkSocketOption *reuseAddressOption = [AFNetworkSocketOption optionWithLevel:SOL_SOCKET option:SO_REUSEADDR data:[NSData dataWithBytes:&reuseAddress length:sizeof(reuseAddress)]];
 		[options addObject:reuseAddressOption];
 		
 		sa_family_t protocolFamily = ((struct sockaddr_storage const *)[currentAddress bytes])->ss_family;
 		if (protocolFamily == PF_INET) {
 			int on = 1;
-			AFNetworkSocketOption *receivePacketInfo = [AFNetworkSocketOption optionWithLevel:IPPROTO_IP option:IP_RECVPKTINFO value:[NSData dataWithBytes:&on length:sizeof(on)]];
+			AFNetworkSocketOption *receivePacketInfo = [AFNetworkSocketOption optionWithLevel:IPPROTO_IP option:IP_RECVPKTINFO data:[NSData dataWithBytes:&on length:sizeof(on)]];
 			[options addObject:receivePacketInfo];
 		}
 		else if (protocolFamily == PF_INET6) {
 			int on = 1;
-			AFNetworkSocketOption *receivePacketInfo = [AFNetworkSocketOption optionWithLevel:IPPROTO_IPV6 option:IPV6_RECVPKTINFO value:[NSData dataWithBytes:&on length:sizeof(on)]];
+			AFNetworkSocketOption *receivePacketInfo = [AFNetworkSocketOption optionWithLevel:IPPROTO_IPV6 option:IPV6_RECVPKTINFO data:[NSData dataWithBytes:&on length:sizeof(on)]];
 			[options addObject:receivePacketInfo];
 		}
 		
-		AFNetworkSocket *socket = [self openSocketWithSignature:AFNetworkSocketSignatureInternetUDP address:currentAddress options:options error:errorRef];
+		AFNetworkSocket *socket = [self openSocketWithSignature:AFNetworkSocketSignatureInternetUDP options:options address:currentAddress error:errorRef];
 		if (socket == nil) {
 #warning could fail to open IPv6 socket, the server open shouldn't fail
 			return NO;
