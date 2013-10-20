@@ -433,7 +433,7 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 }
 
 - (void)_socket:(AFNetworkSocket *)receiver didReceiveQuery:(AFNetworkDatagram *)query shouldSendResponse:(NSData *)response preferUnicast:(BOOL)preferUnicast
-{	
+{
 #warning needs to respect the 512 byte limit for unicast DNS and the destination interface MTU for multicast DNS responses (and set the truncation bit)
 	NSData *receiverAddressData = receiver.localAddress;
 	CFRetain(receiverAddressData);
@@ -503,7 +503,8 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 	}
 }
 
-- (BOOL)_setOutboundInterface:(int)socket forReceiver:(struct sockaddr_storage const *)receiverAddress datagram:(AFNetworkDatagram *)datagram error:(NSError **)errorRef {
+- (BOOL)_setOutboundInterface:(int)socket forReceiver:(struct sockaddr_storage const *)receiverAddress datagram:(AFNetworkDatagram *)datagram error:(NSError **)errorRef
+{
 	if (!af_sockaddr_is_multicast(receiverAddress)) {
 		return YES;
 	}
@@ -537,7 +538,8 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 	return YES;
 }
 
-- (BOOL)_setTTL:(int)socket forReceiver:(struct sockaddr_storage const *)receiverAddress error:(NSError **)errorRef {
+- (BOOL)_setTTL:(int)socket forReceiver:(struct sockaddr_storage const *)receiverAddress error:(NSError **)errorRef
+{
 	int setTTLError = 0;
 	if (receiverAddress->ss_family == AF_INET) {
 		u_char ttl = 255;
