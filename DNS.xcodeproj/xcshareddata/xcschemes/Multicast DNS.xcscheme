@@ -59,6 +59,15 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">
+      <BuildableProductRunnable>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "5367A6EE169497AA002534FF"
+            BuildableName = "Multicast DNS.server"
+            BlueprintName = "Multicast DNS Server"
+            ReferencedContainer = "container:DNS.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "DNS_ZONE_FILE"
