@@ -31,7 +31,7 @@
 	
 	NSMutableArray *zoneFileLocations = [NSMutableArray array];
 	
-	NSURL *zoneFileLocation = [[NSURL fileURLWithPath:zoneFilePath] URLByResolvingSymlinksInPath];
+	NSURL *zoneFileLocation = [[NSURL fileURLWithPath:[zoneFilePath stringByExpandingTildeInPath]] URLByResolvingSymlinksInPath];
 	
 	NSString *zoneFileLocationType = nil; NSError *zoneFileLocationTypeError = nil;
 	BOOL getZoneFileLocationType = [zoneFileLocation getResourceValue:&zoneFileLocationType forKey:NSURLFileResourceTypeKey error:&zoneFileLocationTypeError];
