@@ -518,11 +518,11 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 
 	int setMulticastInterfaceError = 0;
 	if (receiverAddress->ss_family == AF_INET) {
-		struct in_pktinfo *packetInfo = (struct in_pktinfo *)[[info value] bytes];
+		struct in_pktinfo *packetInfo = (struct in_pktinfo *)[info.data bytes];
 		setMulticastInterfaceError = setsockopt(socket, IPPROTO_IP, IP_MULTICAST_IFINDEX, &packetInfo->ipi_ifindex, sizeof(packetInfo->ipi_ifindex));
 	}
 	else if (receiverAddress->ss_family == AF_INET6) {
-		struct in6_pktinfo *packetInfo = (struct in6_pktinfo *)[[info value] bytes];
+		struct in6_pktinfo *packetInfo = (struct in6_pktinfo *)[info.data bytes];
 		setMulticastInterfaceError = setsockopt(socket, IPPROTO_IPV6, IPV6_MULTICAST_IF, &packetInfo->ipi6_ifindex, sizeof(packetInfo->ipi6_ifindex));
 	}
 	else {
