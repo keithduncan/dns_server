@@ -546,7 +546,7 @@ static void DNSQuestionRelinquishFunction(const void *item, NSUInteger (*size)(c
 		setTTLError = setsockopt(socket, IPPROTO_IP, IP_MULTICAST_TTL, &ttl, sizeof(ttl));
 	}
 	else if (receiverAddress->ss_family == AF_INET6) {
-		__uint8_t ttl = 255;
+		int ttl = 255;
 		setTTLError = setsockopt(socket, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &ttl, sizeof(ttl));
 	}
 	else {
