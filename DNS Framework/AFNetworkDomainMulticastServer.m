@@ -26,22 +26,6 @@
 		AFNetworkSocketPresentationToAddress(@"ff02::fb", NULL),
 	];
 	
-	/*
-		Note
-		
-		IN_MULTICAST(0);
-		IN6_IS_ADDR_MULTICAST(0);
-		
-		join multicast groups automatically based on whether the address is a multicast group, or provide configurable IP layer options on AFNetworkSocket
-		
-		we need to join the multicast group on all interfaces, therefore we need to track changes to interfaces
-		consult the mDNSResponder code to see what mechanism it uses to monitor interfaces, probably the SystemConfiguration framework
-		
-		can we open a wildcard IPv4/IPv6 socket address and join the group using that, this would avoid tracking interface changes as we avoided tracking interface changes in AFNetworkServer
-		though we still need to track address family availability changes which we don't current handle in AFNetworkServer :(
-	 */
-#warning this relies on mDNSResponder joining the multicast group, we should join it too so not to rely on that
-	
 	uint16_t port = 5353;
 	
 	NSMutableSet *newAddresses = [NSMutableSet setWithCapacity:[addresses count]];
@@ -51,28 +35,54 @@
 		[newAddresses addObject:newAddress];
 	}
 	
-	for (NSData *currentAddress in newAddresses) {
+#warning should join on all interfaces and track interface changes to rejoin
+	
+	for (NSData *currentAddressData in newAddresses) {
 		NSMutableSet *options = [NSMutableSet set];
 		
-		int reuseAddress = 1;
-		AFNetworkSocketOption *reuseAddressOption = [AFNetworkSocketOption optionWithLevel:SOL_SOCKET option:SO_REUSEADDR data:[NSData dataWithBytes:&reuseAddress length:sizeof(reuseAddress)]];
+		AFNetworkSocketOption *reuseAddressOption = [AFNetworkSocketOption optionWithLevel:SOL_SOCKET option:SO_REUSEADDR value:@((int)1)];
 		[options addObject:reuseAddressOption];
 		
-		sa_family_t protocolFamily = ((struct sockaddr_storage const *)[currentAddress bytes])->ss_family;
+		sa_family_t protocolFamily = ((struct sockaddr_storage const *)currentAddressData.bytes)->ss_family;
 		if (protocolFamily == PF_INET) {
-			int on = 1;
-			AFNetworkSocketOption *receivePacketInfo = [AFNetworkSocketOption optionWithLevel:IPPROTO_IP option:IP_RECVPKTINFO data:[NSData dataWithBytes:&on length:sizeof(on)]];
+			AFNetworkSocketOption *receivePacketInfo = [AFNetworkSocketOption optionWithLevel:IPPROTO_IP option:IP_RECVPKTINFO value:@((int)1)];
 			[options addObject:receivePacketInfo];
 		}
 		else if (protocolFamily == PF_INET6) {
-			int on = 1;
-			AFNetworkSocketOption *receivePacketInfo = [AFNetworkSocketOption optionWithLevel:IPPROTO_IPV6 option:IPV6_RECVPKTINFO data:[NSData dataWithBytes:&on length:sizeof(on)]];
+			struct sockaddr_in6 const *address = (struct sockaddr_in6 const *)currentAddressData.bytes;
+			
+			AFNetworkSocketOption *receivePacketInfo = [AFNetworkSocketOption optionWithLevel:IPPROTO_IPV6 option:IPV6_RECVPKTINFO value:@((int)1)];
 			[options addObject:receivePacketInfo];
 		}
 		
-		AFNetworkSocket *socket = [self openSocketWithSignature:AFNetworkSocketSignatureInternetUDP options:options address:currentAddress error:errorRef];
+		AFNetworkSocket *socket = [self openSocketWithSignature:AFNetworkSocketSignatureInternetUDP options:options address:currentAddressData error:errorRef];
 		if (socket == nil) {
 #warning could fail to open IPv6 socket, the server open shouldn't fail
+			return NO;
+		}
+		
+		AFNetworkSocketOption *multicastMembershipOption = nil;
+		if (protocolFamily == PF_INET) {
+			struct sockaddr_in const *address = (struct sockaddr_in const *)currentAddressData.bytes;
+			
+			struct ip_mreq multicastMembership = {
+				.imr_multiaddr = address->sin_addr,
+				.imr_interface = {},
+			};
+			multicastMembershipOption = [AFNetworkSocketOption optionWithLevel:IPPROTO_IP option:IP_ADD_MEMBERSHIP data:[NSData dataWithBytes:&multicastMembership length:sizeof(multicastMembership)]];
+		}
+		else if (protocolFamily == PF_INET6) {
+			struct sockaddr_in6 const *address = (struct sockaddr_in6 const *)currentAddressData.bytes;
+			
+			struct ipv6_mreq multicastMembership = {
+				.ipv6mr_multiaddr = address->sin6_addr,
+				.ipv6mr_interface = 0,
+			};
+			
+			multicastMembershipOption = [AFNetworkSocketOption optionWithLevel:IPPROTO_IPV6 option:IPV6_JOIN_GROUP data:[NSData dataWithBytes:&multicastMembership length:sizeof(multicastMembership)]];
+		}
+		
+		if (multicastMembershipOption != nil && ![socket setOption:multicastMembershipOption error:errorRef]) {
 			return NO;
 		}
 	}
