@@ -18,6 +18,10 @@ should be the path to a single zone file or to a directory of zone files.
 
 The server can then be queried over multicast using [dns-sd](x-man-page://dns-sd).
 
+The shared scheme included in the project serves the db.example.local. zone
+which includes A and AAAA records for the example.local. host, these can be
+queried using `dns-sd -G v4v6 example.local.`.
+
 If you actually want to run this (why would you want to run this?) I'd recommend
 using a [launchd](x-man-page://launchd.plist) job.
 
