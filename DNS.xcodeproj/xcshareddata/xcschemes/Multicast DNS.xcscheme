@@ -71,7 +71,7 @@
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "DNS_ZONE_FILE"
-            value = "~/Projects/Source/DNS/DNS Tests/db.example.local"
+            value = "${PROJECT_DIR}/DNS Tests/db.example.local"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
