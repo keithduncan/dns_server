@@ -42,18 +42,16 @@
 		
 		AFNetworkSocketOption *reuseAddressOption = [AFNetworkSocketOption optionWithLevel:SOL_SOCKET option:SO_REUSEADDR value:@((int)1)];
 		[options addObject:reuseAddressOption];
-		
+
+		AFNetworkSocketOption *receivePacketInfo = nil;
 		sa_family_t protocolFamily = ((struct sockaddr_storage const *)currentAddressData.bytes)->ss_family;
 		if (protocolFamily == PF_INET) {
-			AFNetworkSocketOption *receivePacketInfo = [AFNetworkSocketOption optionWithLevel:IPPROTO_IP option:IP_RECVPKTINFO value:@((int)1)];
-			[options addObject:receivePacketInfo];
+			receivePacketInfo = [AFNetworkSocketOption optionWithLevel:IPPROTO_IP option:IP_RECVPKTINFO value:@((int)1)];
 		}
 		else if (protocolFamily == PF_INET6) {
-			struct sockaddr_in6 const *address = (struct sockaddr_in6 const *)currentAddressData.bytes;
-			
-			AFNetworkSocketOption *receivePacketInfo = [AFNetworkSocketOption optionWithLevel:IPPROTO_IPV6 option:IPV6_RECVPKTINFO value:@((int)1)];
-			[options addObject:receivePacketInfo];
+			receivePacketInfo = [AFNetworkSocketOption optionWithLevel:IPPROTO_IPV6 option:IPV6_RECVPKTINFO value:@((int)1)];
 		}
+		[options addObject:receivePacketInfo];
 		
 		AFNetworkSocket *socket = [self openSocketWithSignature:AFNetworkSocketSignatureInternetUDP options:options address:currentAddressData error:errorRef];
 		if (socket == nil) {
