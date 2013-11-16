@@ -38,7 +38,7 @@ static void log_error(NSError *error)
 	fprintf(stderr, "%.*s\n", (int)[logData length], [logData bytes]);
 }
 
-static AFNetworkDomainMulticastServer *start_domain_server(AFNetworkSchedule *schedule, NSSet *zones, NSError **errorRef)
+static AFNetworkDomainMulticastServer *domain_server_main(AFNetworkSchedule *schedule, NSSet *zones, NSError **errorRef)
 {
 	AFNetworkDomainMulticastServer *server = [AFNetworkDomainMulticastServer server];
 	server.schedule = schedule;
@@ -48,11 +48,26 @@ static AFNetworkDomainMulticastServer *start_domain_server(AFNetworkSchedule *sc
 	if (!openSockets) {
 		return nil;
 	}
+
+#if 0
+	NSSet *options = [NSSet setWithObject:[AFNetworkSocketOption optionWithLevel:SOL_SOCKET option:SO_REUSEPORT value:@((int)1)]];
+	BOOL openUnicast = [server openInternetSocketsWithSignature:AFNetworkSocketSignatureInternetUDP options:options scope:AFNetworkInternetSocketScopeLocalOnly port:5656 errorHandler:^ (NSData *address, NSError *error) {
+		if (errorRef != NULL) {
+			*errorRef = error;
+		}
+		return NO;
+	}];
+	if (!openUnicast) {
+		return nil;
+	}
+#endif
 	
 	return server;
 }
 
-static AFNetworkDomainMulticastServer *server_main(AFNetworkSchedule *schedule)
+static AFNetworkDomainMulticastServer *domain_server = nil;
+
+static void server_main(AFNetworkSchedule *schedule)
 {
 	NSSet *zones = nil;
 	
@@ -66,33 +81,24 @@ static AFNetworkDomainMulticastServer *server_main(AFNetworkSchedule *schedule)
 	}
 	
 	NSError *serverError = nil;
-	AFNetworkDomainMulticastServer *server = start_domain_server(schedule, zones, &serverError);
-	if (server == nil) {
+	domain_server = [domain_server_main(schedule, zones, &serverError) retain];
+	if (domain_server == nil) {
 		log_error(serverError);
 		exit(0); // Fatal error
 	}
 	
 	[zones release];
-	
-	return server;
 }
 
-static AFNetworkDomainMulticastServer *domain_server = nil;
-
-static void runloop_main(void)
-{
-	AFNetworkSchedule *newSchedule = [[[AFNetworkSchedule alloc] init] autorelease];
-	[newSchedule scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
-	
-	domain_server = [server_main(newSchedule) retain];
-	
-	[[NSRunLoop currentRunLoop] run];
-}
-
-int main(int argc, const char **argv)
+int main(int argc, char const **argv)
 {
 	@autoreleasepool {
-		runloop_main();
+		AFNetworkSchedule *newSchedule = [[[AFNetworkSchedule alloc] init] autorelease];
+		[newSchedule scheduleInQueue:dispatch_queue_create("com.keith-duncan.domain.server.main", DISPATCH_QUEUE_SERIAL)];
+		
+		server_main(newSchedule);
 	}
+	
+	dispatch_main();
     return 0;
 }
