@@ -58,7 +58,7 @@
 #warning could fail to open IPv6 socket, the server open shouldn't fail
 			return NO;
 		}
-		
+
 		AFNetworkSocketOption *multicastMembershipOption = nil;
 		if (protocolFamily == PF_INET) {
 			struct sockaddr_in const *address = (struct sockaddr_in const *)currentAddressData.bytes;
@@ -79,12 +79,28 @@
 			
 			multicastMembershipOption = [AFNetworkSocketOption optionWithLevel:IPPROTO_IPV6 option:IPV6_JOIN_GROUP data:[NSData dataWithBytes:&multicastMembership length:sizeof(multicastMembership)]];
 		}
-		
-		if (multicastMembershipOption != nil && ![socket setOption:multicastMembershipOption error:errorRef]) {
+
+		if (multicastMembershipOption != nil && ![self _socket:socket joinMulticastGroup:multicastMembershipOption error:errorRef]) {
 			return NO;
 		}
 	}
 	
+	return YES;
+}
+
+- (BOOL)_socket:(AFNetworkSocket *)socket joinMulticastGroup:(AFNetworkSocketOption *)joinMulticastGroup error:(NSError **)errorRef {
+	NSError *joinGroupError = nil;
+	BOOL joinGroup = [socket setOption:joinMulticastGroup error:&joinGroupError];
+	if (!joinGroup) {
+		// If the group is already joined we can receive this error
+		if ([[joinGroupError domain] isEqualToString:NSPOSIXErrorDomain] && [joinGroupError code] == EADDRNOTAVAIL) return YES;
+
+		if (errorRef != NULL) {
+			*errorRef = joinGroupError;
+		}
+		return NO;
+	}
+
 	return YES;
 }
 
